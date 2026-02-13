@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gründung einer GmbH oder UG (haftungsbeschränkt) – Notar Alexander Beck, Erfurt</title>
+<!-- Keine externen Ressourcen – vollständig autark / DSGVO-konform -->
+<style>
+:root {
+  --primary: #142542;
+  --primary-light: #1d3461;
+  --primary-lighter: #2a4a7f;
+  --accent: #b8934e;
+  --accent-light: #d4af6e;
+  --bg: #f5f3ef;
+  --bg-card: #ffffff;
+  --text: #2c2c2c;
+  --text-light: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --border: #d8d4ce;
+  --border-focus: var(--primary-lighter);
+  --error: #c0392b;
+  --success: #27ae60;
+  --warning: #e67e22;
+  --info-bg: #eef3f9;
+  --info-border: #b8c9e0;
+  --warning-bg: #fdf3e6;
+  --warning-border: #f0c678;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(20,37,66,0.08);
+  --shadow-lg: 0 8px 32px rgba(20,37,66,0.12);
+  --transition: 0.3s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 1;
+}
+.header-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.header h1 {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+.header .subtitle {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  font-weight: 400;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  letter-spacing: 0.05em;
+}
+.header .notary-name {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 0.8rem;
+}
+.progress-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.progress-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.progress-step::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.4rem;
+  transition: var(--transition);
+}
+.progress-step.active { color: var(--primary); font-weight: 600; }
+.progress-step.active::after { background: var(--primary); }
+.progress-step.completed { color: var(--success); }
+.progress-step.completed::after { background: var(--success); }
+.progress-step:hover { color: var(--primary-lighter); }
+.container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+.intro {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.form-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+.form-section:hover { box-shadow: var(--shadow-lg); }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--bg);
+}
+.section-number {
+  background: var(--primary);
+  color: white;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.subsection-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bg);
+}
+.field-group { margin-bottom: 1.25rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+label .required { color: var(--error); margin-left: 2px; }
+.label-hint {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+}
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"],
+select, textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  background: white;
+  transition: var(--transition);
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(42,74,127,0.1);
+}
+select { cursor: pointer; appearance: auto; }
+textarea { resize: vertical; min-height: 80px; }
+.radio-group, .checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.radio-group label, .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+  font-size: 0.88rem;
+}
+.radio-group label:hover, .checkbox-group label:hover {
+  border-color: var(--primary-lighter);
+  background: var(--info-bg);
+}
+.radio-group input:checked + span, .checkbox-group input:checked + span { font-weight: 600; }
+.radio-group label:has(input:checked), .checkbox-group label:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--info-bg);
+}
+input[type="radio"], input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px; height: 16px;
+  cursor: pointer;
+}
+.info-box {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.84rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin: 0.75rem 0;
+}
+.info-box strong { color: var(--primary); }
+.warning-box {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.84rem;
+  color: #7a5a1a;
+  line-height: 1.5;
+  margin: 0.75rem 0;
+}
+.warning-box strong { color: var(--warning); }
+.conditional { display: none; }
+.conditional.visible {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.person-block {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+}
+.person-block-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 1rem;
+}
+.btn-row { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn-secondary { background: white; color: var(--primary); border-color: var(--primary); }
+.btn-secondary:hover { background: var(--info-bg); }
+.btn-sm { padding: 0.5rem 1.25rem; font-size: 0.85rem; }
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+.toolbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.save-status { font-size: 0.82rem; color: var(--text-muted); }
+.save-status.saved { color: var(--success); }
+.footer {
+  background: var(--primary);
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  padding: 1.5rem 2rem 5rem;
+  font-size: 0.85rem;
+}
+.footer a { color: var(--accent-light); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--primary);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  font-size: 0.9rem;
+  transform: translateX(120%);
+  transition: transform 0.4s ease;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--error); }
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.visible { display: flex; }
+.overlay-content {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 540px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+.overlay-content h3 {
+  font-family: Georgia, serif;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+.overlay-content p { font-size: 0.92rem; color: var(--text-light); margin-bottom: 0.75rem; }
+.overlay-content ol { font-size: 0.88rem; color: var(--text-light); padding-left: 1.5rem; margin-bottom: 1rem; }
+.overlay-content li { margin-bottom: 0.4rem; }
+@media (max-width: 768px) {
+  .header h1 { font-size: 1.35rem; }
+  .container { padding: 1rem; }
+  .form-section { padding: 1.25rem; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .progress-step { font-size: 0.65rem; padding: 0.3rem 0.1rem; }
+  .btn-row { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+  .toolbar-inner { flex-wrap: wrap; justify-content: center; }
+  .radio-group, .checkbox-group { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .progress-bar { padding: 0.5rem; }
+  .header { padding: 1.5rem 1rem; }
+}
+@media print {
+  .toolbar, .progress-bar, .btn-row { display: none !important; }
+  .form-section { box-shadow: none; break-inside: avoid; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- Overlay for submit confirmation -->
+<div id="submitOverlay" class="overlay">
+  <div class="overlay-content">
+    <h3>&#10003; PDF wurde erstellt</h3>
+    <p>Ihr Vorbereitungsbogen wurde als PDF auf Ihrem Gerät gespeichert.</p>
+    <p><strong>Bitte übermitteln Sie das PDF auf einem der folgenden sicheren Wege:</strong></p>
+    <ol>
+      <li><strong>Verschlüsselte E-Mail</strong> an info@notar-beck.de</li>
+      <li><strong>Per Post</strong> an: Notar Alexander Beck, Futterstraße 13/13a, 99084 Erfurt</li>
+    </ol>
+    <p style="font-size:0.82rem;color:var(--text-muted)">Bitte fügen Sie ggf. einen Gesellschaftsvertragsentwurf, Handelsregisterauszüge beteiligter Gesellschaften oder sonstige relevante Unterlagen bei.</p>
+    <div class="btn-row" style="margin-top:1rem">
+      <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('submitOverlay').classList.remove('visible')">Verstanden</button>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-content">
+    <h1>Gründung einer GmbH oder UG (haftungsbeschränkt)</h1>
+    <div class="subtitle">Notar Alexander Beck &middot; Erfurt</div>
+    <div class="notary-name">Wir bereiten Ihre Unternehmensgründung rechtssicher vor</div>
+  </div>
+</header>
+
+<nav class="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-step active" data-section="1" onclick="scrollToSection(1)">I. Gesellschaft</div>
+    <div class="progress-step" data-section="2" onclick="scrollToSection(2)">II. Gründer</div>
+    <div class="progress-step" data-section="3" onclick="scrollToSection(3)">III. Geschäftsführer</div>
+    <div class="progress-step" data-section="4" onclick="scrollToSection(4)">IV. Weiteres</div>
+    <div class="progress-step" data-section="5" onclick="scrollToSection(5)">V. Auftrag</div>
+  </div>
+</nav>
+
+<main class="container">
+<form id="mainForm" novalidate>
+
+<div class="intro">
+  Wir möchten Ihre Unternehmensgründung schnell und rechtssicher umsetzen. Hierfür benötigen wir einige Angaben von Ihnen.
+  Bitte füllen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>„Formular absenden"</strong>.
+  Es wird eine PDF-Datei mit Ihren Angaben erstellt, die Sie uns anschließend auf sicherem Wege zukommen lassen können.
+  Sie haben auch die Möglichkeit, Ihre Eingaben zwischenzuspeichern und das Formular zu einem späteren Zeitpunkt zu vervollständigen.
+  Für Fragen stehen wir Ihnen selbstverständlich gerne zur Verfügung, telefonisch oder in einem persönlichen Besprechungstermin.
+  <br><br>
+  <div class="info-box">
+    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Handelsregisterauszüge beteiligter Gesellschaften, vorhandene Satzungsentwürfe, Ausweisdokumente) zumindest als Scan vorab per E-Mail an <em>info@notar-beck.de</em>. So können wir den Gründungsentwurf zügig und vollständig vorbereiten.
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION I: ANGABEN ZUR GESELLSCHAFT                    -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-1">
+  <div class="section-header">
+    <div class="section-number">I</div>
+    <div class="section-title">Angaben zur Gesellschaft</div>
+  </div>
+
+  <div class="field-group">
+    <label>Name der Gesellschaft (Firma)<span class="required">*</span></label>
+    <span class="label-hint">Der Name muss zur Kennzeichnung geeignet sein und Unterscheidungskraft haben. Bloße Gattungsbegriffe sind unzulässig (z.&nbsp;B. „Handwerker GmbH"). Die Firma muss sich von allen am selben Ort bereits bestehenden Firmen unterscheiden.</span>
+    <input type="text" name="firma" required placeholder="z.B. Muster Consulting GmbH">
+  </div>
+
+  <div class="field-group">
+    <label>Rechtsform<span class="required">*</span></label>
+    <div class="radio-group">
+      <label><input type="radio" name="rechtsform" value="gmbh" checked onchange="toggleConditional()"><span>GmbH</span></label>
+      <label><input type="radio" name="rechtsform" value="ug" onchange="toggleConditional()"><span>UG (haftungsbeschränkt)</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_ug_hinweis">
+    <div class="info-box">
+      <strong>Hinweis zur UG:</strong> Wesentlicher Unterschied zur GmbH ist, dass bei der UG auch ein niedrigeres Stammkapital als 25.000&nbsp;Euro genügt. Die UG ist jedoch mit einigen Nachteilen verbunden:
+      (i) Die Reputation einer GmbH ist im Geschäftsverkehr deutlich höher.
+      (ii) Bei der UG müssen 25&nbsp;% des Jahresgewinns als Rücklage zurückbehalten werden.
+      (iii) Die spätere Umwandlung einer UG in eine GmbH passiert nicht automatisch; erforderlich sind eine Satzungsänderung und ggf. eine geprüfte Bilanz, was Geld und Zeit kostet.
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Sitz der Gesellschaft<span class="required">*</span></label>
+    <span class="label-hint">Der Sitz kann in Deutschland frei gewählt werden. Er ist insbesondere maßgebend für die örtliche Zuständigkeit des Handelsregisters und den allgemeinen Gerichtsstand der Gesellschaft. Anzugeben ist eine politische Gemeinde (z.&nbsp;B. Erfurt).</span>
+    <input type="text" name="sitz" required placeholder="z.B. Erfurt">
+  </div>
+
+  <div class="subsection-title">Inländische Geschäftsanschrift</div>
+  <div class="info-box">
+    Die Geschäftsanschrift kann in Deutschland frei gewählt werden. Entscheidend ist, dass die Gesellschaft unter der Geschäftsanschrift postalisch erreicht werden kann. In aller Regel wird die Adresse der Hauptverwaltung angegeben. Möglich ist auch die Wohnanschrift eines Geschäftsführers oder Gesellschafters.
+  </div>
+  <div class="field-group">
+    <label>Anschrift</label>
+    <input type="text" name="geschaeftsanschrift" placeholder="Straße, Hausnummer">
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>PLZ</label>
+      <input type="text" name="geschaeftsanschrift_plz">
+    </div>
+    <div class="field-group">
+      <label>Ort</label>
+      <input type="text" name="geschaeftsanschrift_ort">
+    </div>
+  </div>
+
+  <div class="subsection-title">Unternehmensgegenstand</div>
+  <div class="field-group">
+    <label>Gegenstand des Unternehmens<span class="required">*</span></label>
+    <span class="label-hint">Der Unternehmensgegenstand beschreibt den Bereich und die Art der Tätigkeit der Gesellschaft. Er muss hinreichend aussagekräftig und informativ sein; bloße Leerformen sind nicht möglich (z.&nbsp;B. nicht: „Produktion von Waren aller Art, Import und Export").</span>
+    <textarea name="gegenstand" rows="3" required placeholder="z.B. Der Betrieb einer Werbeagentur, insbesondere die Konzeption und Umsetzung von Marketingkampagnen"></textarea>
+  </div>
+
+  <div class="field-group">
+    <label>Soll der Notar eine Voranfrage bei der IHK bezüglich der firmenrechtlichen Zulässigkeit von Name und Gegenstand veranlassen?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="ihk_voranfrage" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="ihk_voranfrage" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <div class="subsection-title">Stammkapital</div>
+  <div class="field-group">
+    <label>Höhe des Stammkapitals<span class="required">*</span></label>
+    <span class="label-hint" id="stammkapital_hint">Bei der GmbH mindestens 25.000&nbsp;Euro. Ein höheres Stammkapital signalisiert besondere Seriosität.</span>
+    <input type="text" name="stammkapital" required placeholder="z.B. 25.000">
+    <span class="label-hint">Angabe in Euro</span>
+  </div>
+
+  <div class="field-group">
+    <label>Stückelung der Geschäftsanteile</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="stueckelung" value="1euro"><span>Anteilsnennbetrag jeweils 1&nbsp;EUR</span></label>
+      <label><input type="radio" name="stueckelung" value="beteiligung" checked><span>Anteilsnennbetrag jeweils entsprechend der (gesamten) Beteiligung des jeweiligen Gesellschafters</span></label>
+    </div>
+  </div>
+
+  <div class="field-group" id="einlage_group">
+    <label>Erbringung des Stammkapitals</label>
+    <div class="radio-group" id="einlage_radios">
+      <label><input type="radio" name="einlage_hoehe" value="voll" checked><span>In voller Höhe</span></label>
+      <label><input type="radio" name="einlage_hoehe" value="halb"><span>In Höhe von 50&nbsp;%</span></label>
+    </div>
+    <div class="conditional" id="cond_einlage_ug_hinweis">
+      <div class="info-box">
+        <strong>Hinweis:</strong> Bei der UG (haftungsbeschränkt) muss das Stammkapital zwingend in voller Höhe erbracht werden.
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">Gesellschaftsvertrag</div>
+  <div class="field-group">
+    <label>Gesellschaftsvertrag (Satzung)</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="satzung" value="individuell" checked onchange="toggleConditional()"><span>Individuelle Satzung (Regelfall)</span></label>
+      <label><input type="radio" name="satzung" value="musterprotokoll" onchange="toggleConditional()"><span>Gesetzliches Musterprotokoll</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_satzung_individuell">
+    <div class="info-box">
+      Gerne erstellen wir eine auf Ihre Bedürfnisse angepasste Satzung. Falls Sie uns eine eigene Satzung zur Verfügung stellen wollen, beachten Sie: Die Notarkosten lassen sich dadurch nicht senken. Der Gründungsprozess kann sich aber verzögern, weil die Satzung erst geprüft werden muss. Verwenden Sie unsere Satzung, fallen keine Mehrkosten an und ein schnellerer Termin ist möglich.
+    </div>
+  </div>
+  <div class="conditional" id="cond_satzung_muster">
+    <div class="info-box">
+      Durch das Musterprotokoll können die Gründungskosten gesenkt werden. Das Kostenprivileg greift jedoch nur, wenn die Gesellschaft <strong>maximal drei Gesellschafter</strong> und <strong>exakt einen Geschäftsführer</strong> hat. Nachteil: Es fehlen sinnvolle Regelungen (z.&nbsp;B. für den Tod eines Gesellschafters), und Geschäftsanteile können frei veräußert werden. Empfehlenswert daher meist nur für Eingründungen ohne absehbare weitere Gesellschafter.
+    </div>
+  </div>
+  <div class="conditional" id="cond_muster_warnung">
+    <div class="warning-box">
+      <strong>Wichtiger Hinweis:</strong> Sie haben das gesetzliche Musterprotokoll gewählt. Bitte beachten Sie, dass eine Gründung mit Musterprotokoll nur bei maximal drei Gesellschaftern und exakt einem Geschäftsführer möglich ist. Prüfen Sie, ob Ihre Angaben im Abschnitt „Gründer" und „Geschäftsführer" damit vereinbar sind.
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Geschäftsjahr</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="geschaeftsjahr" value="kalender" checked onchange="toggleConditional()"><span>Kalenderjahr (01.01. – 31.12.)</span></label>
+      <label><input type="radio" name="geschaeftsjahr" value="abweichend" onchange="toggleConditional()"><span>Abweichendes Geschäftsjahr</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_geschaeftsjahr">
+    <div class="field-group">
+      <label>Beginn und Ende des Geschäftsjahres</label>
+      <input type="text" name="geschaeftsjahr_details" placeholder="z.B. 01.04. – 31.03.">
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION II: ANGABEN ZU DEN GRÜNDERN                    -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-2">
+  <div class="section-header">
+    <div class="section-number">II</div>
+    <div class="section-title">Angaben zu den Gründern</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der Gründer</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_gruender" value="1" checked onchange="togglePersonCount('gruender')"><span>1</span></label>
+      <label><input type="radio" name="anz_gruender" value="2" onchange="togglePersonCount('gruender')"><span>2</span></label>
+      <label><input type="radio" name="anz_gruender" value="3" onchange="togglePersonCount('gruender')"><span>3</span></label>
+      <label><input type="radio" name="anz_gruender" value="4" onchange="togglePersonCount('gruender')"><span>4</span></label>
+    </div>
+  </div>
+  <div id="gruender_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION III: FREMDGESCHÄFTSFÜHRER                       -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-3">
+  <div class="section-header">
+    <div class="section-number">III</div>
+    <div class="section-title">Ggf. Angaben zu Fremdgeschäftsführern</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der Fremdgeschäftsführer</label>
+    <span class="label-hint">Angaben nur erforderlich, wenn eine Person zum Geschäftsführer bestellt werden soll, die nicht zugleich Gründer ist.</span>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_fremdgf" value="0" checked onchange="togglePersonCount('fremdgf')"><span>Keine</span></label>
+      <label><input type="radio" name="anz_fremdgf" value="1" onchange="togglePersonCount('fremdgf')"><span>1</span></label>
+      <label><input type="radio" name="anz_fremdgf" value="2" onchange="togglePersonCount('fremdgf')"><span>2</span></label>
+    </div>
+  </div>
+  <div id="fremdgf_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION IV: WEITERE ANGABEN                            -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-4">
+  <div class="section-header">
+    <div class="section-number">IV</div>
+    <div class="section-title">Weitere Angaben</div>
+  </div>
+
+  <div class="field-group">
+    <label>Nehmen alle Gründer an der Beurkundung teil?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="alle_anwesend" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="alle_anwesend" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_nicht_anwesend">
+    <div class="field-group">
+      <label>Wer nimmt NICHT an der Beurkundung teil?</label>
+      <textarea name="nicht_anwesend" rows="2" placeholder="z.B. Gründer 2 – lässt sich vertreten durch ..."></textarea>
+    </div>
+  </div>
+
+  <div class="subsection-title">Steuerberater</div>
+  <div class="field-group">
+    <label>Haben Sie bereits einen Steuerberater, dem wir eine Abschrift der Gründungsunterlagen schicken sollen?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="steuerberater" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="steuerberater" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_steuerberater">
+    <div class="field-group">
+      <label>Name und Kontaktdaten des Steuerberaters</label>
+      <textarea name="steuerberater_daten" rows="3" placeholder="Name, Kanzlei, Anschrift, E-Mail, Telefon"></textarea>
+    </div>
+  </div>
+  <div class="info-box">
+    Der Jahresabschluss der Gesellschaft wird in der Praxis durch einen Steuerberater oder Wirtschaftsprüfer vorbereitet. Wir empfehlen die frühzeitige Auswahl einer Steuerberater- bzw. Wirtschaftsprüferkanzlei.
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION V: ANMERKUNGEN / AUFTRAGSERTEILUNG             -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-5">
+  <div class="section-header">
+    <div class="section-number">V</div>
+    <div class="section-title">Anmerkungen und Auftragserteilung</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anmerkungen / Sonstige Hinweise</label>
+    <textarea name="anmerkungen" rows="4" placeholder="Haben Sie besondere Wünsche oder Hinweise für den Notar?"></textarea>
+  </div>
+
+  <div class="subsection-title">Auftraggeber</div>
+  <div class="field-group">
+    <label>Name des Auftraggebers<span class="required">*</span></label>
+    <input type="text" name="auftraggeber_name" required>
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>E-Mail<span class="required">*</span></label>
+      <input type="email" name="auftraggeber_email" required>
+    </div>
+    <div class="field-group">
+      <label>Telefon<span class="required">*</span></label>
+      <input type="tel" name="auftraggeber_tel" required>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>E-Mail-Kommunikation</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="email_einverstaendnis"><span>Ich bin mit der Kommunikation über eine unverschlüsselte E-Mail einverstanden und weiß, dass ich dieses Einverständnis jederzeit widerrufen kann.</span></label>
+    </div>
+  </div>
+
+  <div class="subsection-title">Beauftragung</div>
+  <div class="field-group">
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="beauftragung" required><span>Ich beauftrage den Notar, die Beurkundung der Gründung vorzubereiten. Mir ist bewusst, dass durch die Entwurfserstellung Kosten entstehen, auch wenn es nicht zur Beurkundung kommt.<span class="required">*</span></span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Entwurfsversand an die Gründer</label>
+    <div class="radio-group">
+      <label><input type="radio" name="versand" value="email" checked><span>per E-Mail</span></label>
+      <label><input type="radio" name="versand" value="post"><span>per Post</span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Terminwunsch</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="terminwunsch" value="kontakt" checked onchange="toggleConditional()"><span>Ich bitte um Kontaktaufnahme zur Vereinbarung eines Termins</span></label>
+      <label><input type="radio" name="terminwunsch" value="termin" onchange="toggleConditional()"><span>Einen Termin habe ich bereits vereinbart</span></label>
+      <label><input type="radio" name="terminwunsch" value="kein" onchange="toggleConditional()"><span>Ein Entwurf soll derzeit noch nicht erstellt werden (Vorabinformation)</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_terminwunsch">
+    <div class="field-row">
+      <div class="field-group">
+        <label>Datum</label>
+        <input type="date" name="termin_datum">
+      </div>
+      <div class="field-group">
+        <label>Uhrzeit</label>
+        <input type="text" name="termin_uhrzeit" placeholder="z.B. 10:00">
+      </div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Datenschutz<span class="required">*</span></label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="datenschutz" required><span>Ich habe die Datenschutzhinweise gelesen.</span></label>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary" onclick="submitForm()">&#10003; Formular absenden (PDF erstellen)</button>
+    <button type="button" class="btn btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Zwischenspeichern</button>
+  </div>
+</div>
+
+</form>
+</main>
+
+<footer class="footer">
+  <p>Notar Alexander Beck &middot; Futterstraße 13/13a &middot; 99084 Erfurt</p>
+  <p style="margin-top:0.5rem"><a href="https://www.notar-beck.de" target="_blank">www.notar-beck.de</a> &middot; <a href="https://www.notar-beck.de/datenschutz" target="_blank">Datenschutz</a> &middot; <a href="https://www.notar-beck.de/impressum" target="_blank">Impressum</a></p>
+</footer>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <span class="save-status" id="saveStatus">Nicht gespeichert</span>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+      <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('gruendung_form');location.reload()}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">&#10003; Absenden</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ============================================================
+// TOGGLE HELPER
+// ============================================================
+function toggle(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (show) el.classList.add('visible');
+  else el.classList.remove('visible');
+}
+
+// ============================================================
+// GENERATE GRÜNDER BLOCK
+// ============================================================
+function generateGruenderBlock(index) {
+  const prefix = `gr_${index}`;
+  return `<div class="person-block" id="${prefix}_block">
+    <div class="person-block-title">Gründer ${index}</div>
+    
+    <div class="field-group">
+      <label>Art des Gesellschafters</label>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_art" value="person" checked onchange="toggleGruenderArt('${prefix}')"><span>Natürliche Person</span></label>
+        <label><input type="radio" name="${prefix}_art" value="gesellschaft" onchange="toggleGruenderArt('${prefix}')"><span>Gesellschaft</span></label>
+      </div>
+    </div>
+    
+    <div class="field-group">
+      <label>Höhe der Beteiligung in Prozent</label>
+      <input type="text" name="${prefix}_beteiligung" placeholder="z.B. 50">
+    </div>
+    
+    <!-- Person-Daten -->
+    <div id="${prefix}_person_data">
+      <div class="field-row">
+        <div class="field-group">
+          <label>Anrede, Titel</label>
+          <input type="text" name="${prefix}_anrede" placeholder="z.B. Herr, Frau, Dr.">
+        </div>
+        <div class="field-group">
+          <label>Vorname(n)</label>
+          <span class="label-hint">Bitte alle Vornamen lt. Ausweisdokument angeben.</span>
+          <input type="text" name="${prefix}_vorname">
+        </div>
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>Nachname</label>
+          <input type="text" name="${prefix}_nachname">
+        </div>
+        <div class="field-group">
+          <label>Geburtsname (falls abweichend)</label>
+          <input type="text" name="${prefix}_geburtsname">
+        </div>
+        <div class="field-group">
+          <label>Geburtsdatum</label>
+          <input type="date" name="${prefix}_geburtsdatum">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Staatsangehörigkeit(en)</label>
+        <input type="text" name="${prefix}_staat" placeholder="z.B. deutsch">
+      </div>
+      <div class="field-group">
+        <label>Familienstand</label>
+        <select name="${prefix}_famstand" onchange="toggleFamstand('${prefix}')">
+          <option value="">Bitte auswählen</option>
+          <option value="ledig">ledig</option>
+          <option value="verheiratet">verheiratet</option>
+          <option value="verwitwet">verwitwet</option>
+          <option value="geschieden">geschieden</option>
+          <option value="lebenspartnerschaft">in eingetragener Lebenspartnerschaft lebend</option>
+        </select>
+      </div>
+      <div class="conditional" id="${prefix}_ehe">
+        <div class="field-group">
+          <label>Es besteht ein Ehevertrag?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="${prefix}_ehevertrag" value="ja"><span>Ja</span></label>
+            <label><input type="radio" name="${prefix}_ehevertrag" value="nein"><span>Nein</span></label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Auslandsbezug der Ehe?</label>
+          <span class="label-hint">Insbesondere, wenn ein Ehegatte eine ausländische Staatsangehörigkeit hat oder zum Zeitpunkt der Eheschließung oder danach den gewöhnlichen Aufenthalt im Ausland hatte.</span>
+          <div class="radio-group">
+            <label><input type="radio" name="${prefix}_auslandsbezug" value="ja"><span>Ja</span></label>
+            <label><input type="radio" name="${prefix}_auslandsbezug" value="nein"><span>Nein</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Anschrift</label>
+        <input type="text" name="${prefix}_anschrift" placeholder="Straße, Hausnummer">
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>PLZ</label>
+          <input type="text" name="${prefix}_plz">
+        </div>
+        <div class="field-group">
+          <label>Ort</label>
+          <input type="text" name="${prefix}_ort">
+        </div>
+        <div class="field-group">
+          <label>Land (falls nicht DE)</label>
+          <input type="text" name="${prefix}_land">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Gesellschaft-Daten -->
+    <div id="${prefix}_gesellschaft_data" style="display:none">
+      <div class="field-group">
+        <label>Name der Gesellschaft</label>
+        <input type="text" name="${prefix}_ges_name">
+      </div>
+      <div class="field-group">
+        <label>Rechtsform</label>
+        <select name="${prefix}_ges_rechtsform">
+          <option value="">Bitte auswählen</option>
+          <option value="AG">Aktiengesellschaft (AG)</option>
+          <option value="Einzelunternehmen">Einzelunternehmen</option>
+          <option value="SE">Europäische Gesellschaft (SE)</option>
+          <option value="eG">Genossenschaft (eG)</option>
+          <option value="GbR">Gesellschaft bürgerlichen Rechts (GbR)</option>
+          <option value="GmbH">Gesellschaft mit beschränkter Haftung (GmbH)</option>
+          <option value="GmbH_CoKG">GmbH &amp; Co. KG</option>
+          <option value="KG">Kommanditgesellschaft (KG)</option>
+          <option value="OHG">Offene Handelsgesellschaft (OHG)</option>
+          <option value="PartG">Partnerschaft (PartG)</option>
+          <option value="PartGmbB">Partnerschaft mbB</option>
+          <option value="UG">UG (haftungsbeschränkt)</option>
+          <option value="Sonstige">Sonstige</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Sitz der Gesellschaft</label>
+        <input type="text" name="${prefix}_ges_sitz">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Registergericht</label>
+          <input type="text" name="${prefix}_ges_registergericht">
+        </div>
+        <div class="field-group">
+          <label>Registernummer</label>
+          <input type="text" name="${prefix}_ges_registernummer" placeholder="z.B. HRB 12345">
+        </div>
+      </div>
+    </div>
+    
+    <div class="field-row">
+      <div class="field-group">
+        <label>E-Mail</label>
+        <input type="email" name="${prefix}_email">
+      </div>
+      <div class="field-group">
+        <label>Telefon</label>
+        <input type="tel" name="${prefix}_tel">
+      </div>
+    </div>
+    
+    <!-- Geschäftsführer -->
+    <div class="subsection-title" style="font-size:1rem;margin-top:1.5rem">Geschäftsführerbestellung</div>
+    <div class="field-group">
+      <label>Soll Gründer ${index} zum Geschäftsführer der neuen Gesellschaft bestellt werden?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_gf" value="ja" onchange="toggleGfDetails('${prefix}')"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_gf" value="nein" onchange="toggleGfDetails('${prefix}')"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="${prefix}_gf_details">
+      <div class="field-group">
+        <label>Einzelvertretungsbefugnis</label>
+        <span class="label-hint">Ist der Geschäftsführer einzelvertretungsbefugt, kann er Rechtsgeschäfte für die Gesellschaft stets allein abschließen, auch wenn es mehrere Geschäftsführer gibt.</span>
+        <div class="radio-group">
+          <label><input type="radio" name="${prefix}_einzelvertretung" value="ja" checked><span>Ja (Regelfall)</span></label>
+          <label><input type="radio" name="${prefix}_einzelvertretung" value="nein"><span>Nein</span></label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Befreiung von § 181 BGB</label>
+        <span class="label-hint">Der Geschäftsführer kann dann auch Rechtsgeschäfte für die Gesellschaft mit sich im eigenen Namen und als Vertreter eines Dritten vornehmen.</span>
+        <div class="radio-group">
+          <label><input type="radio" name="${prefix}_181" value="ja" checked><span>Ja (Regelfall)</span></label>
+          <label><input type="radio" name="${prefix}_181" value="nein"><span>Nein</span></label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- GwG-Angaben -->
+    <div class="subsection-title" style="font-size:1rem;margin-top:1.5rem">Weitere Angaben (GwG)</div>
+    <div class="field-group">
+      <label>Dolmetscher erforderlich?</label>
+      <span class="label-hint">Erforderlich, wenn der Beteiligte der deutschen Sprache nicht hinreichend mächtig ist.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_dolmetscher" value="ja" onchange="toggleDolmetscher('${prefix}')"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_dolmetscher" value="nein" onchange="toggleDolmetscher('${prefix}')"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="${prefix}_dolmetscher_details">
+      <div class="field-group">
+        <label>Dolmetscher für welche Sprache?</label>
+        <input type="text" name="${prefix}_dolmetscher_sprache">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Körperliche Einschränkung?</label>
+      <span class="label-hint">Falls der Beteiligte nur eingeschränkt sprechen, hören, lesen oder schreiben kann.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_einschraenkung" value="ja" onchange="toggleEinschraenkung('${prefix}')"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_einschraenkung" value="nein" onchange="toggleEinschraenkung('${prefix}')"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="${prefix}_einschraenkung_details">
+      <div class="field-group">
+        <label>Welche Einschränkung?</label>
+        <input type="text" name="${prefix}_einschraenkung_text">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Politisch exponierte Person (PEP)?</label>
+      <span class="label-hint">„Ja" wählen, wenn der Beteiligte eine politisch exponierte Person ist, Familienmitglied einer solchen oder einer solchen Person „bekanntermaßen nahesteht" (§ 1 Abs. 12–14 GwG).</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_pep" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_pep" value="nein"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Handelnd für fremde Rechnung?</label>
+      <span class="label-hint">Falls der Beteiligte nicht auf eigene Rechnung, sondern z.&nbsp;B. als Treuhänder für einen anderen tätig wird.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_fremde_rechnung" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_fremde_rechnung" value="nein"><span>Nein</span></label>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// GENERATE FREMDGESCHÄFTSFÜHRER BLOCK
+// ============================================================
+function generateFremdgfBlock(index) {
+  const prefix = `fgf_${index}`;
+  return `<div class="person-block" id="${prefix}_block">
+    <div class="person-block-title">Fremdgeschäftsführer ${index}</div>
+    
+    <div class="field-row">
+      <div class="field-group">
+        <label>Anrede, Titel</label>
+        <input type="text" name="${prefix}_anrede" placeholder="z.B. Herr, Frau, Dr.">
+      </div>
+      <div class="field-group">
+        <label>Vorname(n)</label>
+        <span class="label-hint">Alle Vornamen lt. Ausweisdokument.</span>
+        <input type="text" name="${prefix}_vorname">
+      </div>
+    </div>
+    <div class="field-row-3">
+      <div class="field-group">
+        <label>Nachname</label>
+        <input type="text" name="${prefix}_nachname">
+      </div>
+      <div class="field-group">
+        <label>Geburtsname (falls abweichend)</label>
+        <input type="text" name="${prefix}_geburtsname">
+      </div>
+      <div class="field-group">
+        <label>Geburtsdatum</label>
+        <input type="date" name="${prefix}_geburtsdatum">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Staatsangehörigkeit(en)</label>
+      <input type="text" name="${prefix}_staat" placeholder="z.B. deutsch">
+    </div>
+    <div class="field-group">
+      <label>Anschrift</label>
+      <input type="text" name="${prefix}_anschrift" placeholder="Straße, Hausnummer">
+    </div>
+    <div class="field-row-3">
+      <div class="field-group">
+        <label>PLZ</label>
+        <input type="text" name="${prefix}_plz">
+      </div>
+      <div class="field-group">
+        <label>Ort</label>
+        <input type="text" name="${prefix}_ort">
+      </div>
+      <div class="field-group">
+        <label>Land (falls nicht DE)</label>
+        <input type="text" name="${prefix}_land">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Einzelvertretungsbefugnis</label>
+      <span class="label-hint">Ist der Geschäftsführer einzelvertretungsbefugt, kann er Rechtsgeschäfte für die Gesellschaft stets allein abschließen.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_einzelvertretung" value="ja" checked><span>Ja (Regelfall)</span></label>
+        <label><input type="radio" name="${prefix}_einzelvertretung" value="nein"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Befreiung von § 181 BGB</label>
+      <span class="label-hint">Der GF kann dann auch Rechtsgeschäfte für die Gesellschaft mit sich im eigenen Namen und als Vertreter eines Dritten vornehmen.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_181" value="ja" checked><span>Ja (Regelfall)</span></label>
+        <label><input type="radio" name="${prefix}_181" value="nein"><span>Nein</span></label>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// RENDER PERSON BLOCKS
+// ============================================================
+function togglePersonCount(type) {
+  const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || (type === 'fremdgf' ? '0' : '1'));
+  const container = document.getElementById(`${type}_container`);
+  container.innerHTML = '';
+  if (type === 'gruender') {
+    for (let i = 1; i <= count; i++) {
+      container.insertAdjacentHTML('beforeend', generateGruenderBlock(i));
+    }
+  } else if (type === 'fremdgf') {
+    for (let i = 1; i <= count; i++) {
+      container.insertAdjacentHTML('beforeend', generateFremdgfBlock(i));
+    }
+  }
+  loadForm();
+}
+
+function toggleGruenderArt(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_art"]:checked`)?.value;
+  const personData = document.getElementById(`${prefix}_person_data`);
+  const gesData = document.getElementById(`${prefix}_gesellschaft_data`);
+  if (personData) personData.style.display = val === 'person' ? 'block' : 'none';
+  if (gesData) gesData.style.display = val === 'gesellschaft' ? 'block' : 'none';
+}
+
+function toggleGfDetails(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_gf"]:checked`)?.value;
+  toggle(`${prefix}_gf_details`, val === 'ja');
+}
+
+function toggleFamstand(prefix) {
+  const val = document.querySelector(`[name="${prefix}_famstand"]`)?.value;
+  const show = val === 'verheiratet' || val === 'lebenspartnerschaft';
+  toggle(`${prefix}_ehe`, show);
+}
+
+function toggleDolmetscher(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_dolmetscher"]:checked`)?.value;
+  toggle(`${prefix}_dolmetscher_details`, val === 'ja');
+}
+
+function toggleEinschraenkung(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_einschraenkung"]:checked`)?.value;
+  toggle(`${prefix}_einschraenkung_details`, val === 'ja');
+}
+
+// ============================================================
+// CONDITIONAL LOGIC
+// ============================================================
+function toggleConditional() {
+  // Rechtsform
+  const rechtsform = document.querySelector('input[name="rechtsform"]:checked')?.value;
+  toggle('cond_ug_hinweis', rechtsform === 'ug');
+  
+  // Update Stammkapital hint
+  const hint = document.getElementById('stammkapital_hint');
+  if (hint) {
+    hint.textContent = rechtsform === 'ug' 
+      ? 'Bei der UG ist auch ein niedrigeres Stammkapital als 25.000 Euro möglich. Es sollte mindestens 500 Euro, besser 2.000 Euro betragen.'
+      : 'Bei der GmbH mindestens 25.000 Euro. Ein höheres Stammkapital signalisiert besondere Seriosität.';
+  }
+  
+  // UG: Einlage zwingend voll
+  const einlageHalb = document.querySelector('input[name="einlage_hoehe"][value="halb"]');
+  const einlageVoll = document.querySelector('input[name="einlage_hoehe"][value="voll"]');
+  if (rechtsform === 'ug') {
+    if (einlageVoll) einlageVoll.checked = true;
+    if (einlageHalb) { einlageHalb.disabled = true; einlageHalb.closest('label').style.opacity = '0.4'; }
+    toggle('cond_einlage_ug_hinweis', true);
+  } else {
+    if (einlageHalb) { einlageHalb.disabled = false; einlageHalb.closest('label').style.opacity = '1'; }
+    toggle('cond_einlage_ug_hinweis', false);
+  }
+
+  // Satzung
+  const satzung = document.querySelector('input[name="satzung"]:checked')?.value;
+  toggle('cond_satzung_individuell', satzung === 'individuell');
+  toggle('cond_satzung_muster', satzung === 'musterprotokoll');
+  toggle('cond_muster_warnung', satzung === 'musterprotokoll');
+
+  // Geschäftsjahr
+  const gj = document.querySelector('input[name="geschaeftsjahr"]:checked')?.value;
+  toggle('cond_geschaeftsjahr', gj === 'abweichend');
+
+  // Nicht anwesend
+  const anwesend = document.querySelector('input[name="alle_anwesend"]:checked')?.value;
+  toggle('cond_nicht_anwesend', anwesend === 'nein');
+
+  // Steuerberater
+  const stb = document.querySelector('input[name="steuerberater"]:checked')?.value;
+  toggle('cond_steuerberater', stb === 'ja');
+
+  // Terminwunsch
+  const termin = document.querySelector('input[name="terminwunsch"]:checked')?.value;
+  toggle('cond_terminwunsch', termin === 'termin');
+}
+
+// ============================================================
+// SCROLL / PROGRESS
+// ============================================================
+function scrollToSection(n) {
+  const el = document.getElementById('section-' + n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const n = e.target.id.replace('section-', '');
+      document.querySelectorAll('.progress-step').forEach(s => {
+        const sn = s.getAttribute('data-section');
+        s.classList.remove('active');
+        if (parseInt(sn) < parseInt(n)) s.classList.add('completed');
+        else s.classList.remove('completed');
+      });
+      document.querySelector(`.progress-step[data-section="${n}"]`)?.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.form-section').forEach(s => observer.observe(s));
+
+// ============================================================
+// SAVE / LOAD (localStorage)
+// ============================================================
+function saveForm() {
+  const form = document.getElementById('mainForm');
+  const data = {};
+  // Save person counts
+  data._anz_gruender = document.querySelector('input[name="anz_gruender"]:checked')?.value || '1';
+  data._anz_fremdgf = document.querySelector('input[name="anz_fremdgf"]:checked')?.value || '0';
+  
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+    } else if (el.type === 'checkbox') {
+      data[el.name] = el.checked;
+    } else {
+      data[el.name] = el.value;
+    }
+  });
+  localStorage.setItem('gruendung_form', JSON.stringify(data));
+  const status = document.getElementById('saveStatus');
+  status.textContent = 'Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
+  status.classList.add('saved');
+}
+
+function loadForm() {
+  const raw = localStorage.getItem('gruendung_form');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    const form = document.getElementById('mainForm');
+    form.querySelectorAll('input, select, textarea').forEach(el => {
+      const val = data[el.name];
+      if (val === undefined) return;
+      if (el.type === 'radio') {
+        el.checked = (el.value === val);
+      } else if (el.type === 'checkbox') {
+        el.checked = !!val;
+      } else {
+        el.value = val;
+      }
+    });
+    // Restore conditional states
+    toggleConditional();
+    // Restore famstand, dolmetscher, etc.
+    const anzGr = parseInt(data._anz_gruender || '1');
+    for (let i = 1; i <= anzGr; i++) {
+      toggleFamstand(`gr_${i}`);
+      toggleDolmetscher(`gr_${i}`);
+      toggleEinschraenkung(`gr_${i}`);
+      toggleGfDetails(`gr_${i}`);
+      toggleGruenderArt(`gr_${i}`);
+    }
+  } catch(e) {}
+}
+
+// Autosave every 30 seconds
+setInterval(() => {
+  const form = document.getElementById('mainForm');
+  if (form.querySelectorAll('input:not([value=""]), textarea:not(:empty)').length > 0) {
+    saveForm();
+  }
+}, 30000);
+
+// ============================================================
+// PDF GENERATION (jsPDF inline)
+// ============================================================
+function generatePDF() {
+  // Load jsPDF dynamically
+  if (typeof jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload = () => buildPDF();
+    script.onerror = () => {
+      // Fallback: build without external lib
+      showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung.', 'error');
+    };
+    document.head.appendChild(script);
+  } else {
+    buildPDF();
+  }
+}
+
+function getVal(name) {
+  const el = document.querySelector(`[name="${name}"]`);
+  return el ? el.value.trim() : '';
+}
+
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  if (!el) return '';
+  // Return label text if available
+  const label = el.closest('label');
+  const span = label?.querySelector('span');
+  return span ? span.textContent.trim() : el.value;
+}
+
+function getChecked(name) {
+  const el = document.querySelector(`input[name="${name}"]`);
+  return el ? el.checked : false;
+}
+
+function buildPDF() {
+  const { jsPDF } = window.jspdf || window;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const marginL = 18, marginR = 18;
+  const contentW = pageW - marginL - marginR;
+  let y = 0;
+  
+  const cPrimary = [20, 37, 66];
+  const cAccent = [184, 147, 78];
+  const cText = [44, 44, 44];
+  const cMuted = [138, 138, 138];
+  const cWhite = [255, 255, 255];
+  const cBg = [245, 243, 239];
+  
+  function checkPage(need) {
+    if (y + need > pageH - 20) {
+      doc.addPage();
+      y = 15;
+    }
+  }
+  
+  function addTitle(text) {
+    checkPage(14);
+    doc.setFillColor(...cPrimary);
+    doc.roundedRect(marginL, y, contentW, 8, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...cWhite);
+    doc.text(text, marginL + 4, y + 5.5);
+    y += 12;
+  }
+  
+  function addSubtitle(text) {
+    checkPage(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...cPrimary);
+    doc.text(text, marginL, y + 4);
+    doc.setDrawColor(...cAccent);
+    doc.setLineWidth(0.3);
+    doc.line(marginL, y + 6, marginL + contentW, y + 6);
+    y += 10;
+  }
+  
+  function addField(label, value) {
+    if (!value && value !== 0) return;
+    checkPage(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...cMuted);
+    doc.text(label, marginL, y + 3.5);
+    doc.setTextColor(...cText);
+    doc.setFont('helvetica', 'bold');
+    const lines = doc.splitTextToSize(String(value), contentW - 50);
+    doc.text(lines, marginL + 50, y + 3.5);
+    y += Math.max(6, lines.length * 4.5);
+  }
+  
+  // Header
+  doc.setFillColor(...cPrimary);
+  doc.rect(0, 0, pageW, 38, 'F');
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...cWhite);
+  doc.text('Gründung einer GmbH oder UG (haftungsbeschränkt)', pageW / 2, 14, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...cAccent);
+  doc.text('Notar Alexander Beck \u00b7 Erfurt', pageW / 2, 21, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setTextColor(180, 190, 210);
+  doc.text('Wir bereiten Ihre Unternehmensgründung rechtssicher vor', pageW / 2, 27, { align: 'center' });
+  doc.setFillColor(...cAccent);
+  doc.rect(0, 36, pageW, 1.2, 'F');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...cMuted);
+  y = 43;
+  doc.text('Erstellt am ' + new Date().toLocaleDateString('de-DE') + ' um ' + new Date().toLocaleTimeString('de-DE'), pageW - marginR, y, { align: 'right' });
+  y += 6;
+  
+  // Section I
+  addTitle('I. Angaben zur Gesellschaft');
+  addField('Firma', getVal('firma'));
+  addField('Rechtsform', getRadio('rechtsform'));
+  addField('Sitz', getVal('sitz'));
+  addField('Geschäftsanschrift', [getVal('geschaeftsanschrift'), getVal('geschaeftsanschrift_plz'), getVal('geschaeftsanschrift_ort')].filter(Boolean).join(', '));
+  addField('Unternehmensgegenstand', getVal('gegenstand'));
+  addField('IHK-Voranfrage', getRadio('ihk_voranfrage'));
+  addField('Stammkapital', getVal('stammkapital') ? getVal('stammkapital') + ' EUR' : '');
+  addField('Stückelung', getRadio('stueckelung'));
+  addField('Einlage', getRadio('einlage_hoehe'));
+  addField('Satzung', getRadio('satzung'));
+  addField('Geschäftsjahr', getRadio('geschaeftsjahr'));
+  if (document.querySelector('input[name="geschaeftsjahr"]:checked')?.value === 'abweichend') {
+    addField('GJ-Details', getVal('geschaeftsjahr_details'));
+  }
+  
+  // Section II - Gründer
+  addTitle('II. Angaben zu den Gründern');
+  const anzGr = parseInt(document.querySelector('input[name="anz_gruender"]:checked')?.value || '1');
+  addField('Anzahl Gründer', String(anzGr));
+  for (let i = 1; i <= anzGr; i++) {
+    addSubtitle(`Gründer ${i}`);
+    const p = `gr_${i}`;
+    const art = document.querySelector(`input[name="${p}_art"]:checked`)?.value;
+    addField('Art', art === 'gesellschaft' ? 'Gesellschaft' : 'Natürliche Person');
+    addField('Beteiligung', getVal(`${p}_beteiligung`) ? getVal(`${p}_beteiligung`) + ' %' : '');
+    
+    if (art === 'gesellschaft') {
+      addField('Gesellschaft', getVal(`${p}_ges_name`));
+      addField('Rechtsform', getVal(`${p}_ges_rechtsform`));
+      addField('Sitz', getVal(`${p}_ges_sitz`));
+      addField('Registergericht', getVal(`${p}_ges_registergericht`));
+      addField('Registernummer', getVal(`${p}_ges_registernummer`));
+    } else {
+      addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+      addField('Geburtsname', getVal(`${p}_geburtsname`));
+      addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+      addField('Staatsangehörigkeit', getVal(`${p}_staat`));
+      addField('Familienstand', getVal(`${p}_famstand`));
+      addField('Anschrift', [getVal(`${p}_anschrift`), getVal(`${p}_plz`), getVal(`${p}_ort`), getVal(`${p}_land`)].filter(Boolean).join(', '));
+    }
+    addField('E-Mail', getVal(`${p}_email`));
+    addField('Telefon', getVal(`${p}_tel`));
+    addField('Geschäftsführer', getRadio(`${p}_gf`));
+    if (document.querySelector(`input[name="${p}_gf"]:checked`)?.value === 'ja') {
+      addField('Einzelvertretung', getRadio(`${p}_einzelvertretung`));
+      addField('§ 181 BGB Befreiung', getRadio(`${p}_181`));
+    }
+    addField('Dolmetscher', getRadio(`${p}_dolmetscher`));
+    addField('PEP', getRadio(`${p}_pep`));
+    addField('Fremde Rechnung', getRadio(`${p}_fremde_rechnung`));
+  }
+  
+  // Section III - Fremdgeschäftsführer
+  const anzFgf = parseInt(document.querySelector('input[name="anz_fremdgf"]:checked')?.value || '0');
+  if (anzFgf > 0) {
+    addTitle('III. Fremdgeschäftsführer');
+    for (let i = 1; i <= anzFgf; i++) {
+      addSubtitle(`Fremdgeschäftsführer ${i}`);
+      const p = `fgf_${i}`;
+      addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+      addField('Geburtsname', getVal(`${p}_geburtsname`));
+      addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+      addField('Staatsangehörigkeit', getVal(`${p}_staat`));
+      addField('Anschrift', [getVal(`${p}_anschrift`), getVal(`${p}_plz`), getVal(`${p}_ort`), getVal(`${p}_land`)].filter(Boolean).join(', '));
+      addField('Einzelvertretung', getRadio(`${p}_einzelvertretung`));
+      addField('§ 181 BGB Befreiung', getRadio(`${p}_181`));
+    }
+  }
+  
+  // Section IV
+  addTitle('IV. Weitere Angaben');
+  addField('Alle anwesend', getRadio('alle_anwesend'));
+  if (document.querySelector('input[name="alle_anwesend"]:checked')?.value === 'nein') {
+    addField('Nicht anwesend', getVal('nicht_anwesend'));
+  }
+  addField('Steuerberater', getRadio('steuerberater'));
+  if (document.querySelector('input[name="steuerberater"]:checked')?.value === 'ja') {
+    addField('StB-Daten', getVal('steuerberater_daten'));
+  }
+  
+  // Section V
+  addTitle('V. Anmerkungen / Auftragserteilung');
+  addField('Anmerkungen', getVal('anmerkungen'));
+  addField('Auftraggeber', getVal('auftraggeber_name'));
+  addField('E-Mail', getVal('auftraggeber_email'));
+  addField('Telefon', getVal('auftraggeber_tel'));
+  if (getChecked('beauftragung')) {
+    addField('Beauftragung', 'Ich beauftrage den Notar, die Beurkundung der Gründung vorzubereiten. Mir ist bewusst, dass durch die Entwurfserstellung Kosten entstehen, auch wenn es nicht zur Beurkundung kommt.');
+  }
+  addField('Entwurfsversand', getRadio('versand'));
+  addField('Terminwunsch', getRadio('terminwunsch'));
+  if (document.querySelector('input[name="terminwunsch"]:checked')?.value === 'termin') {
+    addField('Datum', getVal('termin_datum'));
+    addField('Uhrzeit', getVal('termin_uhrzeit'));
+  }
+  
+  // Footer on all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...cAccent);
+    doc.setLineWidth(0.4);
+    doc.line(marginL, pageH - 14, pageW - marginR, pageH - 14);
+    doc.setFontSize(7);
+    doc.setTextColor(...cMuted);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Notar Alexander Beck \u00b7 Erfurt', marginL, pageH - 10);
+    doc.text(`Seite ${p} von ${totalPages}`, pageW - marginR, pageH - 10, { align: 'right' });
+  }
+  
+  doc.save('Gruendung_GmbH_UG_Beck_' + new Date().toISOString().slice(0,10) + '.pdf');
+  showToast('PDF wurde erstellt und heruntergeladen.', 'success');
+}
+
+// ============================================================
+// SUBMIT FORM
+// ============================================================
+function submitForm() {
+  const form = document.getElementById('mainForm');
+  const requiredFields = form.querySelectorAll('[required]');
+  let valid = true;
+  requiredFields.forEach(f => {
+    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+      f.style.borderColor = 'var(--error)';
+      valid = false;
+    } else {
+      f.style.borderColor = '';
+    }
+  });
+  if (!valid) {
+    showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+    const firstInvalid = form.querySelector('[required]:invalid, [required][style*="error"]');
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  saveForm();
+  generatePDF();
+  document.getElementById('submitOverlay').classList.add('visible');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Load saved person counts
+  const raw = localStorage.getItem('gruendung_form');
+  if (raw) {
+    try {
+      const data = JSON.parse(raw);
+      if (data._anz_gruender) {
+        const radio = document.querySelector(`input[name="anz_gruender"][value="${data._anz_gruender}"]`);
+        if (radio) radio.checked = true;
+      }
+      if (data._anz_fremdgf) {
+        const radio = document.querySelector(`input[name="anz_fremdgf"][value="${data._anz_fremdgf}"]`);
+        if (radio) radio.checked = true;
+      }
+    } catch(e) {}
+  }
+  togglePersonCount('gruender');
+  togglePersonCount('fremdgf');
+  toggleConditional();
+});
+</script>
+</body>
+</html>

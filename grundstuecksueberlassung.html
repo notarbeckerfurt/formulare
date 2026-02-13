@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online-Formular Grundstücksüberlassungsvertrag – Notar Alexander Beck, Erfurt</title>
+<!-- Keine externen Ressourcen – vollständig autark / DSGVO-konform -->
+<style>
+:root {
+  --primary: #142542;
+  --primary-light: #1d3461;
+  --primary-lighter: #2a4a7f;
+  --accent: #b8934e;
+  --accent-light: #d4af6e;
+  --bg: #f5f3ef;
+  --bg-card: #ffffff;
+  --text: #2c2c2c;
+  --text-light: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --border: #d8d4ce;
+  --border-focus: var(--primary-lighter);
+  --error: #c0392b;
+  --success: #27ae60;
+  --info-bg: #eef3f9;
+  --info-border: #b8c9e0;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(20,37,66,0.08);
+  --shadow-lg: 0 8px 32px rgba(20,37,66,0.12);
+  --transition: 0.3s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 1;
+}
+.header-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.header h1 {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+.header .subtitle {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  font-weight: 400;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  letter-spacing: 0.05em;
+}
+.header .notary-name {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 0.8rem;
+}
+.progress-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.progress-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.progress-step::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.4rem;
+  transition: var(--transition);
+}
+.progress-step.active { color: var(--primary); font-weight: 600; }
+.progress-step.active::after { background: var(--primary); }
+.progress-step.completed { color: var(--success); }
+.progress-step.completed::after { background: var(--success); }
+.progress-step:hover { color: var(--primary-lighter); }
+.container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+.intro {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.form-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+.form-section:hover { box-shadow: var(--shadow-lg); }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--bg);
+}
+.section-number {
+  background: var(--primary);
+  color: white;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.subsection-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bg);
+}
+.field-group { margin-bottom: 1.25rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+label .required { color: var(--error); margin-left: 2px; }
+.label-hint {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+}
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"],
+select, textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  background: white;
+  transition: var(--transition);
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(42,74,127,0.1);
+}
+select { cursor: pointer; appearance: auto; }
+textarea { resize: vertical; min-height: 80px; }
+.radio-group, .checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.radio-group label, .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+  font-size: 0.88rem;
+}
+.radio-group label:hover, .checkbox-group label:hover {
+  border-color: var(--primary-lighter);
+  background: var(--info-bg);
+}
+.radio-group input:checked + span, .checkbox-group input:checked + span { font-weight: 600; }
+.radio-group label:has(input:checked), .checkbox-group label:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--info-bg);
+}
+input[type="radio"], input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px; height: 16px;
+  cursor: pointer;
+}
+.info-box {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.84rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin: 0.75rem 0;
+}
+.info-box strong { color: var(--primary); }
+.conditional { display: none; }
+.conditional.visible {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.person-block {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+}
+.person-block-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 1rem;
+}
+.btn-row { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn-secondary { background: white; color: var(--primary); border-color: var(--primary); }
+.btn-secondary:hover { background: var(--info-bg); }
+.btn-sm { padding: 0.5rem 1.25rem; font-size: 0.85rem; }
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+.toolbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.save-status { font-size: 0.82rem; color: var(--text-muted); }
+.save-status.saved { color: var(--success); }
+.footer {
+  background: var(--primary);
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  padding: 1.5rem 2rem 5rem;
+  font-size: 0.85rem;
+}
+.footer a { color: var(--accent-light); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--primary);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  font-size: 0.9rem;
+  transform: translateX(120%);
+  transition: transform 0.4s ease;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--error); }
+/* Overlay */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.overlay.visible { display: flex; }
+.overlay-content {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 540px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+.overlay-content h3 {
+  font-family: Georgia, serif;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+.overlay-content p { font-size: 0.92rem; color: var(--text-light); margin-bottom: 0.75rem; }
+.overlay-content ol { font-size: 0.88rem; color: var(--text-light); padding-left: 1.5rem; margin-bottom: 1rem; }
+.overlay-content li { margin-bottom: 0.4rem; }
+@media (max-width: 768px) {
+  .header h1 { font-size: 1.35rem; }
+  .container { padding: 1rem; }
+  .form-section { padding: 1.25rem; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .progress-step { font-size: 0.65rem; padding: 0.3rem 0.1rem; }
+  .btn-row { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+  .toolbar-inner { flex-wrap: wrap; justify-content: center; }
+  .radio-group, .checkbox-group { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .progress-bar { padding: 0.5rem; }
+  .header { padding: 1.5rem 1rem; }
+}
+@media print {
+  .toolbar, .progress-bar, .btn-row { display: none !important; }
+  .form-section { box-shadow: none; break-inside: avoid; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- Overlay for submit confirmation -->
+<div id="submitOverlay" class="overlay">
+  <div class="overlay-content">
+    <h3>✓ PDF wurde erstellt</h3>
+    <p>Ihr Vorbereitungsbogen wurde als PDF auf Ihrem Gerät gespeichert.</p>
+    <p><strong>Bitte übermitteln Sie das PDF auf einem der folgenden sicheren Wege:</strong></p>
+    <ol>
+      <li><strong>Verschlüsselte E-Mail</strong> an info@notar-beck-erfurt.de</li>
+      <li><strong>Per Post</strong> an: Notar Alexander Beck, Futterstraße 13/13a, 99084 Erfurt</li>
+    </ol>
+    <p style="font-size:0.82rem;color:var(--text-muted)">Bitte fügen Sie ggf. den Grundsteuermessbescheid oder die Gebäudeversicherungspolice in Kopie bei.</p>
+    <div class="btn-row" style="margin-top:1rem">
+      <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('submitOverlay').classList.remove('visible')">Verstanden</button>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-content">
+    <h1>Online-Formular Grundstücksüberlassungsvertrag</h1>
+    <div class="subtitle">Notar Alexander Beck &middot; Erfurt</div>
+    <div class="notary-name">Wir bereiten Ihren Überlassungsvertrag rechtssicher vor</div>
+  </div>
+</header>
+
+<nav class="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-step active" data-section="1" onclick="scrollToSection(1)">I. Immobilie</div>
+    <div class="progress-step" data-section="2" onclick="scrollToSection(2)">II. Veräußerer</div>
+    <div class="progress-step" data-section="3" onclick="scrollToSection(3)">III. Erwerber</div>
+    <div class="progress-step" data-section="4" onclick="scrollToSection(4)">IV. Gegenleistungen</div>
+    <div class="progress-step" data-section="5" onclick="scrollToSection(5)">V. Auftrag</div>
+  </div>
+</nav>
+
+<main class="container">
+<form id="mainForm" novalidate>
+
+<div class="intro">
+  Bitte füllen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>„Formular absenden"</strong>. 
+  Es wird eine PDF-Datei mit Ihren Angaben erstellt, die Sie uns anschließend auf sicherem Wege zukommen lassen können.
+  Auch wenn Sie den Bogen nur teilweise ausfüllen können, ist er eine große Hilfe zur Umsetzung Ihrer Vorstellungen.
+  Bei Fragen und Unklarheiten wenden Sie sich bitte an uns.
+  <br><br>
+  <div class="info-box">
+    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Grundsteuermessbescheid, Gebäudeversicherungspolice, Erbschein, Lagepläne) zumindest als Scan vorab per E-Mail an <em>info@notar-beck-erfurt.de</em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION I: ANGABEN ZUR IMMOBILIE                       -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-1">
+  <div class="section-header">
+    <div class="section-number">I</div>
+    <div class="section-title">Angaben zur Immobilie</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anschrift des Objektes</label>
+    <input type="text" name="immo_anschrift" placeholder="Straße, Hausnummer">
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>PLZ</label>
+      <input type="text" name="immo_plz">
+    </div>
+    <div class="field-group">
+      <label>Ort</label>
+      <input type="text" name="immo_ort">
+    </div>
+  </div>
+
+  <div class="subsection-title">Grundbuchdaten</div>
+  <div class="field-group">
+    <label>Sind Ihnen die Grundbuchdaten bekannt?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="grundbuch_bekannt" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="grundbuch_bekannt" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_grundbuch">
+    <div class="field-row">
+      <div class="field-group">
+        <label>Amtsgericht</label>
+        <input type="text" name="grundbuch_amtsgericht">
+      </div>
+      <div class="field-group">
+        <label>Grundbuch von</label>
+        <input type="text" name="grundbuch_von">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Grundbuchblatt</label>
+      <input type="text" name="grundbuch_blatt">
+    </div>
+    <div class="field-row-3">
+      <div class="field-group">
+        <label>Gemarkung</label>
+        <input type="text" name="grundbuch_gemarkung">
+      </div>
+      <div class="field-group">
+        <label>Flur</label>
+        <input type="text" name="grundbuch_flur">
+      </div>
+      <div class="field-group">
+        <label>Flurstück(e)</label>
+        <input type="text" name="grundbuch_flurstueck">
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">Vertragsgegenstand</div>
+  <div class="field-group">
+    <label>Art des Vertragsgegenstands</label>
+    <select name="kaufgegenstand" onchange="toggleConditional()">
+      <option value="">Bitte auswählen</option>
+      <option value="wohnhaus">Wohnhaus / bebautes Grundstück</option>
+      <option value="gewerbe">Gewerbeobjekt</option>
+      <option value="eigentumswohnung">Eigentumswohnung</option>
+      <option value="unbebaut_garten">Garten</option>
+      <option value="unbebaut_wiese">Wiese</option>
+      <option value="unbebaut_wald">Wald</option>
+      <option value="unbebaut_acker">Ackerland</option>
+      <option value="unbebaut_sonstige">Sonstiges unbebautes Grundstück</option>
+      <option value="teilflaeche">Teilfläche (noch zu vermessen)</option>
+    </select>
+  </div>
+
+  <div class="conditional" id="cond_etw">
+    <div class="field-group">
+      <label>Wohnungsnummer</label>
+      <input type="text" name="etw_nr">
+    </div>
+  </div>
+
+  <div class="conditional" id="cond_baujahr">
+    <div class="field-group">
+      <label>Baujahr</label>
+      <input type="text" name="baujahr" placeholder="z.B. 1985">
+    </div>
+  </div>
+
+  <div class="conditional" id="cond_teilflaeche">
+    <div class="info-box">
+      Bitte senden Sie uns einen Plan, aus dem sich die genauen Grenzen des Vertragsgegenstandes ergeben, zumindest als Scan vorab per E-Mail zu.
+      Bei einer noch zu vermessenden Teilfläche muss im Vertrag die Teilfläche so genau beschrieben werden, dass auch außenstehende Dritte Lage und Grenze eindeutig feststellen können.
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Überlassungsanteil</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anteil" value="100" checked><span>Ganzes Grundstück (1/1)</span></label>
+      <label><input type="radio" name="anteil" value="50"><span>Hälfte (1/2)</span></label>
+      <label><input type="radio" name="anteil" value="sonstige" onchange="toggleConditional()"><span>Sonstiger Anteil</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_anteil_sonstige">
+    <div class="field-group">
+      <label>Anteil (z.B. 1/3, 3/4)</label>
+      <input type="text" name="anteil_sonstige" placeholder="z.B. 1/3">
+    </div>
+  </div>
+
+  <!-- Erblasser -->
+  <div class="subsection-title">Eigentümerverhältnisse</div>
+  <div class="field-group">
+    <label>Steht im Grundbuch noch ein Erblasser als Eigentümer?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="erblasser" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="erblasser" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_erblasser">
+    <div class="info-box">
+      Wenn ja, bitte den entsprechenden Erbnachweis beifügen: Erbschein (Ausfertigung), notarielles Testament/Erbvertrag mit Eröffnungsprotokoll (beglaubigte Kopie) oder Europäisches Nachlasszeugnis. Bitte senden Sie die Unterlagen zumindest als Scan vorab per E-Mail zu.
+    </div>
+  </div>
+
+  <!-- Belastungen -->
+  <div class="subsection-title">Belastungen im Grundbuch</div>
+  <div class="field-group">
+    <label>Belastungen in Abteilung II (Dienstbarkeiten, Vormerkungen etc.)?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="belastung_abt2" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="belastung_abt2" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_belastung_abt2">
+    <div class="field-group">
+      <label>Beschreibung der Belastungen Abt. II</label>
+      <textarea name="belastung_abt2_details" rows="2"></textarea>
+    </div>
+    <div class="field-group">
+      <label>Regelung</label>
+      <div class="radio-group">
+        <label><input type="radio" name="belastung_abt2_regelung" value="uebernehmen"><span>Werden vom Erwerber übernommen</span></label>
+        <label><input type="radio" name="belastung_abt2_regelung" value="loeschen"><span>Sollen gelöscht werden</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Belastungen in Abteilung III (Grundschulden, Hypotheken etc.)?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="belastung_abt3" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="belastung_abt3" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_belastung_abt3">
+    <div class="field-group">
+      <label>Status der zugrunde liegenden Darlehen</label>
+      <div class="radio-group" style="flex-direction:column">
+        <label><input type="radio" name="belastung_abt3_regelung" value="bezahlt_unterlagen_da"><span>Darlehen sind bezahlt, Löschungsunterlagen liegen vor</span></label>
+        <label><input type="radio" name="belastung_abt3_regelung" value="bezahlt_unterlagen_einholen"><span>Darlehen sind bezahlt, Notar soll Löschungsunterlagen einholen</span></label>
+        <label><input type="radio" name="belastung_abt3_regelung" value="bezahlt_bestehen_lassen"><span>Darlehen sind bezahlt, Grundschulden sollen bestehen bleiben</span></label>
+        <label><input type="radio" name="belastung_abt3_regelung" value="offen_veraeu_zahlt"><span>Darlehen sind offen, sollen weiterhin vom Veräußerer bezahlt werden</span></label>
+        <label><input type="radio" name="belastung_abt3_regelung" value="offen_erwerber_uebernimmt"><span>Darlehen sind offen, sollen vom Erwerber übernommen werden</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Darlehens-/Vertragsnummer, Bank, Kontaktdaten Ansprechpartner (falls bekannt)</label>
+      <textarea name="belastung_abt3_details" rows="2" placeholder="z.B. Sparkasse Mittelthüringen, Darlehensnr. 12345, Restschuld ca. 50.000 €"></textarea>
+    </div>
+  </div>
+
+  <!-- Vermietung -->
+  <div class="subsection-title">Vermietung / Verpachtung</div>
+  <div class="field-group">
+    <label>Ist der Vertragsgegenstand vermietet oder verpachtet?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="vermietet" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="vermietet" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_vermietet">
+    <div class="field-group">
+      <label>Vermietet/verpachtet an</label>
+      <div class="radio-group">
+        <label><input type="radio" name="vermietet_an" value="erwerber" onchange="toggleConditional()"><span>An Erwerber</span></label>
+        <label><input type="radio" name="vermietet_an" value="dritte" onchange="toggleConditional()"><span>An Dritten</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="cond_mieter_details">
+      <div class="field-group">
+        <label>Nähere Angaben zum Miet-/Pachtverhältnis</label>
+        <textarea name="vermietung_details" rows="2" placeholder="z.B. Name des Mieters, Kaltmiete, Mietbeginn"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Wird das Mietverhältnis vom Erwerber übernommen?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="mietverhaeltnis_uebernahme" value="ja"><span>Ja</span></label>
+          <label><input type="radio" name="mietverhaeltnis_uebernahme" value="nein"><span>Nein</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION II: VERÄUSSERER                                -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-2">
+  <div class="section-header">
+    <div class="section-number">II</div>
+    <div class="section-title">Angaben zur Veräußererseite</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der Veräußerer</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_vk" value="1" checked onchange="togglePersonCount('vk')"><span>1</span></label>
+      <label><input type="radio" name="anz_vk" value="2" onchange="togglePersonCount('vk')"><span>2</span></label>
+      <label><input type="radio" name="anz_vk" value="3" onchange="togglePersonCount('vk')"><span>3</span></label>
+    </div>
+  </div>
+  <div id="vk_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION III: ERWERBER                                  -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-3">
+  <div class="section-header">
+    <div class="section-number">III</div>
+    <div class="section-title">Angaben zur Erwerberseite</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der Erwerber</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_ka" value="1" checked onchange="togglePersonCount('ka')"><span>1</span></label>
+      <label><input type="radio" name="anz_ka" value="2" onchange="togglePersonCount('ka')"><span>2</span></label>
+      <label><input type="radio" name="anz_ka" value="3" onchange="togglePersonCount('ka')"><span>3</span></label>
+    </div>
+  </div>
+  <div id="ka_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION IV: GEGENLEISTUNGEN / VORBEHALTENE RECHTE      -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-4">
+  <div class="section-header">
+    <div class="section-number">IV</div>
+    <div class="section-title">Gegenleistungen und vorbehaltene Rechte</div>
+  </div>
+
+  <div class="info-box">
+    <strong>Hinweis:</strong> Falls Geldzahlungen vereinbart werden sollen, beachten Sie bitte das Barzahlungsverbot des § 16a Geldwäschegesetz.
+  </div>
+
+  <!-- Auszahlung -->
+  <div class="subsection-title">Auszahlung an Veräußerer</div>
+  <div class="field-group">
+    <label>Soll eine Auszahlung an den Veräußerer erfolgen?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="auszahlung" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="auszahlung" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_auszahlung">
+    <div class="field-group">
+      <label>Auszahlungsbetrag (in Euro)</label>
+      <input type="text" name="auszahlung_betrag" placeholder="€">
+    </div>
+    <div class="field-group">
+      <label>Fälligkeit der Auszahlung</label>
+      <div class="radio-group" style="flex-direction:column">
+        <label><input type="radio" name="auszahlung_faelligkeit" value="genehmigungen" checked><span>Nach Vorliegen aller Genehmigungen</span></label>
+        <label><input type="radio" name="auszahlung_faelligkeit" value="datum" onchange="toggleConditional()"><span>Fester Termin</span></label>
+        <label><input type="radio" name="auszahlung_faelligkeit" value="sonstige" onchange="toggleConditional()"><span>Sonstiges</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="cond_auszahlung_datum">
+      <div class="field-group">
+        <label>Datum / Beschreibung der Fälligkeit</label>
+        <input type="text" name="auszahlung_datum" placeholder="z.B. 01.06.2026 oder 'bis Jahresende'">
+      </div>
+    </div>
+  </div>
+
+  <!-- Gleichstellungsgeld / Geschwister -->
+  <div class="subsection-title">Auszahlung an Geschwister</div>
+  <div class="field-group">
+    <label>Ist eine Auszahlung an Geschwister zu leisten?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="geschwister_auszahlung" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="geschwister_auszahlung" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_geschwister">
+    <div class="field-group">
+      <label>An wen? (Name, Vorname)</label>
+      <textarea name="geschwister_an" rows="2" placeholder="z.B. Max Mustermann, Anna Mustermann"></textarea>
+    </div>
+    <div class="field-group">
+      <label>In welcher Höhe? (in Euro)</label>
+      <input type="text" name="geschwister_betrag" placeholder="€">
+    </div>
+    <div class="field-group">
+      <label>Wann ist die Zahlung zu leisten?</label>
+      <input type="text" name="geschwister_faelligkeit" placeholder="z.B. bei Überlassung, 01.01.2027">
+    </div>
+  </div>
+
+  <!-- Nießbrauch -->
+  <div class="subsection-title">Nießbrauch</div>
+  <div class="field-group">
+    <label>Nießbrauch für Veräußerer vorbehalten?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="niessbrauch" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="niessbrauch" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_niessbrauch">
+    <div class="field-group">
+      <label>Trägt der Veräußerer neben den laufenden ordentlichen Lasten auch die außerordentlichen Lasten des Grundstücks?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="niessbrauch_lasten" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="niessbrauch_lasten" value="nein"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Nachrangiger Nießbrauch für Ehegatten nach Tod des Veräußerers?</label>
+      <span class="label-hint">Nur relevant, wenn der Ehegatte nicht selbst (Mit-)Eigentümer und damit nicht Veräußerer der Immobilie ist.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="niessbrauch_ehegatte" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="niessbrauch_ehegatte" value="nein"><span>Nein</span></label>
+        <label><input type="radio" name="niessbrauch_ehegatte" value="n/a"><span>Nicht zutreffend</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wohnungsrecht -->
+  <div class="subsection-title">Wohnungsrecht</div>
+  <div class="field-group">
+    <label>Wohnungsrecht für Veräußerer vorbehalten?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="wohnungsrecht" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="wohnungsrecht" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_wohnungsrecht">
+    <div class="field-group">
+      <label>Auf welche Räume bezieht sich das Wohnungsrecht?</label>
+      <textarea name="wohnungsrecht_raeume" rows="2" placeholder="z.B. Erdgeschoss komplett, Obergeschoss rechte Wohnung"></textarea>
+    </div>
+    <div class="field-group">
+      <label>Kostenregelung</label>
+      <div class="radio-group" style="flex-direction:column">
+        <label><input type="radio" name="wohnungsrecht_kosten" value="mieter"><span>Veräußerer trägt Kosten wie ein Mieter</span></label>
+        <label><input type="radio" name="wohnungsrecht_kosten" value="veraeu_alle"><span>Veräußerer trägt alle Kosten</span></label>
+        <label><input type="radio" name="wohnungsrecht_kosten" value="erwerber_alle"><span>Erwerber trägt alle Kosten</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Nachrangiges Wohnungsrecht für Ehegatten nach Tod des Veräußerers?</label>
+      <span class="label-hint">Nur relevant, wenn der Ehegatte nicht selbst (Mit-)Eigentümer und damit nicht Veräußerer der Immobilie ist.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="wohnungsrecht_ehegatte" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="wohnungsrecht_ehegatte" value="nein"><span>Nein</span></label>
+        <label><input type="radio" name="wohnungsrecht_ehegatte" value="n/a"><span>Nicht zutreffend</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rückforderungsrecht -->
+  <div class="subsection-title">Rückforderungsrecht</div>
+  <div class="field-group">
+    <label>Rückforderungsrecht für Veräußerer vorbehalten?</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="rueckforderung" value="bedingt" onchange="toggleConditional()"><span>Ja, unter bestimmten Voraussetzungen (Regelfall)</span></label>
+      <label><input type="radio" name="rueckforderung" value="frei" onchange="toggleConditional()"><span>Ja, freies Rückforderungsrecht</span></label>
+      <label><input type="radio" name="rueckforderung" value="nein" onchange="toggleConditional()"><span>Nein, kein Rückforderungsrecht</span></label>
+    </div>
+    <div class="info-box">
+      Häufig wird ein Rückforderungsrecht für bestimmte Fälle geregelt, insbesondere für den Fall der unberechtigten Weiterveräußerung, des Vorversterbens des Beschenkten oder dessen Vermögensverfall. Es empfiehlt sich in aller Regel, solche Rückforderungsrechte vorzusehen.
+    </div>
+  </div>
+  <div class="conditional" id="cond_rueckforderung">
+    <div class="field-group">
+      <label>Soll das Rückforderungsrecht im Todesfall des Veräußerers auf den Ehegatten übergehen?</label>
+      <span class="label-hint">Nur relevant, wenn der Ehegatte nicht selbst (Mit-)Eigentümer und damit nicht Veräußerer der Immobilie ist.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="rueckforderung_ehegatte" value="ja"><span>Ja</span></label>
+        <label><input type="radio" name="rueckforderung_ehegatte" value="nein"><span>Nein</span></label>
+        <label><input type="radio" name="rueckforderung_ehegatte" value="n/a"><span>Nicht zutreffend</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leibrente -->
+  <div class="subsection-title">Leibrente</div>
+  <div class="field-group">
+    <label>Soll eine Leibrente vereinbart werden?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="leibrente" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="leibrente" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_leibrente">
+    <div class="field-group">
+      <label>Monatlicher Betrag (in Euro)</label>
+      <input type="text" name="leibrente_betrag" placeholder="€">
+    </div>
+  </div>
+
+  <!-- Pflege -->
+  <div class="subsection-title">Wart- und Pflegevereinbarung</div>
+  <div class="field-group">
+    <label>Soll eine Wart- und Pflegevereinbarung getroffen werden?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="pflege" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="pflege" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <!-- Beerdigung -->
+  <div class="subsection-title">Beerdigungs- und Grabpflegevereinbarung</div>
+  <div class="field-group">
+    <label>Soll eine Beerdigungs- und Grabpflegevereinbarung getroffen werden?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="beerdigung" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="beerdigung" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <!-- Investitionen -->
+  <div class="subsection-title">Bisherige Investitionen</div>
+  <div class="field-group">
+    <label>Hat der Erwerber bereits in das Grundstück investiert?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="investition" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="investition" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_investition">
+    <div class="field-group">
+      <label>Investition in Höhe von (in Euro)</label>
+      <input type="text" name="investition_betrag" placeholder="€">
+    </div>
+  </div>
+
+  <!-- Übernahme Verbindlichkeiten -->
+  <div class="subsection-title">Übernahme von Verbindlichkeiten</div>
+  <div class="field-group">
+    <label>Sollen Verbindlichkeiten vom Erwerber übernommen werden?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="verbindlichkeiten" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="verbindlichkeiten" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_verbindlichkeiten">
+    <div class="field-group">
+      <label>Welche Verbindlichkeiten?</label>
+      <textarea name="verbindlichkeiten_details" rows="2" placeholder="z.B. Darlehen bei Sparkasse, Restschuld ca. 50.000 €"></textarea>
+    </div>
+  </div>
+
+  <!-- Pflichtteilsverzicht -->
+  <div class="subsection-title">Pflichtteilsverzicht</div>
+  <div class="field-group">
+    <label>Soll ein Pflichtteilsverzicht von Geschwistern geleistet werden?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="pflichtteil" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="pflichtteil" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_pflichtteil">
+    <div class="field-group">
+      <label>Von wem?</label>
+      <textarea name="pflichtteil_von" rows="2" placeholder="Name(n) der verzichtenden Geschwister"></textarea>
+    </div>
+  </div>
+
+  <!-- Kosten -->
+  <div class="subsection-title">Kosten</div>
+  <div class="field-group">
+    <label>Wer trägt die Kosten für Notar und Grundbuch?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="kosten" value="erwerber" checked><span>Erwerber</span></label>
+      <label><input type="radio" name="kosten" value="veraeu"><span>Veräußerer</span></label>
+      <label><input type="radio" name="kosten" value="haelftig"><span>Je zur Hälfte</span></label>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION V: ANMERKUNGEN / AUFTRAGSERTEILUNG             -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-5">
+  <div class="section-header">
+    <div class="section-number">V</div>
+    <div class="section-title">Anmerkungen / Auftragserteilung</div>
+  </div>
+
+  <div class="field-group">
+    <label>Sonstiges / Besonderheiten</label>
+    <textarea name="anmerkungen" rows="4" placeholder="Weitere Hinweise oder Wünsche..."></textarea>
+  </div>
+
+  <div class="subsection-title">Angaben zur ausfüllenden Person</div>
+  <div class="field-group">
+    <label>Name des Ausfüllenden <span class="required">*</span></label>
+    <input type="text" name="ausfueller_name" required>
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>E-Mail <span class="required">*</span></label>
+      <input type="email" name="ausfueller_email" required>
+    </div>
+    <div class="field-group">
+      <label>Telefon</label>
+      <input type="tel" name="ausfueller_tel">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Beauftragung</label>
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" name="beauftragung" value="ja" required>
+        <span>Ich beauftrage den Notar, die Beurkundung des Grundstücksüberlassungsvertrages vorzubereiten. Mir ist bewusst, dass durch die Entwurfserstellung Kosten entstehen, auch wenn es nicht zur Beurkundung kommt.</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Auftraggeber</label>
+    <div class="radio-group">
+      <label><input type="radio" name="auftraggeber" value="veraeu"><span>Veräußerer/in</span></label>
+      <label><input type="radio" name="auftraggeber" value="erwerber"><span>Erwerber/in</span></label>
+    </div>
+  </div>
+
+  <div class="subsection-title">Versand des Entwurfs</div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>Versand an Veräußerer</label>
+      <div class="radio-group">
+        <label><input type="radio" name="versand_vk" value="email" checked><span>per E-Mail</span></label>
+        <label><input type="radio" name="versand_vk" value="post"><span>per Post</span></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Versand an Erwerber</label>
+      <div class="radio-group">
+        <label><input type="radio" name="versand_ka" value="email" checked><span>per E-Mail</span></label>
+        <label><input type="radio" name="versand_ka" value="post"><span>per Post</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection-title">Terminwunsch</div>
+  <div class="field-group">
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="terminwunsch" value="kein" checked onchange="toggleConditional()"><span>Keinen besonderen Terminwunsch</span></label>
+      <label><input type="radio" name="terminwunsch" value="vormittags" onchange="toggleConditional()"><span>Terminwunsch: vormittags</span></label>
+      <label><input type="radio" name="terminwunsch" value="nachmittags" onchange="toggleConditional()"><span>Terminwunsch: nachmittags</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_terminwunsch">
+    <div class="field-row">
+      <div class="field-group">
+        <label>Wunschdatum</label>
+        <input type="date" name="termin_datum">
+      </div>
+      <div class="field-group">
+        <label>Uhrzeit ab</label>
+        <input type="text" name="termin_uhrzeit" placeholder="z.B. 10:00">
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary" onclick="submitForm()">📄 Formular absenden</button>
+    <button type="button" class="btn btn-secondary" onclick="saveForm()">💾 Zwischenspeichern</button>
+  </div>
+</div>
+
+</form>
+</main>
+
+<footer class="footer">
+  <p>Notar Alexander Beck &middot; Futterstraße 13/13a &middot; 99084 Erfurt</p>
+  <p>Tel.: 0361 210 170 &middot; <a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></p>
+</footer>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <span class="save-status" id="saveStatus">Nicht gespeichert</span>
+    <div style="display:flex;gap:0.5rem">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 Formular absenden</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3500);
+}
+
+// ============================================================
+// TOGGLE HELPERS
+// ============================================================
+function toggle(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (show) el.classList.add('visible');
+  else el.classList.remove('visible');
+}
+
+// ============================================================
+// PERSON BLOCK GENERATOR
+// ============================================================
+function generatePersonBlock(type, index) {
+  const label = type === 'vk' ? 'Veräußerer' : 'Erwerber';
+  const prefix = `${type}_${index}`;
+  
+  return `
+  <div class="person-block" id="${prefix}_block">
+    <div class="person-block-title">${label} ${index}</div>
+    
+    <div class="field-group">
+      <label>Anrede, Titel</label>
+      <input type="text" name="${prefix}_anrede" placeholder="z.B. Herr Dr.">
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Vorname(n) <span class="required">*</span>
+          <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
+        </label>
+        <input type="text" name="${prefix}_vorname">
+      </div>
+      <div class="field-group">
+        <label>Nachname <span class="required">*</span></label>
+        <input type="text" name="${prefix}_nachname">
+      </div>
+    </div>
+    <div class="field-row-3">
+      <div class="field-group">
+        <label>Geburtsname (falls abweichend)</label>
+        <input type="text" name="${prefix}_geburtsname">
+      </div>
+      <div class="field-group">
+        <label>Geburtsort</label>
+        <input type="text" name="${prefix}_geburtsort">
+      </div>
+      <div class="field-group">
+        <label>Geburtsdatum</label>
+        <input type="date" name="${prefix}_geburtsdatum">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Anschrift</label>
+      <input type="text" name="${prefix}_anschrift">
+    </div>
+    <div class="field-row-3">
+      <div class="field-group">
+        <label>PLZ</label>
+        <input type="text" name="${prefix}_plz">
+      </div>
+      <div class="field-group">
+        <label>Ort</label>
+        <input type="text" name="${prefix}_ort">
+      </div>
+      <div class="field-group">
+        <label>Land (falls nicht Deutschland)</label>
+        <input type="text" name="${prefix}_land">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>E-Mail</label>
+        <input type="email" name="${prefix}_email">
+      </div>
+      <div class="field-group">
+        <label>Telefon</label>
+        <input type="tel" name="${prefix}_tel">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Steuer-ID</label>
+      <span class="label-hint">Elfstellige Nummer (nicht Steuernummer oder USt-IdNr.)</span>
+      <input type="text" name="${prefix}_steuerid" maxlength="11">
+    </div>
+    <div class="field-group">
+      <label>Staatsangehörigkeit(en)</label>
+      <input type="text" name="${prefix}_staat" placeholder="z.B. deutsch">
+    </div>
+    <div class="field-group">
+      <label>Familienstand</label>
+      <select name="${prefix}_famstand" onchange="toggleFamstand('${prefix}')">
+        <option value="">Bitte auswählen</option>
+        <option value="ledig">ledig</option>
+        <option value="verheiratet">verheiratet</option>
+        <option value="verwitwet">verwitwet</option>
+        <option value="geschieden">geschieden</option>
+        <option value="lebenspartnerschaft">in eingetragener Lebenspartnerschaft lebend</option>
+      </select>
+    </div>
+    
+    <!-- Ehe-Details -->
+    <div class="conditional" id="${prefix}_ehe">
+      <div class="field-group">
+        <label>Es besteht ein Ehevertrag?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="${prefix}_ehevertrag" value="ja"><span>Ja</span></label>
+          <label><input type="radio" name="${prefix}_ehevertrag" value="nein"><span>Nein</span></label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Güterstand</label>
+        <div class="radio-group" style="flex-direction:column">
+          <label><input type="radio" name="${prefix}_gueterstand" value="zugewinn"><span>(modifizierte) Zugewinngemeinschaft</span></label>
+          <label><input type="radio" name="${prefix}_gueterstand" value="trennung"><span>Gütertrennung</span></label>
+          <label><input type="radio" name="${prefix}_gueterstand" value="gemeinschaft"><span>Gütergemeinschaft</span></label>
+          <label><input type="radio" name="${prefix}_gueterstand" value="ausland"><span>Ausländischer Güterstand</span></label>
+        </div>
+      </div>
+    </div>
+    
+    ${type === 'ka' ? `
+    <!-- Verwandtschaftsverhältnis (nur Erwerber) -->
+    <div class="field-group">
+      <label>Verwandtschaftsverhältnis zum Veräußerer</label>
+      <select name="${prefix}_verwandtschaft">
+        <option value="">Bitte auswählen</option>
+        <option value="kind">Kind</option>
+        <option value="enkel">Enkel</option>
+        <option value="ehegatte">Ehegatte/Lebenspartner</option>
+        <option value="schwiegerkind">Schwiegerkind</option>
+        <option value="geschwister">Geschwister</option>
+        <option value="neffe_nichte">Neffe/Nichte</option>
+        <option value="sonstige">Sonstige</option>
+      </select>
+    </div>
+    <div class="conditional" id="${prefix}_verwandtschaft_sonstige">
+      <div class="field-group">
+        <label>Verwandtschaftsverhältnis (nähere Angaben)</label>
+        <input type="text" name="${prefix}_verwandtschaft_details">
+      </div>
+    </div>
+    ` : ''}
+    
+    ${type === 'vk' ? `
+    <!-- Bankverbindung (nur Veräußerer) -->
+    <div class="subsection-title" style="font-size:1rem;margin-top:1.5rem">Bankverbindung ${label} ${index}</div>
+    <span class="label-hint" style="margin-bottom:0.75rem;display:block">Nur erforderlich, wenn eine Auszahlung vereinbart werden soll.</span>
+    <div class="field-group">
+      <label>Kontoinhaber</label>
+      <input type="text" name="${prefix}_kontoinhaber">
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>IBAN</label>
+        <input type="text" name="${prefix}_iban" placeholder="DE...">
+      </div>
+      <div class="field-group">
+        <label>BIC</label>
+        <input type="text" name="${prefix}_bic">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Bank</label>
+        <input type="text" name="${prefix}_bank">
+      </div>
+      <div class="field-group">
+        <label>Abweichender Kontoinhaber (Name, Vorname)</label>
+        <input type="text" name="${prefix}_kontoinhaber_abw">
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Dolmetscher -->
+    <div class="field-group" style="margin-top:1.5rem">
+      <label>Dolmetscher erforderlich?</label>
+      <span class="label-hint">Erforderlich, wenn der Beteiligte der deutschen Sprache nicht hinreichend mächtig ist.</span>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_dolmetscher" value="ja" onchange="toggleDolmetscher('${prefix}')"><span>Ja</span></label>
+        <label><input type="radio" name="${prefix}_dolmetscher" value="nein" onchange="toggleDolmetscher('${prefix}')"><span>Nein</span></label>
+      </div>
+    </div>
+    <div class="conditional" id="${prefix}_dolmetscher_details">
+      <div class="field-group">
+        <label>Dolmetscher für welche Sprache?</label>
+        <input type="text" name="${prefix}_dolmetscher_sprache">
+      </div>
+    </div>
+    
+    <div class="field-group">
+      <label>Sonstige Anmerkungen zu ${label} ${index}</label>
+      <textarea name="${prefix}_anmerkungen" rows="2"></textarea>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// RENDER PERSON BLOCKS
+// ============================================================
+function togglePersonCount(type) {
+  const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
+  const container = document.getElementById(`${type}_container`);
+  container.innerHTML = '';
+  for (let i = 1; i <= count; i++) {
+    container.insertAdjacentHTML('beforeend', generatePersonBlock(type, i));
+  }
+  loadForm();
+}
+
+function toggleFamstand(prefix) {
+  const val = document.querySelector(`[name="${prefix}_famstand"]`)?.value;
+  const show = val === 'verheiratet' || val === 'lebenspartnerschaft';
+  toggle(`${prefix}_ehe`, show);
+}
+
+function toggleDolmetscher(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_dolmetscher"]:checked`)?.value;
+  const details = document.getElementById(`${prefix}_dolmetscher_details`);
+  if (details) {
+    if (val === 'ja') details.classList.add('visible');
+    else details.classList.remove('visible');
+  }
+}
+
+// ============================================================
+// CONDITIONAL LOGIC
+// ============================================================
+function toggleConditional() {
+  const gb = document.querySelector('input[name="grundbuch_bekannt"]:checked')?.value;
+  toggle('cond_grundbuch', gb === 'ja');
+
+  const kg = document.querySelector('[name="kaufgegenstand"]')?.value;
+  const isETW = kg === 'eigentumswohnung';
+  const isBebaut = kg === 'wohnhaus' || kg === 'gewerbe' || kg === 'eigentumswohnung';
+  const isTeilflaeche = kg === 'teilflaeche';
+  toggle('cond_etw', isETW);
+  toggle('cond_baujahr', isBebaut);
+  toggle('cond_teilflaeche', isTeilflaeche);
+
+  const anteil = document.querySelector('input[name="anteil"]:checked')?.value;
+  toggle('cond_anteil_sonstige', anteil === 'sonstige');
+
+  const erblasser = document.querySelector('input[name="erblasser"]:checked')?.value;
+  toggle('cond_erblasser', erblasser === 'ja');
+
+  const b2 = document.querySelector('input[name="belastung_abt2"]:checked')?.value;
+  toggle('cond_belastung_abt2', b2 === 'ja');
+  const b3 = document.querySelector('input[name="belastung_abt3"]:checked')?.value;
+  toggle('cond_belastung_abt3', b3 === 'ja');
+
+  const vermietet = document.querySelector('input[name="vermietet"]:checked')?.value;
+  toggle('cond_vermietet', vermietet === 'ja');
+  const vermietetAn = document.querySelector('input[name="vermietet_an"]:checked')?.value;
+  toggle('cond_mieter_details', vermietetAn === 'dritte');
+
+  const ausz = document.querySelector('input[name="auszahlung"]:checked')?.value;
+  toggle('cond_auszahlung', ausz === 'ja');
+  const af = document.querySelector('input[name="auszahlung_faelligkeit"]:checked')?.value;
+  toggle('cond_auszahlung_datum', af === 'datum' || af === 'sonstige');
+
+  const geschwister = document.querySelector('input[name="geschwister_auszahlung"]:checked')?.value;
+  toggle('cond_geschwister', geschwister === 'ja');
+
+  const niess = document.querySelector('input[name="niessbrauch"]:checked')?.value;
+  toggle('cond_niessbrauch', niess === 'ja');
+
+  const wohnr = document.querySelector('input[name="wohnungsrecht"]:checked')?.value;
+  toggle('cond_wohnungsrecht', wohnr === 'ja');
+
+  const rueckf = document.querySelector('input[name="rueckforderung"]:checked')?.value;
+  toggle('cond_rueckforderung', rueckf === 'bedingt' || rueckf === 'frei');
+
+  const leibr = document.querySelector('input[name="leibrente"]:checked')?.value;
+  toggle('cond_leibrente', leibr === 'ja');
+
+  const invest = document.querySelector('input[name="investition"]:checked')?.value;
+  toggle('cond_investition', invest === 'ja');
+
+  const verbind = document.querySelector('input[name="verbindlichkeiten"]:checked')?.value;
+  toggle('cond_verbindlichkeiten', verbind === 'ja');
+
+  const pflicht = document.querySelector('input[name="pflichtteil"]:checked')?.value;
+  toggle('cond_pflichtteil', pflicht === 'ja');
+
+  const termin = document.querySelector('input[name="terminwunsch"]:checked')?.value;
+  toggle('cond_terminwunsch', termin !== 'kein');
+
+  // Verwandtschaft sonstige
+  ['ka_1', 'ka_2', 'ka_3'].forEach(p => {
+    const v = document.querySelector(`[name="${p}_verwandtschaft"]`)?.value;
+    toggle(`${p}_verwandtschaft_sonstige`, v === 'sonstige');
+  });
+}
+
+// ============================================================
+// SCROLL / PROGRESS
+// ============================================================
+function scrollToSection(n) {
+  const el = document.getElementById('section-' + n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const n = e.target.id.replace('section-', '');
+      document.querySelectorAll('.progress-step').forEach(s => {
+        const sn = s.getAttribute('data-section');
+        s.classList.remove('active');
+        if (parseInt(sn) < parseInt(n)) s.classList.add('completed');
+        else s.classList.remove('completed');
+      });
+      document.querySelector(`.progress-step[data-section="${n}"]`)?.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.form-section').forEach(s => observer.observe(s));
+
+// ============================================================
+// SAVE / LOAD (localStorage)
+// ============================================================
+function saveForm() {
+  const form = document.getElementById('mainForm');
+  const data = {};
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+    } else if (el.type === 'checkbox') {
+      data[el.name] = el.checked;
+    } else {
+      data[el.name] = el.value;
+    }
+  });
+  localStorage.setItem('ueberlassung_form', JSON.stringify(data));
+  const status = document.getElementById('saveStatus');
+  status.textContent = '✓ Gespeichert';
+  status.classList.add('saved');
+  showToast('Formular zwischengespeichert', 'success');
+}
+
+function loadForm() {
+  const saved = localStorage.getItem('ueberlassung_form');
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    Object.keys(data).forEach(name => {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (!el) return;
+      if (el.type === 'radio') {
+        const radio = document.querySelector(`[name="${name}"][value="${data[name]}"]`);
+        if (radio) radio.checked = true;
+      } else if (el.type === 'checkbox') {
+        el.checked = data[name];
+      } else {
+        el.value = data[name];
+      }
+    });
+    toggleConditional();
+    document.querySelectorAll('[name*="_famstand"]').forEach(el => {
+      const prefix = el.name.replace('_famstand', '');
+      toggleFamstand(prefix);
+    });
+    document.querySelectorAll('[name*="_dolmetscher"]').forEach(el => {
+      if (el.type === 'radio' && el.checked && el.value === 'ja') {
+        const prefix = el.name.replace('_dolmetscher', '');
+        toggleDolmetscher(prefix);
+      }
+    });
+    const status = document.getElementById('saveStatus');
+    status.textContent = '✓ Wiederhergestellt';
+    status.classList.add('saved');
+  } catch(e) {}
+}
+
+// Auto-save every 60 seconds
+setInterval(() => {
+  const form = document.getElementById('mainForm');
+  if (form.querySelector('input[value]:not([value=""])')) {
+    saveForm();
+  }
+}, 60000);
+
+// ============================================================
+// LOAD jsPDF
+// ============================================================
+let jsPDFReady = null;
+function loadJsPDF() {
+  if (jsPDFReady) return jsPDFReady;
+  jsPDFReady = new Promise((resolve, reject) => {
+    if (window.jspdf?.jsPDF) { resolve(window.jspdf.jsPDF); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+    s.onload = () => {
+      if (window.jspdf?.jsPDF) resolve(window.jspdf.jsPDF);
+      else reject(new Error('jsPDF not found'));
+    };
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  return jsPDFReady;
+}
+
+// ============================================================
+// GENERATE PDF
+// ============================================================
+async function generatePDF() {
+  let jsPDFClass;
+  try {
+    jsPDFClass = await loadJsPDF();
+  } catch(e) {
+    showToast('PDF konnte nicht erstellt werden. Druckansicht wird geöffnet.', 'error');
+    window.print();
+    return;
+  }
+  const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const marginL = 22;
+  const marginR = 22;
+  const contentW = pageW - marginL - marginR;
+  const labelW = 55;
+  const valueX = marginL + labelW + 3;
+  const valueW = contentW - labelW - 3;
+  let y = 0;
+  let rowToggle = false;
+  
+  const cPrimary = [20, 37, 66];
+  const cPrimaryLight = [29, 52, 97];
+  const cAccent = [184, 147, 78];
+  const cText = [44, 44, 44];
+  const cLabel = [90, 90, 90];
+  const cMuted = [140, 140, 140];
+  const cRowAlt = [245, 243, 239];
+  const cWhite = [255, 255, 255];
+  
+  function addPage() { doc.addPage(); y = 22; rowToggle = false; }
+  function checkSpace(needed) { if (y + needed > pageH - 20) addPage(); }
+  
+  function addTitle(text) {
+    checkSpace(18);
+    y += 4;
+    doc.setFillColor(...cPrimary);
+    doc.rect(marginL, y - 5, contentW, 9, 'F');
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...cWhite);
+    doc.text(text, marginL + 4, y + 1);
+    y += 10;
+    rowToggle = false;
+  }
+  
+  function addSubtitle(text) {
+    checkSpace(12);
+    y += 2;
+    doc.setFillColor(...cAccent);
+    doc.rect(marginL, y - 4, contentW, 0.6, 'F');
+    y += 2;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...cPrimaryLight);
+    doc.text(text, marginL, y);
+    y += 6;
+    rowToggle = false;
+  }
+  
+  function addField(label, value) {
+    if (!value || value.trim() === '' || value === 'Bitte auswählen') return;
+    const lines = doc.splitTextToSize(value, valueW);
+    const rowH = Math.max(5.5, lines.length * 4.2) + 1;
+    checkSpace(rowH + 1);
+    if (rowToggle) {
+      doc.setFillColor(...cRowAlt);
+      doc.rect(marginL, y - 3.8, contentW, rowH, 'F');
+    }
+    rowToggle = !rowToggle;
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...cLabel);
+    doc.text(label, marginL + 2, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...cText);
+    doc.setFontSize(9);
+    doc.text(lines, valueX, y);
+    y += rowH;
+  }
+  
+  function getVal(name) {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (!el) return '';
+    if (el.type === 'radio') {
+      const checked = document.querySelector(`[name="${name}"]:checked`);
+      return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
+    }
+    if (el.type === 'select-one') {
+      return el.selectedOptions[0]?.text || '';
+    }
+    return el.value || '';
+  }
+  
+  function getRadio(name) {
+    const checked = document.querySelector(`[name="${name}"]:checked`);
+    return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
+  }
+  
+  // ── HEADER ──
+  doc.setFillColor(...cPrimary);
+  doc.rect(0, 0, pageW, 36, 'F');
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...cWhite);
+  doc.text('Grundstücksüberlassungsvertrag', pageW / 2, 14, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...cAccent);
+  doc.text('Notar Alexander Beck \u00b7 Erfurt', pageW / 2, 21, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setTextColor(180, 190, 210);
+  doc.text('Wir bereiten Ihren Überlassungsvertrag rechtssicher vor', pageW / 2, 27, { align: 'center' });
+  doc.setFillColor(...cAccent);
+  doc.rect(0, 36, pageW, 1.2, 'F');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...cMuted);
+  y = 43;
+  doc.text('Erstellt am ' + new Date().toLocaleDateString('de-DE') + ' um ' + new Date().toLocaleTimeString('de-DE'), pageW - marginR, y, { align: 'right' });
+  y += 6;
+  
+  // Section I
+  addTitle('I. Angaben zur Immobilie');
+  addField('Anschrift', getVal('immo_anschrift'));
+  addField('PLZ / Ort', [getVal('immo_plz'), getVal('immo_ort')].filter(Boolean).join(' '));
+  addField('Grundbuchdaten bekannt', getRadio('grundbuch_bekannt'));
+  if (getRadio('grundbuch_bekannt').toLowerCase().includes('ja')) {
+    addField('Amtsgericht', getVal('grundbuch_amtsgericht'));
+    addField('Grundbuch von', getVal('grundbuch_von'));
+    addField('Blatt', getVal('grundbuch_blatt'));
+    addField('Gemarkung', getVal('grundbuch_gemarkung'));
+    addField('Flur', getVal('grundbuch_flur'));
+    addField('Flurstück', getVal('grundbuch_flurstueck'));
+  }
+  addField('Vertragsgegenstand', getVal('kaufgegenstand'));
+  if (getVal('kaufgegenstand') === 'eigentumswohnung') addField('Wohnungsnr.', getVal('etw_nr'));
+  addField('Baujahr', getVal('baujahr'));
+  addField('Überlassungsanteil', getRadio('anteil') === 'Sonstiger Anteil' ? getVal('anteil_sonstige') : getRadio('anteil'));
+  addField('Erblasser im GB', getRadio('erblasser'));
+  addField('Belastungen Abt. II', getRadio('belastung_abt2'));
+  if (getRadio('belastung_abt2').toLowerCase().includes('ja')) {
+    addField('Details Abt. II', getVal('belastung_abt2_details'));
+    addField('Regelung Abt. II', getRadio('belastung_abt2_regelung'));
+  }
+  addField('Belastungen Abt. III', getRadio('belastung_abt3'));
+  if (getRadio('belastung_abt3').toLowerCase().includes('ja')) {
+    addField('Status Grundschulden', getRadio('belastung_abt3_regelung'));
+    addField('Bank / Darlehen', getVal('belastung_abt3_details'));
+  }
+  addField('Vermietet/Verpachtet', getRadio('vermietet'));
+  if (getRadio('vermietet').toLowerCase().includes('ja')) {
+    addField('Vermietet an', getRadio('vermietet_an'));
+    addField('Details Vermietung', getVal('vermietung_details'));
+    addField('Übernahme Mietverh.', getRadio('mietverhaeltnis_uebernahme'));
+  }
+  
+  // Section II - Veräußerer
+  addTitle('II. Angaben zur Veräußererseite');
+  const anzVk = parseInt(document.querySelector('input[name="anz_vk"]:checked')?.value || '1');
+  addField('Anzahl Veräußerer', String(anzVk));
+  for (let i = 1; i <= anzVk; i++) {
+    addSubtitle(`Veräußerer ${i}`);
+    const p = `vk_${i}`;
+    addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+    addField('Geburtsname', getVal(`${p}_geburtsname`));
+    addField('Geburtsort', getVal(`${p}_geburtsort`));
+    addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+    addField('Anschrift', [getVal(`${p}_anschrift`), getVal(`${p}_plz`), getVal(`${p}_ort`), getVal(`${p}_land`)].filter(Boolean).join(', '));
+    addField('E-Mail', getVal(`${p}_email`));
+    addField('Telefon', getVal(`${p}_tel`));
+    addField('Steuer-ID', getVal(`${p}_steuerid`));
+    addField('Familienstand', getVal(`${p}_famstand`));
+    addField('Kontoinhaber', getVal(`${p}_kontoinhaber`));
+    addField('IBAN', getVal(`${p}_iban`));
+    addField('BIC', getVal(`${p}_bic`));
+    addField('Bank', getVal(`${p}_bank`));
+    addField('Abw. Kontoinhaber', getVal(`${p}_kontoinhaber_abw`));
+  }
+  
+  // Section III - Erwerber
+  addTitle('III. Angaben zur Erwerberseite');
+  const anzKa = parseInt(document.querySelector('input[name="anz_ka"]:checked')?.value || '1');
+  addField('Anzahl Erwerber', String(anzKa));
+  for (let i = 1; i <= anzKa; i++) {
+    addSubtitle(`Erwerber ${i}`);
+    const p = `ka_${i}`;
+    addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+    addField('Geburtsname', getVal(`${p}_geburtsname`));
+    addField('Geburtsort', getVal(`${p}_geburtsort`));
+    addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+    addField('Anschrift', [getVal(`${p}_anschrift`), getVal(`${p}_plz`), getVal(`${p}_ort`), getVal(`${p}_land`)].filter(Boolean).join(', '));
+    addField('E-Mail', getVal(`${p}_email`));
+    addField('Telefon', getVal(`${p}_tel`));
+    addField('Steuer-ID', getVal(`${p}_steuerid`));
+    addField('Familienstand', getVal(`${p}_famstand`));
+    addField('Verwandtschaft', getVal(`${p}_verwandtschaft`));
+    if (getVal(`${p}_verwandtschaft`) === 'sonstige') {
+      addField('Verwandtschaft (Details)', getVal(`${p}_verwandtschaft_details`));
+    }
+  }
+  
+  // Section IV
+  addTitle('IV. Gegenleistungen und vorbehaltene Rechte');
+  addField('Auszahlung', getRadio('auszahlung'));
+  if (getRadio('auszahlung').toLowerCase().includes('ja')) {
+    addField('Betrag', getVal('auszahlung_betrag') ? getVal('auszahlung_betrag') + ' €' : '');
+    addField('Fälligkeit', getRadio('auszahlung_faelligkeit'));
+    addField('Datum/Details', getVal('auszahlung_datum'));
+  }
+  addField('Geschwister-Auszahl.', getRadio('geschwister_auszahlung'));
+  if (getRadio('geschwister_auszahlung').toLowerCase().includes('ja')) {
+    addField('An wen', getVal('geschwister_an'));
+    addField('Betrag', getVal('geschwister_betrag') ? getVal('geschwister_betrag') + ' €' : '');
+    addField('Fälligkeit', getVal('geschwister_faelligkeit'));
+  }
+  addField('Nießbrauch', getRadio('niessbrauch'));
+  if (getRadio('niessbrauch').toLowerCase().includes('ja')) {
+    addField('Außerord. Lasten', getRadio('niessbrauch_lasten'));
+    addField('Nachr. f. Ehegatte', getRadio('niessbrauch_ehegatte'));
+  }
+  addField('Wohnungsrecht', getRadio('wohnungsrecht'));
+  if (getRadio('wohnungsrecht').toLowerCase().includes('ja')) {
+    addField('Räume', getVal('wohnungsrecht_raeume'));
+    addField('Kostenregelung', getRadio('wohnungsrecht_kosten'));
+    addField('Nachr. f. Ehegatte', getRadio('wohnungsrecht_ehegatte'));
+  }
+  addField('Rückforderungsrecht', getRadio('rueckforderung'));
+  if (getRadio('rueckforderung').toLowerCase().includes('ja')) {
+    addField('Übergang auf Ehegatte', getRadio('rueckforderung_ehegatte'));
+  }
+  addField('Leibrente', getRadio('leibrente'));
+  if (getRadio('leibrente').toLowerCase().includes('ja')) {
+    addField('Monatl. Betrag', getVal('leibrente_betrag') ? getVal('leibrente_betrag') + ' €' : '');
+  }
+  addField('Pflegevereinbarung', getRadio('pflege'));
+  addField('Beerdigungsvereinb.', getRadio('beerdigung'));
+  addField('Invest. Erwerber', getRadio('investition'));
+  if (getRadio('investition').toLowerCase().includes('ja')) {
+    addField('Invest. Höhe', getVal('investition_betrag') ? getVal('investition_betrag') + ' €' : '');
+  }
+  addField('Übernahme Verbindl.', getRadio('verbindlichkeiten'));
+  if (getRadio('verbindlichkeiten').toLowerCase().includes('ja')) {
+    addField('Verbindl. Details', getVal('verbindlichkeiten_details'));
+  }
+  addField('Pflichtteilsverzicht', getRadio('pflichtteil'));
+  if (getRadio('pflichtteil').toLowerCase().includes('ja')) {
+    addField('Von wem', getVal('pflichtteil_von'));
+  }
+  addField('Kosten Notar/GB', getRadio('kosten'));
+  
+  // Section V
+  addTitle('V. Anmerkungen / Auftragserteilung');
+  addField('Sonstiges', getVal('anmerkungen'));
+  addField('Ausfüllende/r', getVal('ausfueller_name'));
+  addField('E-Mail', getVal('ausfueller_email'));
+  addField('Telefon', getVal('ausfueller_tel'));
+  const beauftr = document.querySelector('input[name="beauftragung"]');
+  if (beauftr?.checked) {
+    addField('Beauftragung', 'Ich beauftrage den Notar, die Beurkundung des Grundstücksüberlassungsvertrages vorzubereiten. Mir ist bewusst, dass durch die Entwurfserstellung Kosten entstehen, auch wenn es nicht zur Beurkundung kommt.');
+  }
+  addField('Auftraggeber', getRadio('auftraggeber'));
+  addField('Versand an VK', getRadio('versand_vk'));
+  addField('Versand an Erwerber', getRadio('versand_ka'));
+  addField('Terminwunsch', getRadio('terminwunsch'));
+  if (document.querySelector('input[name="terminwunsch"]:checked')?.value !== 'kein') {
+    addField('Wunschdatum', getVal('termin_datum'));
+    addField('Uhrzeit', getVal('termin_uhrzeit'));
+  }
+  
+  // Footer
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...cAccent);
+    doc.setLineWidth(0.4);
+    doc.line(marginL, pageH - 14, pageW - marginR, pageH - 14);
+    doc.setFontSize(7);
+    doc.setTextColor(...cMuted);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Notar Alexander Beck \u00b7 Erfurt', marginL, pageH - 10);
+    doc.text(`Seite ${p} von ${totalPages}`, pageW - marginR, pageH - 10, { align: 'right' });
+  }
+  
+  doc.save('Ueberlassungsvertrag_Beck_' + new Date().toISOString().slice(0,10) + '.pdf');
+  showToast('PDF wurde erstellt und heruntergeladen.', 'success');
+}
+
+// ============================================================
+// SUBMIT FORM
+// ============================================================
+function submitForm() {
+  const form = document.getElementById('mainForm');
+  const requiredFields = form.querySelectorAll('[required]');
+  let valid = true;
+  requiredFields.forEach(f => {
+    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+      f.style.borderColor = 'var(--error)';
+      valid = false;
+    } else {
+      f.style.borderColor = '';
+    }
+  });
+  if (!valid) {
+    showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+    const firstInvalid = form.querySelector('[required]:invalid, [required][style*="error"]');
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  generatePDF().then(() => {
+    showSubmitConfirmation();
+  });
+}
+
+function showSubmitConfirmation() {
+  document.getElementById('submitOverlay').classList.add('visible');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  togglePersonCount('vk');
+  togglePersonCount('ka');
+  toggleConditional();
+  loadForm();
+});
+</script>
+</body>
+</html>
