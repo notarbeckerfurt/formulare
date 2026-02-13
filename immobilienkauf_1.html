@@ -442,7 +442,7 @@ input[type="radio"], input[type="checkbox"] {
 <!-- Intro -->
 <div class="intro">
   Wir möchten Ihr Anliegen schnell und rechtssicher umsetzen. Hierfür benötigen wir einige Angaben von Ihnen. 
-  Bitte füllen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>„Formular absenden &amp; PDF erstellen"</strong>. 
+  Bitte füllen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>„Formular absenden"</strong>. 
   Es wird ein PDF-Dokument mit Ihren Angaben erstellt und auf Ihrem Gerät gespeichert. Bitte übermitteln Sie dieses anschließend auf einem sicheren Weg an unser Notariat (per verschlüsselter E-Mail, Post oder persönlich).
   Sie haben die Möglichkeit, Ihre Eingaben jederzeit <strong>zwischenzuspeichern</strong> und das Formular zu einem späteren Zeitpunkt zu vervollständigen. 
   Für Fragen stehen wir Ihnen selbstverständlich gerne zur Verfügung.
@@ -622,10 +622,11 @@ input[type="radio"], input[type="checkbox"] {
     <div class="field-group">
       <label>Vermietet an</label>
       <div class="radio-group">
-        <label><input type="radio" name="vermietet_an" value="kaeufer"><span>Vermietet an Käufer</span></label>
-        <label><input type="radio" name="vermietet_an" value="dritte"><span>Vermietet an Dritten</span></label>
+        <label><input type="radio" name="vermietet_an" value="kaeufer" onchange="toggleConditional()"><span>Vermietet an Käufer</span></label>
+        <label><input type="radio" name="vermietet_an" value="dritte" onchange="toggleConditional()"><span>Vermietet an Dritten</span></label>
       </div>
     </div>
+    <div class="conditional" id="cond_mieter_details">
     <div class="field-row">
       <div class="field-group">
         <label>Vorname des Mieters</label>
@@ -659,6 +660,7 @@ input[type="radio"], input[type="checkbox"] {
         <label><input type="radio" name="mieter_vorkaufsrecht" value="nein"><span>Nein</span></label>
         <label><input type="radio" name="mieter_vorkaufsrecht" value="unsicher"><span>Nicht sicher</span></label>
       </div>
+    </div>
     </div>
   </div>
 
@@ -988,24 +990,6 @@ input[type="radio"], input[type="checkbox"] {
     <div class="info-box">
       Soll der Kaufpreis finanziert werden, bitte ich, mir zwei Tage vor Beurkundung des Kaufvertrages einen Grundschuldbestellungsauftrag Ihrer finanzierenden Bank vorzulegen.
     </div>
-    <div class="field-group">
-      <label>Name der finanzierenden Bank</label>
-      <input type="text" name="fin_bank">
-    </div>
-    <div class="field-group">
-      <label>Anschrift der finanzierenden Bank</label>
-      <input type="text" name="fin_bank_anschrift">
-    </div>
-    <div class="field-row">
-      <div class="field-group">
-        <label>PLZ</label>
-        <input type="text" name="fin_bank_plz">
-      </div>
-      <div class="field-group">
-        <label>Ort</label>
-        <input type="text" name="fin_bank_ort">
-      </div>
-    </div>
   </div>
 
   <!-- Zeitpunkt -->
@@ -1026,6 +1010,9 @@ input[type="radio"], input[type="checkbox"] {
     </div>
   </div>
   <div class="conditional" id="cond_zahlung_raten">
+    <div class="info-box">
+      Bei Ratenzahlung ist ggf. ein gesonderter Tilgungsplan beizubringen. Bitte senden Sie diesen zumindest als Scan vorab per E-Mail zu.
+    </div>
     <div class="field-group">
       <label>Ratenzahlungsplan</label>
       <span class="label-hint">Bitte genaue Auflistung der Raten (Höhe, Fälligkeit).</span>
@@ -1350,8 +1337,7 @@ input[type="radio"], input[type="checkbox"] {
     <div class="save-status" id="saveStatus">Nicht gespeichert</div>
     <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="generatePDF()">📄 Nur PDF erstellen</button>
-      <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 Formular absenden &amp; PDF erstellen</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 Formular absenden</button>
     </div>
   </div>
 </div>
@@ -2115,6 +2101,8 @@ function toggleConditional() {
   // Nutzung
   const nutzung = document.querySelector('[name="nutzung"]')?.value;
   toggle('cond_vermietet', nutzung === 'vermietet' || nutzung === 'gemischt');
+  const vermietetAn = document.querySelector('input[name="vermietet_an"]:checked')?.value;
+  toggle('cond_mieter_details', vermietetAn === 'dritte');
   toggle('cond_landwirtschaft', nutzung === 'landwirtschaft');
 
   // Stellplatz
@@ -2566,9 +2554,6 @@ async function generatePDF() {
   addField('Gesamtkaufpreis', getVal('kaufpreis') ? getVal('kaufpreis') + ' €' : '');
   addField('KP bewegl. Gegenstände', getVal('kaufpreis_beweglich') ? getVal('kaufpreis_beweglich') + ' €' : '');
   addField('Finanzierung', getVal('finanzierung'));
-  if (getVal('finanzierung').toLowerCase().includes('ja')) {
-    addField('Finanzierende Bank', getVal('fin_bank'));
-  }
   addField('Zahlung/Fälligkeit', getVal('zahlung_zeitpunkt'));
   addField('Notaranderkonto', getVal('notaranderkonto'));
   addField('Besitzübergang', getVal('besitzuebergang'));
