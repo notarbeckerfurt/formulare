@@ -4,9 +4,9 @@ N:Beck;Alexander;;;
 FN:Alexander Beck
 TITLE:Notar
 ORG:Notar Alexander Beck
-TEL;TYPE=WORK,VOICE:+49 361 210170
-TEL;TYPE=WORK,FAX:+49 361 2101716
-ADR;TYPE=WORK:;;Futterstraße 13/13a;Erfurt;;99084;Deutschland
-EMAIL;TYPE=WORK:info@notar-beck-erfurt.de
+TEL;TYPE=CELL:+49 361 210170
+TEL;TYPE=FAX:+49 361 2101716
+EMAIL:info@notar-beck-erfurt.de
 URL:https://notar-beck-erfurt.de
+ADR;TYPE=WORK:;;Futterstraße 13/13a;Erfurt;;99084;Deutschland
 END:VCARD
