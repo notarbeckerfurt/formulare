@@ -2419,20 +2419,42 @@ async function generatePDF() {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+    
+    // Store PDF as base64 for email attachment (from blob, not datauristring)
+    try {
+      const reader = new FileReader();
+      reader.onload = function() {
+        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+        window.__lastPdfFileName = pdfFileName;
+      };
+      reader.readAsDataURL(pdfBlob);
+    } catch(e) {
+      window.__lastPdfBase64 = null;
+    }
   } catch(dlErr) {
+    // Fallback: arraybuffer -> blob (avoids doc.save which may open new tab)
     console.warn('Blob-Download fehlgeschlagen, Fallback:', dlErr);
-    doc.save(pdfFileName);
-  }
-  showToast('PDF wurde erstellt und heruntergeladen.', 'success');
-  
-  // Store PDF as base64 for email attachment
-  try {
-    window.__lastPdfBase64 = doc.output('datauristring').split('base64,')[1];
-    window.__lastPdfFileName = pdfFileName;
-  } catch(e) {
+    try {
+      const arrBuf = doc.output('arraybuffer');
+      const fallbackBlob = new Blob([arrBuf], { type: 'application/pdf' });
+      const fbUrl = URL.createObjectURL(fallbackBlob);
+      const fbLink = document.createElement('a');
+      fbLink.href = fbUrl;
+      fbLink.download = pdfFileName;
+      fbLink.style.display = 'none';
+      document.body.appendChild(fbLink);
+      fbLink.click();
+      document.body.removeChild(fbLink);
+      setTimeout(() => URL.revokeObjectURL(fbUrl), 30000);
+    } catch(fbErr) {
+      console.error('Auch Fallback fehlgeschlagen:', fbErr);
+      showToast('PDF konnte nicht heruntergeladen werden.', 'error');
+      return;
+    }
     window.__lastPdfBase64 = null;
   }
+  showToast('PDF wurde erstellt und heruntergeladen.', 'success');
 }
 
 // ============================================================
