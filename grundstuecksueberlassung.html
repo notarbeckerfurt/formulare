@@ -422,7 +422,7 @@ input[type="radio"], input[type="checkbox"] {
     <strong>Dokumente einreichen:</strong> Bitte senden Sie 
 erforderliche Unterlagen (z.&nbsp;B. Grundsteuermessbescheid, 
 Gebäudeversicherungspolice, Erbschein, Lagepläne) zumindest als Scan 
-vorab per E-Mail an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
+vorab per E-Mail an <em><a href="/cdn-cgi/l/email-protection#2c45424a436c4243584d5e014e494f4701495e4a595e58024849"><span class="__cf_email__" data-cfemail="137a7d757c537d7c6772613e717670783e7661756661673d7776">[email&#160;protected]</span></a></em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
   </div>
 </div>
 
@@ -524,7 +524,7 @@ vorab per E-Mail an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-be
     <div class="info-box">
       Bitte senden Sie uns einen Plan, aus dem sich die genauen Grenzen 
 des Vertragsgegenstandes ergeben, zumindest als Scan vorab per E-Mail 
-an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></em> zu.
+an <em><a href="/cdn-cgi/l/email-protection#11787f777e517f7e6570633c7374727a3c7463776463653f7574"><span class="__cf_email__" data-cfemail="f29b9c949db29c9d869380df90979199df978094878086dc9697">[email&#160;protected]</span></a></em> zu.
       Bei einer noch zu vermessenden Teilfläche muss im Vertrag die 
 Teilfläche so genau beschrieben werden, dass auch außenstehende Dritte 
 Lage und Grenze eindeutig feststellen können.
@@ -560,7 +560,7 @@ Lage und Grenze eindeutig feststellen können.
       Wenn ja, bitte den entsprechenden Erbnachweis beifügen: Erbschein 
 (Ausfertigung), notarielles Testament/Erbvertrag mit Eröffnungsprotokoll
  (beglaubigte Kopie) oder Europäisches Nachlasszeugnis. Bitte senden Sie
- die Unterlagen zumindest als Scan vorab per E-Mail an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></em> zu.
+ die Unterlagen zumindest als Scan vorab per E-Mail an <em><a href="/cdn-cgi/l/email-protection#fa93949c95ba94958e9b88d7989f9991d79f889c8f888ed49e9f"><span class="__cf_email__" data-cfemail="5930373f361937362d382b743b3c3a32743c2b3f2c2b2d773d3c">[email&#160;protected]</span></a></em> zu.
     </div>
   </div>
 
@@ -1340,7 +1340,7 @@ Beurkundung kommt.</span>
 
 <footer class="footer">
   <p>Notar Alexander Beck · Futterstraße 13/13a · 99084 Erfurt</p>
-  <p>Tel.: 0361 210 170 · <a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></p>
+  <p>Tel.: 0361 210 170 · <a href="/cdn-cgi/l/email-protection#30595e565f705e5f4451421d5255535b1d5542564542441e5455"><span class="__cf_email__" data-cfemail="93fafdf5fcd3fdfce7f2e1bef1f6f0f8bef6e1f5e6e1e7bdf7f6">[email&#160;protected]</span></a></p>
 </footer>
 
 <!-- Toolbar -->
@@ -1354,7 +1354,7 @@ Beurkundung kommt.</span>
   </div>
 </div>
 
-<script id="jspdf-lib">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script id="jspdf-lib">
 /** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -2408,7 +2408,22 @@ async function generatePDF() {
   }
   
   const pdfFileName = 'Ueberlassungsvertrag_Beck_' + new Date().toISOString().slice(0,10) + '.pdf';
-  doc.save(pdfFileName);
+  // Download PDF via hidden link (prevents new tab/window)
+  try {
+    const pdfBlob = doc.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = blobUrl;
+    downloadLink.download = pdfFileName;
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+  } catch(dlErr) {
+    console.warn('Blob-Download fehlgeschlagen, Fallback:', dlErr);
+    doc.save(pdfFileName);
+  }
   showToast('PDF wurde erstellt und heruntergeladen.', 'success');
   
   // Store PDF as base64 for email attachment
@@ -2769,27 +2784,4 @@ function showCopySuccess(btn) {
   btn.style.background = '#d4edda';
   btn.style.borderColor = '#a3d9b1';
   setTimeout(() => {
-    btn.querySelector('span:nth-child(2) > span:first-child').textContent = origHTML;
-    btn.style.background = '#f0ebe3';
-    btn.style.borderColor = '#d4caba';
-  }, 2000);
-}
-
-// ============================================================
-// AUTO-SAVE
-// ============================================================
-let autoSaveTimer;
-document.getElementById('mainForm').addEventListener('input', () => {
-  clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(() => {
-    saveForm();
-  }, 30000); // Auto-save after 30s of inactivity
-});
-
-// ============================================================
-// INIT
-// ============================================================
-loadForm();
-</script>
-</body>
-</html>
+    btn.querySelector('s
