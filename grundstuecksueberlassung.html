@@ -2784,4 +2784,12 @@ function showCopySuccess(btn) {
   btn.style.background = '#d4edda';
   btn.style.borderColor = '#a3d9b1';
   setTimeout(() => {
-    btn.querySelector('s
+    btn.querySelector('span:nth-child(2) > span:first-child').textContent = origHTML;
+    btn.style.background = '#f0ebe3';
+    btn.style.borderColor = '#d4caba';
+  }, 2000);
+}
+
+</script>
+</body>
+</html>
