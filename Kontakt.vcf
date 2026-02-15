@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:4.0
+N:Beck;Alexander;;;
+FN:Alexander Beck
+TITLE:Notar
+ORG:Notar Alexander Beck
+TEL;TYPE=work,voice;VALUE=uri:tel:+49361210170
+TEL;TYPE=work,fax;VALUE=uri:tel:+493612101716
+ADR;TYPE=work:;;Futterstraße 13/13a;Erfurt;;99084;Deutschland
+EMAIL;TYPE=work:info@notar-beck-erfurt.de
+URL:https://notar-beck-erfurt.de
+END:VCARD
