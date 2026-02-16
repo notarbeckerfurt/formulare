@@ -1945,7 +1945,11 @@ function togglePersonCount(type) {
   for (let i = 1; i <= count; i++) {
     container.insertAdjacentHTML('beforeend', generatePersonBlock(type, i));
   }
+  // Restore saved field values for the generated blocks,
+  // but preserve the current radio selection (anz_vk/anz_ka)
   loadForm();
+  const radio = document.querySelector(`input[name="anz_${type}"][value="${count}"]`);
+  if (radio) radio.checked = true;
 }
 
 function toggleFamstand(prefix) {
