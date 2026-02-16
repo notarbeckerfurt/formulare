@@ -1216,7 +1216,7 @@ input[type="radio"], input[type="checkbox"] {
   </div>
 
   <div class="info-box">
-    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Erbschein, Lagepläne, Vollmachten) zumindest als Scan vorab per E-Mail an <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9bf2f5fdf4dbf5f4effae9b6f9fef8f0b6fee9fdeee9efb5fffe">[email&#160;protected]</a></em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
+    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Erbschein, Lagepläne, Vollmachten) zumindest als Scan vorab per E-Mail an <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="20494e464f604e4f5441520d4245434b0d4552465552540e4445">[email&#160;protected]</a></em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
   </div>
 
   <div class="subsection-title">Angaben zur ausfüllenden Person</div>
@@ -1245,12 +1245,8 @@ input[type="radio"], input[type="checkbox"] {
   </div>
 
   <div class="info-box" style="margin-top:1rem">
-    <strong>Sicherer Versand:</strong> Nach dem Absenden wird ein PDF-Dokument mit Ihren Formulardaten erstellt und auf Ihrem Gerät gespeichert. 
-    Bitte übermitteln Sie dieses PDF auf einem der folgenden sicheren Wege an unser Notariat:<br>
-    &bull; per <strong>verschlüsselter E-Mail</strong> an <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="234a4d454c634d4c5742510e414640480e4651455651570d4746">[email&#160;protected]</a></em><br>
-    &bull; per <strong>Post</strong> an unser Notariat<br>
-    &bull; durch <strong>persönliche Abgabe</strong> in unserer Kanzlei<br>
-    So stellen wir gemeinsam sicher, dass Ihre sensiblen Daten geschützt übermittelt werden.
+    <strong>So funktioniert die Übermittlung:</strong> Nach dem Absenden wird ein PDF erstellt. 
+    Sie können es dann <strong>direkt an die Kanzlei senden</strong>, per E-Mail mit Anhang verschicken oder manuell herunterladen.
   </div>
 
   <div class="subsection-title">Beauftragung</div>
@@ -1328,6 +1324,11 @@ input[type="radio"], input[type="checkbox"] {
   </div>
 </section>
 
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
+    <button type="button" class="btn btn-secondary" onclick="saveForm()">💾 Zwischenspeichern</button>
+  </div>
+
 </form>
 </main>
 
@@ -1337,7 +1338,7 @@ input[type="radio"], input[type="checkbox"] {
     <div class="save-status" id="saveStatus">Nicht gespeichert</div>
     <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 Formular absenden</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
 </div>
@@ -2658,6 +2659,8 @@ function submitForm() {
 
 function showSubmitConfirmation() {
   const notarEmail = 'info@notar-beck-erfurt.de';
+  const mailSubject = encodeURIComponent('Immobilienkaufvertrag – Formulardaten');
+  const mailBody = encodeURIComponent('Sehr geehrte Damen und Herren,\n\nanbei übersende ich Ihnen meine ausgefüllten Formulardaten zum Immobilienkaufvertrag als PDF-Datei.\n\nBitte vergessen Sie nicht, die heruntergeladene PDF-Datei als Anhang beizufügen.\n\nMit freundlichen Grüßen');
   
   const overlay = document.createElement('div');
   overlay.id = 'submitOverlay';
@@ -2714,7 +2717,7 @@ function showSubmitConfirmation() {
           
           <div id="emlOpenHint" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;font-size:0.82rem;line-height:1.5;color:#1b5e20;">
             <strong>✓ E-Mail-Datei heruntergeladen!</strong><br>
-            Bitte öffnen Sie die Datei <code style="background:#c8e6c9;padding:1px 5px;border-radius:3px;font-size:0.85em;">Immobilienkaufvertrag_an_Notar_Beck.eml</code> aus Ihrem Downloads-Ordner. Outlook startet dann mit dem PDF im Anhang.
+            Bitte öffnen Sie die Datei <code style="background:#c8e6c9;padding:1px 5px;border-radius:3px;font-size:0.85em;">Immobilienkauf_an_Notar_Beck.eml</code> aus Ihrem Downloads-Ordner. Outlook startet dann mit dem PDF im Anhang.
           </div>
           
           <!-- E-Mail-Adresse kopieren -->
@@ -2772,9 +2775,6 @@ function showSubmitConfirmation() {
   }
 }
 
-// ============================================================
-// PDF MANUAL DOWNLOAD
-// ============================================================
 function downloadPdfManual(btn) {
   if (!window.__lastPdfBlob) {
     showToast('Kein PDF vorhanden. Bitte erstellen Sie zuerst ein PDF.', 'error');
@@ -2805,9 +2805,6 @@ function downloadPdfManual(btn) {
   }
 }
 
-// ============================================================
-// DIRECT UPLOAD (Formsubmit.co)
-// ============================================================
 function sendDirectUpload(btn) {
   const statusDiv = document.getElementById('uploadStatus');
   
@@ -2834,8 +2831,8 @@ function sendDirectUpload(btn) {
   });
   
   // Absendername ermitteln
-  const vorname = form.querySelector('[name="ka_1_vorname"]');
-  const nachname = form.querySelector('[name="ka_1_nachname"]');
+  const vorname = form.querySelector('[name="vk1_vorname"]');
+  const nachname = form.querySelector('[name="vk1_nachname"]');
   const absenderName = (vorname && nachname && (vorname.value || nachname.value)) 
     ? (vorname.value + ' ' + nachname.value).trim() 
     : 'Mandant';
@@ -2885,6 +2882,7 @@ function sendDirectUpload(btn) {
       
       showToast('Formulardaten wurden erfolgreich an die Kanzlei gesendet!', 'success');
     } else {
+      // Formsubmit hat geantwortet aber nicht success
       const msg = data.message || JSON.stringify(data);
       console.warn('Formsubmit nicht erfolgreich:', msg);
       throw new Error(msg);
@@ -2916,9 +2914,6 @@ function sendDirectUpload(btn) {
   });
 }
 
-// ============================================================
-// EMAIL WITH PDF ATTACHMENT (.eml)
-// ============================================================
 function sendEmailWithAttachment(btn) {
   const notarEmail = 'info@notar-beck-erfurt.de';
   const subject = 'Immobilienkaufvertrag – Formulardaten';
@@ -2965,13 +2960,13 @@ function sendEmailWithAttachment(btn) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'Immobilienkaufvertrag_an_Notar_Beck.eml';
+  a.download = 'Immobilienkauf_an_Notar_Beck.eml';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 30000);
   
-  // Button-Feedback
+  // Button in Erfolgs-Zustand
   if (btn) {
     btn.style.background = '#2e7d32';
     btn.onmouseover = null;
@@ -2986,9 +2981,6 @@ function sendEmailWithAttachment(btn) {
   if (hint) hint.style.display = 'block';
 }
 
-// ============================================================
-// COPY EMAIL TO CLIPBOARD
-// ============================================================
 function copyEmailToClipboard() {
   const email = 'info@notar-beck-erfurt.de';
   const btn = document.getElementById('btnCopyEmail');
@@ -3014,26 +3006,26 @@ function fallbackCopy(text, btn) {
     document.execCommand('copy');
     showCopySuccess(btn);
   } catch(e) {
-    showToast('Kopieren fehlgeschlagen – bitte manuell kopieren.', 'error');
+    showToast('Kopieren fehlgeschlagen. Bitte manuell kopieren: ' + text, 'error');
   }
   document.body.removeChild(ta);
 }
 
 function showCopySuccess(btn) {
   if (!btn) return;
-  const origSpan = btn.querySelector('span > span:first-child');
-  if (origSpan) {
-    const origText = origSpan.textContent;
-    origSpan.textContent = '✓ Kopiert!';
+  const origLabel = btn.querySelector('span > span:first-child');
+  if (origLabel) {
+    const origText = origLabel.textContent;
+    origLabel.textContent = '✓ Kopiert!';
     btn.style.background = '#d4edda';
     btn.style.borderColor = '#a3d9b1';
     setTimeout(() => {
-      origSpan.textContent = origText;
+      origLabel.textContent = origText;
       btn.style.background = '#f0ebe3';
       btn.style.borderColor = '#d4caba';
     }, 2500);
   }
-  showToast('E-Mail-Adresse in die Zwischenablage kopiert!', 'success');
+  showToast('E-Mail-Adresse in Zwischenablage kopiert!', 'success');
 }
 
 // ============================================================
