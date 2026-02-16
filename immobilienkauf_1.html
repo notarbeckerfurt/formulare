@@ -1216,7 +1216,7 @@ input[type="radio"], input[type="checkbox"] {
   </div>
 
   <div class="info-box">
-    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Erbschein, Lagepläne, Vollmachten) zumindest als Scan vorab per E-Mail an <em>info@notar-beck-erfurt.de</em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
+    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. Erbschein, Lagepläne, Vollmachten) zumindest als Scan vorab per E-Mail an <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9bf2f5fdf4dbf5f4effae9b6f9fef8f0b6fee9fdeee9efb5fffe">[email&#160;protected]</a></em>. So können wir den Vertragsentwurf zügig und vollständig vorbereiten.
   </div>
 
   <div class="subsection-title">Angaben zur ausfüllenden Person</div>
@@ -1247,7 +1247,7 @@ input[type="radio"], input[type="checkbox"] {
   <div class="info-box" style="margin-top:1rem">
     <strong>Sicherer Versand:</strong> Nach dem Absenden wird ein PDF-Dokument mit Ihren Formulardaten erstellt und auf Ihrem Gerät gespeichert. 
     Bitte übermitteln Sie dieses PDF auf einem der folgenden sicheren Wege an unser Notariat:<br>
-    &bull; per <strong>verschlüsselter E-Mail</strong> an <em>info@notar-beck-erfurt.de</em><br>
+    &bull; per <strong>verschlüsselter E-Mail</strong> an <em><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="234a4d454c634d4c5742510e414640480e4651455651570d4746">[email&#160;protected]</a></em><br>
     &bull; per <strong>Post</strong> an unser Notariat<br>
     &bull; durch <strong>persönliche Abgabe</strong> in unserer Kanzlei<br>
     So stellen wir gemeinsam sicher, dass Ihre sensiblen Daten geschützt übermittelt werden.
@@ -1350,7 +1350,7 @@ input[type="radio"], input[type="checkbox"] {
   </p>
 </footer>
 
-<script id="jspdf-lib">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script id="jspdf-lib">
 /** @license
  *
  * jsPDF - PDF Document creation from JavaScript
@@ -2598,8 +2598,30 @@ async function generatePDF() {
     doc.text(`Seite ${p} von ${totalPages}`, pageW - marginR, pageH - 10, { align: 'right' });
   }
   
-  doc.save('Immobilienkaufvertrag_Beck_' + new Date().toISOString().slice(0,10) + '.pdf');
-  showToast('PDF wurde erstellt und heruntergeladen.', 'success');
+  const pdfFileName = 'Immobilienkaufvertrag_Beck_' + new Date().toISOString().slice(0,10) + '.pdf';
+  
+  // PDF nur im Speicher ablegen – KEIN automatischer Download
+  try {
+    const pdfBlob = doc.output('blob');
+    window.__lastPdfBlob = pdfBlob;
+    window.__lastPdfFileName = pdfFileName;
+    
+    // Base64 für E-Mail-Anhang vorbereiten
+    try {
+      const reader = new FileReader();
+      reader.onload = function() {
+        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+      };
+      reader.readAsDataURL(pdfBlob);
+    } catch(e) {
+      window.__lastPdfBase64 = null;
+    }
+  } catch(err) {
+    console.error('PDF-Erzeugung fehlgeschlagen:', err);
+    showToast('PDF konnte nicht erstellt werden.', 'error');
+    return;
+  }
+  showToast('PDF wurde erfolgreich erstellt.', 'success');
 }
 
 // ============================================================
@@ -2635,31 +2657,383 @@ function submitForm() {
 }
 
 function showSubmitConfirmation() {
-  // Create overlay with instructions
+  const notarEmail = 'info@notar-beck-erfurt.de';
+  
   const overlay = document.createElement('div');
   overlay.id = 'submitOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(20,37,66,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(20,37,66,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
   overlay.innerHTML = `
-    <div style="background:white;border-radius:8px;padding:2.5rem;max-width:560px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.25);text-align:center;">
-      <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
-      <h2 style="font-family:Georgia,serif;color:#142542;margin-bottom:0.75rem;font-size:1.4rem;">PDF wurde erstellt</h2>
-      <p style="color:#5a5a5a;line-height:1.7;font-size:0.95rem;margin-bottom:1.5rem;">
-        Ihre Formulardaten wurden als PDF auf Ihrem Gerät gespeichert.<br><br>
-        <strong>Bitte übermitteln Sie das PDF auf einem sicheren Weg:</strong>
-      </p>
-      <div style="text-align:left;background:#eef3f9;border-radius:6px;padding:1.25rem;margin-bottom:1.5rem;font-size:0.9rem;line-height:1.8;color:#2c2c2c;">
-        <strong style="color:#142542;">① Verschlüsselte E-Mail</strong> an info@notar-beck-erfurt.de<br>
-        <strong style="color:#142542;">② Post</strong> an unser Notariat<br>
-        <strong style="color:#142542;">③ Persönliche Abgabe</strong> in unserer Kanzlei
+    <div style="background:white;border-radius:10px;padding:2rem 2.5rem;max-width:580px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.3);text-align:center;">
+      
+      <div style="background:#e8f5e9;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <span style="font-size:1.8rem;">📄</span>
       </div>
-      <button onclick="document.getElementById('submitOverlay').remove()" 
-        style="background:#142542;color:white;border:none;padding:0.75rem 2.5rem;border-radius:6px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;">
-        Verstanden
-      </button>
+      
+      <h2 style="font-family:Georgia,serif;color:#142542;margin-bottom:0.5rem;font-size:1.35rem;">
+        PDF wurde erfolgreich erstellt
+      </h2>
+      
+      <p style="color:#5a5a5a;font-size:0.9rem;margin:0.5rem 0 1.25rem;line-height:1.5;">
+        Jetzt das PDF direkt an die Kanzlei übermitteln:
+      </p>
+      
+      <div style="margin:0 0 1.25rem;">
+        
+        <!-- PRIMÄR: Direkt absenden -->
+        <button onclick="sendDirectUpload(this)" id="btnDirectSend"
+           style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#2e7d32;color:white;border:none;padding:1rem 1.25rem;border-radius:8px;margin-bottom:0.6rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+           onmouseover="this.style.background='#388e3c'" onmouseout="this.style.background='#2e7d32'">
+          <span style="font-size:1.4rem;flex-shrink:0;" class="sendIcon">🚀</span>
+          <span style="text-align:left;flex:1;">
+            <span style="display:block;" class="sendLabel">Jetzt direkt an Notar Beck senden</span>
+            <span style="display:block;font-size:0.75rem;font-weight:400;opacity:0.85;margin-top:2px;" class="sendSub">Formulardaten werden sofort an die Kanzlei übermittelt</span>
+          </span>
+          <span style="font-size:1.1rem;flex-shrink:0;">→</span>
+        </button>
+        
+        <div id="uploadStatus" style="display:none;border-radius:8px;padding:0.85rem 1rem;margin-bottom:0.6rem;font-size:0.88rem;line-height:1.6;"></div>
+      </div>
+      
+      <!-- Sekundäre Optionen -->
+      <details style="text-align:left;margin:1rem 0;cursor:pointer;">
+        <summary style="font-size:0.85rem;color:#5a5a5a;font-weight:600;padding:0.5rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem;">
+          <span style="transition:transform 0.2s;display:inline-block;" class="detailsArrow">▸</span> Alternative Übermittlungswege
+        </summary>
+        <div style="margin-top:0.75rem;">
+          
+          <!-- E-Mail mit PDF-Anhang -->
+          <button onclick="sendEmailWithAttachment(this)" id="btnSendEmail"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#142542;color:white;border:none;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#1d3461'" onmouseout="this.style.background='#142542'">
+            <span style="font-size:1.2rem;flex-shrink:0;" class="emailIcon">📧</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;" class="emailLabel">E-Mail mit PDF-Anhang erstellen</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;opacity:0.8;margin-top:2px;" class="emailSub">Erstellt eine .eml-Datei für Outlook / Thunderbird</span>
+            </span>
+          </button>
+          
+          <div id="emlOpenHint" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;font-size:0.82rem;line-height:1.5;color:#1b5e20;">
+            <strong>✓ E-Mail-Datei heruntergeladen!</strong><br>
+            Bitte öffnen Sie die Datei <code style="background:#c8e6c9;padding:1px 5px;border-radius:3px;font-size:0.85em;">Immobilienkaufvertrag_an_Notar_Beck.eml</code> aus Ihrem Downloads-Ordner. Outlook startet dann mit dem PDF im Anhang.
+          </div>
+          
+          <!-- E-Mail-Adresse kopieren -->
+          <button onclick="copyEmailToClipboard()" id="btnCopyEmail"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#e8e1d6'" onmouseout="this.style.background='#f0ebe3'">
+            <span style="font-size:1.2rem;flex-shrink:0;">📋</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;">E-Mail-Adresse kopieren</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;color:#5a5a5a;margin-top:2px;">${notarEmail}</span>
+            </span>
+          </button>
+          
+          <!-- PDF herunterladen -->
+          <button onclick="downloadPdfManual(this)" id="btnDownloadPdf"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#e8e1d6'" onmouseout="this.style.background='#f0ebe3'">
+            <span style="font-size:1.2rem;flex-shrink:0;">💾</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;">PDF auf Gerät speichern</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;color:#5a5a5a;margin-top:2px;">PDF-Datei herunterladen / lokal sichern</span>
+            </span>
+          </button>
+          
+          <div style="background:#f8f9fa;border-radius:6px;padding:1rem;margin-top:0.75rem;font-size:0.85rem;line-height:1.9;color:#2c2c2c;">
+            <strong style="color:#142542;">📮 Per Post:</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Notar Alexander Beck · Futterstraße 13 · 99084 Erfurt</span><br>
+            <strong style="color:#142542;">🏢 Persönliche Abgabe:</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Zu unseren Sprechzeiten in der Kanzlei</span><br>
+            <strong style="color:#142542;">📞 Fragen?</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Kontaktieren Sie uns gerne telefonisch</span>
+          </div>
+        </div>
+      </details>
+      
+      <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:0.5rem;">
+        <button onclick="document.getElementById('submitOverlay').remove()" 
+          style="background:transparent;color:#8c8c8c;border:1px solid #ddd;padding:0.6rem 2rem;border-radius:6px;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all 0.2s;"
+          onmouseover="this.style.background='#f5f5f5';this.style.color='#333'" onmouseout="this.style.background='transparent';this.style.color='#8c8c8c'">
+          Schließen
+        </button>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  
+  // Toggle arrow on details
+  const details = overlay.querySelector('details');
+  if (details) {
+    details.addEventListener('toggle', () => {
+      const arrow = details.querySelector('.detailsArrow');
+      if (arrow) arrow.style.transform = details.open ? 'rotate(90deg)' : '';
+    });
+  }
+}
+
+// ============================================================
+// PDF MANUAL DOWNLOAD
+// ============================================================
+function downloadPdfManual(btn) {
+  if (!window.__lastPdfBlob) {
+    showToast('Kein PDF vorhanden. Bitte erstellen Sie zuerst ein PDF.', 'error');
+    return;
+  }
+  const blobUrl = URL.createObjectURL(window.__lastPdfBlob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = window.__lastPdfFileName || 'Immobilienkaufvertrag_Beck.pdf';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+  
+  // Button-Feedback
+  const origLabel = btn.querySelector('span > span:first-child');
+  if (origLabel) {
+    const origText = origLabel.textContent;
+    origLabel.textContent = '✓ Download gestartet';
+    btn.style.background = '#d4edda';
+    btn.style.borderColor = '#a3d9b1';
+    setTimeout(() => {
+      origLabel.textContent = origText;
+      btn.style.background = '#f0ebe3';
+      btn.style.borderColor = '#d4caba';
+    }, 2500);
+  }
+}
+
+// ============================================================
+// DIRECT UPLOAD (Formsubmit.co)
+// ============================================================
+function sendDirectUpload(btn) {
+  const statusDiv = document.getElementById('uploadStatus');
+  
+  // Button in Lade-Zustand
+  btn.disabled = true;
+  btn.style.background = '#5a7d5e';
+  btn.style.cursor = 'wait';
+  btn.querySelector('.sendIcon').textContent = '⏳';
+  btn.querySelector('.sendLabel').textContent = 'Wird gesendet …';
+  btn.querySelector('.sendSub').textContent = 'Bitte warten, Daten werden übermittelt';
+  
+  // Alle ausgefüllten Formularfelder sammeln
+  const form = document.getElementById('mainForm');
+  const fields = {};
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(el => {
+    if (!el.name || el.name.startsWith('_')) return;
+    if (el.type === 'radio' && !el.checked) return;
+    if (el.type === 'checkbox' && !el.checked) return;
+    if (!el.value || el.value.trim() === '') return;
+    // Label finden
+    const label = el.closest('.field-group')?.querySelector('label')?.textContent?.trim() || el.name;
+    fields[label] = el.value;
+  });
+  
+  // Absendername ermitteln
+  const vorname = form.querySelector('[name="ka_1_vorname"]');
+  const nachname = form.querySelector('[name="ka_1_nachname"]');
+  const absenderName = (vorname && nachname && (vorname.value || nachname.value)) 
+    ? (vorname.value + ' ' + nachname.value).trim() 
+    : 'Mandant';
+  
+  // Formsubmit.co – Daten als JSON senden
+  const payload = {
+    _subject: 'Immobilienkaufvertrag – Formulardaten von ' + absenderName,
+    _template: 'table',
+    _captcha: 'false',
+    _replyto: fields['E-Mail'] || fields['E-Mail-Adresse'] || '',
+    'Absender': absenderName,
+    'Formular': 'Immobilienkaufvertrag',
+    'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
+    ...fields
+  };
+  
+  fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
+  })
+  .then(({ status, ok, data }) => {
+    console.log('Formsubmit Antwort:', status, data);
+    
+    if (data.success === 'true' || data.success === true) {
+      // Erfolg
+      btn.style.background = '#1b5e20';
+      btn.style.cursor = 'default';
+      btn.querySelector('.sendIcon').textContent = '✅';
+      btn.querySelector('.sendLabel').textContent = 'Erfolgreich gesendet!';
+      btn.querySelector('.sendSub').textContent = 'Ihre Formulardaten wurden an die Kanzlei übermittelt';
+      btn.onmouseover = null;
+      btn.onmouseout = null;
+      
+      statusDiv.style.display = 'block';
+      statusDiv.style.background = '#e8f5e9';
+      statusDiv.style.border = '1px solid #a5d6a7';
+      statusDiv.style.color = '#1b5e20';
+      statusDiv.innerHTML = '<strong>✓ Ihre Daten wurden erfolgreich übermittelt.</strong><br>Sie können das PDF zusätzlich über „PDF auf Gerät speichern" herunterladen. Wir melden uns zeitnah bei Ihnen. Vielen Dank!';
+      
+      showToast('Formulardaten wurden erfolgreich an die Kanzlei gesendet!', 'success');
+    } else {
+      const msg = data.message || JSON.stringify(data);
+      console.warn('Formsubmit nicht erfolgreich:', msg);
+      throw new Error(msg);
+    }
+  })
+  .catch(error => {
+    console.error('Upload-Fehler:', error);
+    
+    btn.disabled = false;
+    btn.style.background = '#2e7d32';
+    btn.style.cursor = 'pointer';
+    btn.querySelector('.sendIcon').textContent = '🚀';
+    btn.querySelector('.sendLabel').textContent = 'Erneut versuchen';
+    btn.querySelector('.sendSub').textContent = 'Klicken Sie hier für einen neuen Versuch';
+    btn.onmouseover = function() { this.style.background = '#388e3c'; };
+    btn.onmouseout = function() { this.style.background = '#2e7d32'; };
+    
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#fff3cd';
+    statusDiv.style.border = '1px solid #ffe08a';
+    statusDiv.style.color = '#664d03';
+    
+    const errMsg = error.message || '';
+    if (errMsg.toLowerCase().includes('confirm') || errMsg.toLowerCase().includes('activate') || errMsg.toLowerCase().includes('verify')) {
+      statusDiv.innerHTML = '📧 <strong>Bitte E-Mail-Adresse bestätigen:</strong> Eine Bestätigungsmail wurde an die Kanzlei gesendet. Nach Bestätigung funktioniert die Übermittlung. Bitte versuchen Sie es danach erneut.';
+    } else {
+      statusDiv.innerHTML = '⚠️ <strong>Übermittlung fehlgeschlagen</strong> (' + (errMsg || 'Unbekannter Fehler') + ').<br>Bitte versuchen Sie es erneut oder nutzen Sie eine der alternativen Methoden unten.';
+    }
+  });
+}
+
+// ============================================================
+// EMAIL WITH PDF ATTACHMENT (.eml)
+// ============================================================
+function sendEmailWithAttachment(btn) {
+  const notarEmail = 'info@notar-beck-erfurt.de';
+  const subject = 'Immobilienkaufvertrag – Formulardaten';
+  const bodyText = 'Sehr geehrte Damen und Herren,\r\n\r\nanbei übersende ich Ihnen meine ausgefüllten Formulardaten zum Immobilienkaufvertrag als PDF-Datei.\r\n\r\nMit freundlichen Grüßen';
+  
+  const pdfBase64 = window.__lastPdfBase64;
+  const pdfFileName = window.__lastPdfFileName || 'Immobilienkaufvertrag_Beck.pdf';
+  
+  if (!pdfBase64) {
+    const mailSubject = encodeURIComponent(subject);
+    const mailBody = encodeURIComponent('Sehr geehrte Damen und Herren,\n\nanbei übersende ich Ihnen meine ausgefüllten Formulardaten zum Immobilienkaufvertrag als PDF-Datei.\n\nBitte vergessen Sie nicht, die heruntergeladene PDF-Datei als Anhang beizufügen.\n\nMit freundlichen Grüßen');
+    window.location.href = 'mailto:' + notarEmail + '?subject=' + mailSubject + '&body=' + mailBody;
+    showToast('PDF konnte nicht angehängt werden – bitte manuell als Anhang beifügen.', 'error');
+    return;
+  }
+  
+  // .eml-Datei erstellen (RFC 2822 + MIME)
+  const boundary = '----=_NextPart_' + Date.now().toString(36);
+  const emlContent = [
+    'To: ' + notarEmail,
+    'Subject: =?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=',
+    'X-Unsent: 1',
+    'MIME-Version: 1.0',
+    'Content-Type: multipart/mixed; boundary="' + boundary + '"',
+    '',
+    '--' + boundary,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: quoted-printable',
+    '',
+    bodyText,
+    '',
+    '--' + boundary,
+    'Content-Type: application/pdf; name="' + pdfFileName + '"',
+    'Content-Disposition: attachment; filename="' + pdfFileName + '"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    pdfBase64.match(/.{1,76}/g).join('\r\n'),
+    '',
+    '--' + boundary + '--'
+  ].join('\r\n');
+  
+  // .eml herunterladen
+  const blob = new Blob([emlContent], { type: 'message/rfc822' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Immobilienkaufvertrag_an_Notar_Beck.eml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  
+  // Button-Feedback
+  if (btn) {
+    btn.style.background = '#2e7d32';
+    btn.onmouseover = null;
+    btn.onmouseout = null;
+    btn.querySelector('.emailIcon').textContent = '✓';
+    btn.querySelector('.emailLabel').textContent = 'E-Mail-Datei heruntergeladen';
+    btn.querySelector('.emailSub').textContent = 'Bitte Datei öffnen → Outlook startet automatisch';
+  }
+  
+  // Hinweis-Box einblenden
+  const hint = document.getElementById('emlOpenHint');
+  if (hint) hint.style.display = 'block';
+}
+
+// ============================================================
+// COPY EMAIL TO CLIPBOARD
+// ============================================================
+function copyEmailToClipboard() {
+  const email = 'info@notar-beck-erfurt.de';
+  const btn = document.getElementById('btnCopyEmail');
+  
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(email).then(() => {
+      showCopySuccess(btn);
+    }).catch(() => {
+      fallbackCopy(email, btn);
+    });
+  } else {
+    fallbackCopy(email, btn);
+  }
+}
+
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showCopySuccess(btn);
+  } catch(e) {
+    showToast('Kopieren fehlgeschlagen – bitte manuell kopieren.', 'error');
+  }
+  document.body.removeChild(ta);
+}
+
+function showCopySuccess(btn) {
+  if (!btn) return;
+  const origSpan = btn.querySelector('span > span:first-child');
+  if (origSpan) {
+    const origText = origSpan.textContent;
+    origSpan.textContent = '✓ Kopiert!';
+    btn.style.background = '#d4edda';
+    btn.style.borderColor = '#a3d9b1';
+    setTimeout(() => {
+      origSpan.textContent = origText;
+      btn.style.background = '#f0ebe3';
+      btn.style.borderColor = '#d4caba';
+    }, 2500);
+  }
+  showToast('E-Mail-Adresse in die Zwischenablage kopiert!', 'success');
 }
 
 // ============================================================
@@ -2683,21 +3057,4 @@ document.getElementById('mainForm').addEventListener('input', () => {
   }, 30000); // Auto-save after 30s of inactivity
 });
 
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  // Generate initial person blocks
-  togglePersonCount('vk');
-  togglePersonCount('ka');
-  
-  // Restore saved data
-  restoreForm();
-  
-  // Initial conditional check
-  toggleConditional();
-});
-</script>
-
-</body>
-</html>
+// =============================================
