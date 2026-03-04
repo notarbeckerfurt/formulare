@@ -458,33 +458,12 @@ vorab per E-Mail an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-be
     </div>
   </div>
   <div class="conditional" id="cond_grundbuch">
-    <div class="field-row">
-      <div class="field-group">
-        <label>Amtsgericht</label>
-        <input type="text" name="grundbuch_amtsgericht">
-      </div>
-      <div class="field-group">
-        <label>Grundbuch von</label>
-        <input type="text" name="grundbuch_von">
-      </div>
-    </div>
-    <div class="field-group">
-      <label>Grundbuchblatt</label>
-      <input type="text" name="grundbuch_blatt">
-    </div>
-    <div class="field-row-3">
-      <div class="field-group">
-        <label>Gemarkung</label>
-        <input type="text" name="grundbuch_gemarkung">
-      </div>
-      <div class="field-group">
-        <label>Flur</label>
-        <input type="text" name="grundbuch_flur">
-      </div>
-      <div class="field-group">
-        <label>Flurstück(e)</label>
-        <input type="text" name="grundbuch_flurstueck">
-      </div>
+    <div id="gb_container"></div>
+
+    <div class="field-group" style="margin-top:1rem">
+      <button type="button" class="btn btn-secondary btn-sm" id="btnAddGbBlatt" onclick="addGrundbuchBlatt()" style="display:none">
+        &#43; Weiteres Grundbuchblatt hinzufügen
+      </button>
     </div>
   </div>
 
@@ -1978,11 +1957,180 @@ function toggleDolmetscher(prefix) {
 }
 
 // ============================================================
+// GRUNDBUCHBLATT – DYNAMIC GENERATION (bis zu 3 Blätter, je bis zu 20 Flurstücke)
+// ============================================================
+let gbBlattCount = 0;
+
+function generateFlurstuckRow(blattIdx, fsIdx) {
+  const p = `gb${blattIdx}_fs${fsIdx}`;
+  return `
+  <div class="field-row-3" id="${p}_row" style="margin-bottom:0.5rem">
+    <div class="field-group" style="margin-bottom:0">
+      <input type="text" name="${p}_gemarkung" placeholder="Gemarkung">
+    </div>
+    <div class="field-group" style="margin-bottom:0">
+      <input type="text" name="${p}_flur" placeholder="Flur">
+    </div>
+    <div class="field-group" style="margin-bottom:0">
+      <input type="text" name="${p}_flurstueck" placeholder="Flurstück">
+    </div>
+  </div>`;
+}
+
+function generateGrundbuchBlatt(blattIdx) {
+  const p = `gb${blattIdx}`;
+  return `
+  <div class="person-block" id="${p}_block" style="margin-bottom:1rem">
+    <div class="person-block-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>Grundbuchblatt ${blattIdx}</span>
+      ${blattIdx > 1 ? `<button type="button" onclick="removeGrundbuchBlatt(${blattIdx})" style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:0.2rem 0.6rem;font-size:0.8rem;cursor:pointer;color:var(--error);" title="Dieses Blatt entfernen">&times; Entfernen</button>` : ''}
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Amtsgericht</label>
+        <input type="text" name="${p}_amtsgericht">
+      </div>
+      <div class="field-group">
+        <label>Grundbuch von</label>
+        <input type="text" name="${p}_von">
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Blatt-Nr.</label>
+      <input type="text" name="${p}_blatt">
+    </div>
+
+    <div style="margin-top:1rem">
+      <label style="margin-bottom:0.5rem">Flurstücke</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:0.4rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600">Gemarkung</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600">Flur</span>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600">Flurstück</span>
+      </div>
+      <div id="${p}_fs_container">
+        ${generateFlurstuckRow(blattIdx, 1)}
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="addFlurstuck(${blattIdx})" id="${p}_btn_add_fs" style="margin-top:0.5rem;font-size:0.8rem;padding:0.3rem 0.8rem;">
+        &#43; Flurstück
+      </button>
+    </div>
+  </div>`;
+}
+
+function addGrundbuchBlatt() {
+  if (gbBlattCount >= 3) {
+    showToast('Maximal 3 Grundbuchblätter möglich.', 'error');
+    return;
+  }
+  gbBlattCount++;
+  const container = document.getElementById('gb_container');
+  container.insertAdjacentHTML('beforeend', generateGrundbuchBlatt(gbBlattCount));
+  updateGbButtons();
+}
+
+function removeGrundbuchBlatt(idx) {
+  const block = document.getElementById(`gb${idx}_block`);
+  if (block) block.remove();
+  // Re-index remaining blocks
+  reindexGrundbuchBlaetter();
+  updateGbButtons();
+}
+
+function reindexGrundbuchBlaetter() {
+  const container = document.getElementById('gb_container');
+  const blocks = container.querySelectorAll('.person-block');
+  gbBlattCount = blocks.length;
+  // We simply keep them as-is with their original indices since removing middle ones is rare
+  // and re-rendering would lose data. Just update the count.
+}
+
+function addFlurstuck(blattIdx) {
+  const p = `gb${blattIdx}`;
+  const fsContainer = document.getElementById(`${p}_fs_container`);
+  if (!fsContainer) return;
+  const currentCount = fsContainer.querySelectorAll('.field-row-3').length;
+  if (currentCount >= 20) {
+    showToast('Maximal 20 Flurstücke pro Grundbuchblatt.', 'error');
+    return;
+  }
+  fsContainer.insertAdjacentHTML('beforeend', generateFlurstuckRow(blattIdx, currentCount + 1));
+}
+
+function updateGbButtons() {
+  const btn = document.getElementById('btnAddGbBlatt');
+  if (btn) {
+    btn.style.display = gbBlattCount < 3 ? 'inline-flex' : 'none';
+  }
+}
+
+function initGrundbuch() {
+  const container = document.getElementById('gb_container');
+  if (container && container.children.length === 0) {
+    gbBlattCount = 0;
+    addGrundbuchBlatt(); // erstes Blatt automatisch anzeigen
+  }
+}
+
+function restoreGrundbuchBlaetter(data) {
+  // Ermitteln wie viele Blätter gespeichert wurden
+  let maxBlatt = 0;
+  const fsCountPerBlatt = {};
+  Object.keys(data).forEach(key => {
+    const m = key.match(/^gb(\d+)_/);
+    if (m) {
+      const bi = parseInt(m[1]);
+      if (bi > maxBlatt) maxBlatt = bi;
+      const fm = key.match(/^gb(\d+)_fs(\d+)_/);
+      if (fm) {
+        const fi = parseInt(fm[2]);
+        if (!fsCountPerBlatt[bi] || fi > fsCountPerBlatt[bi]) fsCountPerBlatt[bi] = fi;
+      }
+    }
+  });
+  if (maxBlatt < 1) return;
+
+  // Zusätzliche Blätter erzeugen
+  while (gbBlattCount < maxBlatt) {
+    addGrundbuchBlatt();
+  }
+
+  // Zusätzliche Flurstücke erzeugen
+  Object.entries(fsCountPerBlatt).forEach(([bi, maxFs]) => {
+    const p = `gb${bi}`;
+    const fsContainer = document.getElementById(`${p}_fs_container`);
+    if (!fsContainer) return;
+    const currentCount = fsContainer.querySelectorAll('.field-row-3').length;
+    for (let f = currentCount + 1; f <= maxFs; f++) {
+      fsContainer.insertAdjacentHTML('beforeend', generateFlurstuckRow(parseInt(bi), f));
+    }
+  });
+
+  // Daten wiederherstellen
+  setTimeout(() => {
+    Object.entries(data).forEach(([name, value]) => {
+      if (!name.startsWith('gb')) return;
+      const els = document.querySelectorAll(`[name="${name}"]`);
+      els.forEach(el => {
+        if (el.type === 'radio') {
+          el.checked = (el.value === value);
+        } else if (el.type === 'checkbox') {
+          el.checked = !!value;
+        } else {
+          el.value = value;
+        }
+      });
+    });
+  }, 50);
+}
+
+// ============================================================
 // CONDITIONAL LOGIC
 // ============================================================
 function toggleConditional() {
   const gb = document.querySelector('input[name="grundbuch_bekannt"]:checked')?.value;
   toggle('cond_grundbuch', gb === 'ja');
+  if (gb === 'ja') initGrundbuch();
 
   const kg = document.querySelector('[name="kaufgegenstand"]')?.value;
   const isETW = kg === 'eigentumswohnung';
@@ -2112,6 +2260,10 @@ function loadForm() {
       }
     });
     toggleConditional();
+
+    // Grundbuchblätter und Flurstücke wiederherstellen
+    restoreGrundbuchBlaetter(data);
+
     document.querySelectorAll('[name*="_famstand"]').forEach(el => {
       const prefix = el.name.replace('_famstand', '');
       toggleFamstand(prefix);
@@ -2264,12 +2416,28 @@ async function generatePDF() {
   addField('PLZ / Ort', [getVal('immo_plz'), getVal('immo_ort')].filter(Boolean).join(' '));
   addField('Grundbuchdaten bekannt', getRadio('grundbuch_bekannt'));
   if (getRadio('grundbuch_bekannt').toLowerCase().includes('ja')) {
-    addField('Amtsgericht', getVal('grundbuch_amtsgericht'));
-    addField('Grundbuch von', getVal('grundbuch_von'));
-    addField('Blatt', getVal('grundbuch_blatt'));
-    addField('Gemarkung', getVal('grundbuch_gemarkung'));
-    addField('Flur', getVal('grundbuch_flur'));
-    addField('Flurstück', getVal('grundbuch_flurstueck'));
+    // Dynamische Grundbuchblätter durchgehen
+    for (let b = 1; b <= 3; b++) {
+      const bp = `gb${b}`;
+      const blattBlock = document.getElementById(`${bp}_block`);
+      if (!blattBlock) continue;
+      addSubtitle('Grundbuchblatt ' + b);
+      addField('Amtsgericht', getVal(`${bp}_amtsgericht`));
+      addField('Grundbuch von', getVal(`${bp}_von`));
+      addField('Blatt-Nr.', getVal(`${bp}_blatt`));
+      // Flurstücke durchgehen
+      const fsContainer = document.getElementById(`${bp}_fs_container`);
+      if (fsContainer) {
+        const fsRows = fsContainer.querySelectorAll('.field-row-3');
+        fsRows.forEach((row, idx) => {
+          const gemarkung = row.querySelector(`[name="${bp}_fs${idx+1}_gemarkung"]`)?.value || '';
+          const flur = row.querySelector(`[name="${bp}_fs${idx+1}_flur"]`)?.value || '';
+          const flurstueck = row.querySelector(`[name="${bp}_fs${idx+1}_flurstueck"]`)?.value || '';
+          const combined = [gemarkung, flur ? 'Flur ' + flur : '', flurstueck ? 'Flst. ' + flurstueck : ''].filter(Boolean).join(', ');
+          if (combined) addField('Flurstück ' + (idx+1), combined);
+        });
+      }
+    }
   }
   addField('Vertragsgegenstand', getVal('kaufgegenstand'));
   if (getVal('kaufgegenstand') === 'eigentumswohnung') addField('Wohnungsnr.', getVal('etw_nr'));
@@ -2634,7 +2802,7 @@ function sendDirectUpload(btn) {
   btn.querySelector('.sendLabel').textContent = 'Wird gesendet …';
   btn.querySelector('.sendSub').textContent = 'Bitte warten, Daten werden übermittelt';
   
-  // Alle ausgefüllten Formularfelder sammeln
+  // Alle ausgefüllten Formularfelder sammeln – mit eindeutigen Keys
   const form = document.getElementById('mainForm');
   const fields = {};
   const inputs = form.querySelectorAll('input, select, textarea');
@@ -2643,24 +2811,48 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
-    // Label finden
-    const label = el.closest('.field-group')?.querySelector('label')?.textContent?.trim() || el.name;
-    fields[label] = el.value;
+
+    // Lesbaren eindeutigen Key erzeugen: Feldnamen in lesbares Format umwandeln
+    const readable = el.name
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace(/^(Uebergeber|Vk) /, 'Veräußerer: ')
+      .replace(/^(Erwerber|Ka) /, 'Erwerber: ')
+      .replace(/^Ausfueller /, 'Absender: ')
+      .replace(/^Immo /, 'Immobilie: ')
+      .replace(/^Gb\d+ /, function(m) { return 'Grundbuch ' + m.match(/\d+/)[0] + ': '; })
+      .replace(/^Gb\d+ Fs\d+ /, function(m) { const nums = m.match(/\d+/g); return 'GB' + nums[0] + ' Flurstück ' + nums[1] + ': '; });
+
+    // Bei Select: Text der Option statt Wert verwenden
+    let val = el.value;
+    if (el.type === 'select-one' && el.selectedIndex > 0) {
+      val = el.options[el.selectedIndex].text;
+    }
+    // Bei Radio: Span-Text verwenden wenn vorhanden
+    if (el.type === 'radio') {
+      const span = el.parentElement?.querySelector('span');
+      if (span) val = span.textContent;
+    }
+
+    fields[readable] = val;
   });
-  
+
   // Absendername ermitteln
   const vorname = form.querySelector('[name="uebergeber_vorname"]');
   const nachname = form.querySelector('[name="uebergeber_nachname"]');
-  const absenderName = (vorname && nachname && (vorname.value || nachname.value)) 
-    ? (vorname.value + ' ' + nachname.value).trim() 
+  const absenderName = (vorname && nachname && (vorname.value || nachname.value))
+    ? (vorname.value + ' ' + nachname.value).trim()
     : 'Mandant';
-  
+
+  // Replyto aus Ausfüller-E-Mail
+  const replyEmail = form.querySelector('[name="ausfueller_email"]')?.value || '';
+
   // Formsubmit.co – Daten als JSON senden (kein Dateianhang, maximale Kompatibilität)
   const payload = {
     _subject: 'Grundstücksüberlassungsvertrag – Formulardaten von ' + absenderName,
     _template: 'table',
     _captcha: 'false',
-    _replyto: fields['E-Mail'] || fields['E-Mail-Adresse'] || '',
+    _replyto: replyEmail,
     'Absender': absenderName,
     'Formular': 'Grundstücksüberlassungsvertrag',
     'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),

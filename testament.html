@@ -1791,8 +1791,11 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
-    const label = el.closest('.field-group')?.querySelector('label')?.textContent?.trim() || el.name;
-    fields[label] = el.value;
+    const readable = el.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    let val = el.value;
+    if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
+    if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
+    fields[readable] = val;
   });
 
   const absenderName = (getValGlobal('ausfueller_name')) || 'Mandant';
@@ -1801,7 +1804,7 @@ function sendDirectUpload(btn) {
     _subject: 'Testament \u2013 Formulardaten von ' + absenderName,
     _template: 'table',
     _captcha: 'false',
-    _replyto: fields['E-Mail'] || fields['E-Mail-Adresse'] || '',
+    _replyto: (document.querySelector('[name="ausfueller_email"]') || document.querySelector('[name="auftraggeber_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
     'Absender': absenderName,
     'Formular': 'Testament',
     'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
