@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kauf/Verkauf von Gesellschaftsanteilen – Notar Alexander Beck, Erfurt</title>
+<!-- Keine externen Ressourcen – vollständig autark / DSGVO-konform -->
+<style>
+:root {
+  --primary: #142542;
+  --primary-light: #1d3461;
+  --primary-lighter: #2a4a7f;
+  --accent: #b8934e;
+  --accent-light: #d4af6e;
+  --bg: #f5f3ef;
+  --bg-card: #ffffff;
+  --text: #2c2c2c;
+  --text-light: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --border: #d8d4ce;
+  --border-focus: var(--primary-lighter);
+  --error: #c0392b;
+  --success: #27ae60;
+  --warning: #e67e22;
+  --info-bg: #eef3f9;
+  --info-border: #b8c9e0;
+  --warning-bg: #fdf3e6;
+  --warning-border: #f0c678;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(20,37,66,0.08);
+  --shadow-lg: 0 8px 32px rgba(20,37,66,0.12);
+  --transition: 0.3s ease;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 1;
+}
+.header-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+.header h1 {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+.header .subtitle {
+  font-size: 1.1rem;
+  color: var(--accent-light);
+  font-weight: 400;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  letter-spacing: 0.05em;
+}
+.header .notary-name {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  margin-top: 0.8rem;
+}
+.progress-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.progress-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+.progress-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.progress-step::after {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 0.4rem;
+  transition: var(--transition);
+}
+.progress-step.active { color: var(--primary); font-weight: 600; }
+.progress-step.active::after { background: var(--primary); }
+.progress-step.completed { color: var(--success); }
+.progress-step.completed::after { background: var(--success); }
+.progress-step:hover { color: var(--primary-lighter); }
+.container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+.intro {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--accent);
+  font-size: 0.95rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.form-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+.form-section:hover { box-shadow: var(--shadow-lg); }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--bg);
+}
+.section-number {
+  background: var(--primary);
+  color: white;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.subsection-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin: 1.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bg);
+}
+.field-group { margin-bottom: 1.25rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+label .required { color: var(--error); margin-left: 2px; }
+.label-hint {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  line-height: 1.4;
+}
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"],
+select, textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--text);
+  background: white;
+  transition: var(--transition);
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(42,74,127,0.1);
+}
+select { cursor: pointer; appearance: auto; }
+textarea { resize: vertical; min-height: 80px; }
+.radio-group, .checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+.radio-group label, .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+  font-size: 0.88rem;
+}
+.radio-group label:hover, .checkbox-group label:hover {
+  border-color: var(--primary-lighter);
+  background: var(--info-bg);
+}
+.radio-group input:checked + span, .checkbox-group input:checked + span { font-weight: 600; }
+.radio-group label:has(input:checked), .checkbox-group label:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--info-bg);
+}
+input[type="radio"], input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px; height: 16px;
+  cursor: pointer;
+}
+.info-box {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.84rem;
+  color: var(--text-light);
+  line-height: 1.5;
+  margin: 0.75rem 0;
+}
+.info-box strong { color: var(--primary); }
+.warning-box {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  font-size: 0.84rem;
+  color: #7a5a1a;
+  line-height: 1.5;
+  margin: 0.75rem 0;
+}
+.warning-box strong { color: var(--warning); }
+.conditional { display: none; }
+.conditional.visible {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.person-block {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+}
+.person-block-title {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  margin-bottom: 1rem;
+}
+.btn-row { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+.btn {
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn-secondary { background: white; color: var(--primary); border-color: var(--primary); }
+.btn-secondary:hover { background: var(--info-bg); }
+.btn-sm { padding: 0.5rem 1.25rem; font-size: 0.85rem; }
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+.toolbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.save-status { font-size: 0.82rem; color: var(--text-muted); }
+.save-status.saved { color: var(--success); }
+.footer {
+  background: var(--primary);
+  color: rgba(255,255,255,0.7);
+  text-align: center;
+  padding: 1.5rem 2rem 5rem;
+  font-size: 0.85rem;
+}
+.footer a { color: var(--accent-light); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--primary);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  font-size: 0.9rem;
+  transform: translateX(120%);
+  transition: transform 0.4s ease;
+}
+.toast.show { transform: translateX(0); }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--error); }
+@media (max-width: 768px) {
+  .header h1 { font-size: 1.35rem; }
+  .container { padding: 1rem; }
+  .form-section { padding: 1.25rem; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .progress-step { font-size: 0.65rem; padding: 0.3rem 0.1rem; }
+  .btn-row { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+  .toolbar-inner { flex-wrap: wrap; justify-content: center; }
+  .radio-group, .checkbox-group { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .progress-bar { padding: 0.5rem; }
+  .header { padding: 1.5rem 1rem; }
+}
+@media print {
+  .toolbar, .progress-bar, .btn-row { display: none !important; }
+  .form-section { box-shadow: none; break-inside: avoid; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+
+<header class="header">
+  <div class="header-content">
+    <h1>Kauf / Verkauf von Gesellschaftsanteilen</h1>
+    <div class="subtitle">Notar Alexander Beck &middot; Erfurt</div>
+    <div class="notary-name">Wir bereiten Ihren Anteilskauf rechtssicher vor</div>
+  </div>
+</header>
+
+<nav class="progress-bar">
+  <div class="progress-inner">
+    <div class="progress-step active" data-section="1" onclick="scrollToSection(1)">I. Gesellschaft</div>
+    <div class="progress-step" data-section="2" onclick="scrollToSection(2)">II. Verk&auml;ufer</div>
+    <div class="progress-step" data-section="3" onclick="scrollToSection(3)">III. K&auml;ufer</div>
+    <div class="progress-step" data-section="4" onclick="scrollToSection(4)">IV. Anteile</div>
+    <div class="progress-step" data-section="5" onclick="scrollToSection(5)">V. Weiteres</div>
+    <div class="progress-step" data-section="6" onclick="scrollToSection(6)">VI. Auftrag</div>
+  </div>
+</nav>
+
+<main class="container">
+<form id="mainForm" novalidate>
+
+<div class="intro">
+  Wir m&ouml;chten Ihren Anteilskauf schnell und rechtssicher beurkunden. Hierf&uuml;r ben&ouml;tigen wir einige Angaben von Ihnen.
+  Bitte f&uuml;llen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>&bdquo;Formular absenden&ldquo;</strong>.
+  Es wird eine PDF-Datei mit Ihren Angaben erstellt, die Sie uns anschlie&szlig;end auf sicherem Wege zukommen lassen k&ouml;nnen.
+  Sie haben auch die M&ouml;glichkeit, Ihre Eingaben zwischenzuspeichern und das Formular zu einem sp&auml;teren Zeitpunkt zu vervollst&auml;ndigen.
+  F&uuml;r Fragen stehen wir Ihnen selbstverst&auml;ndlich gerne zur Verf&uuml;gung, telefonisch oder in einem pers&ouml;nlichen Besprechungstermin.
+  <br><br>
+  <div class="info-box">
+    <strong>Dokumente einreichen:</strong> Bitte senden Sie erforderliche Unterlagen (z.&nbsp;B. aktuellen Handelsregisterauszug, Gesellschaftsvertrag, Gesellschafterliste) zumindest als Scan vorab per E-Mail an <em><a href="mailto:info@notar-beck-erfurt.de">info@notar-beck-erfurt.de</a></em>. So k&ouml;nnen wir den Vertragsentwurf z&uuml;gig und vollst&auml;ndig vorbereiten.
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION I: ANGABEN ZUR GESELLSCHAFT                    -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-1">
+  <div class="section-header">
+    <div class="section-number">I</div>
+    <div class="section-title">Angaben zur Gesellschaft</div>
+  </div>
+
+  <div class="field-group">
+    <label>Firma (vollst&auml;ndiger Name)<span class="required">*</span></label>
+    <span class="label-hint">Der vollst&auml;ndige Name der Gesellschaft, deren Anteile ver&auml;u&szlig;ert werden sollen.</span>
+    <input type="text" name="ges_firma" required placeholder="z.B. Muster Consulting GmbH">
+  </div>
+
+  <div class="field-group">
+    <label>Rechtsform</label>
+    <select name="ges_rechtsform">
+      <option value="">Bitte ausw&auml;hlen</option>
+      <option value="GmbH">GmbH</option>
+      <option value="UG">UG (haftungsbeschr&auml;nkt)</option>
+      <option value="AG">AG</option>
+      <option value="GmbH_CoKG">GmbH &amp; Co. KG</option>
+      <option value="Sonstige">Sonstige</option>
+    </select>
+  </div>
+
+  <div class="field-group">
+    <label>Sitz der Gesellschaft<span class="required">*</span></label>
+    <input type="text" name="ges_sitz" required placeholder="z.B. Erfurt">
+  </div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label>Registergericht</label>
+      <input type="text" name="ges_registergericht" placeholder="z.B. Amtsgericht Jena">
+    </div>
+    <div class="field-group">
+      <label>HRB-Nummer</label>
+      <input type="text" name="ges_hrb" placeholder="z.B. HRB 12345">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Stammkapital / Grundkapital (&euro;)</label>
+    <input type="text" name="ges_stammkapital" placeholder="z.B. 25.000">
+    <span class="label-hint">Angabe in Euro</span>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION II: ANGABEN ZUM VERKÄUFER                      -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-2">
+  <div class="section-header">
+    <div class="section-number">II</div>
+    <div class="section-title">Angaben zum Verk&auml;ufer</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der Verk&auml;ufer</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_verkaeufer" value="1" checked onchange="togglePersonCount('verkaeufer')"><span>1</span></label>
+      <label><input type="radio" name="anz_verkaeufer" value="2" onchange="togglePersonCount('verkaeufer')"><span>2</span></label>
+    </div>
+  </div>
+  <div id="verkaeufer_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION III: ANGABEN ZUM KÄUFER                        -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-3">
+  <div class="section-header">
+    <div class="section-number">III</div>
+    <div class="section-title">Angaben zum K&auml;ufer</div>
+  </div>
+
+  <div class="field-group">
+    <label>Anzahl der K&auml;ufer</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anz_kaeufer" value="1" checked onchange="togglePersonCount('kaeufer')"><span>1</span></label>
+      <label><input type="radio" name="anz_kaeufer" value="2" onchange="togglePersonCount('kaeufer')"><span>2</span></label>
+    </div>
+  </div>
+  <div id="kaeufer_container"></div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION IV: ANGABEN ZU DEN ANTEILEN                    -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-4">
+  <div class="section-header">
+    <div class="section-number">IV</div>
+    <div class="section-title">Angaben zu den Anteilen</div>
+  </div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label>Gesch&auml;ftsanteil Nr.</label>
+      <input type="text" name="anteil_nr" placeholder="z.B. 1">
+    </div>
+    <div class="field-group">
+      <label>Nennbetrag (&euro;)</label>
+      <input type="text" name="anteil_nennbetrag" placeholder="z.B. 12.500">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Anteil am Stammkapital</label>
+    <input type="text" name="anteil_stammkapital" placeholder="z.B. 50 % oder 12.500 EUR von 25.000 EUR">
+  </div>
+
+  <div class="field-group">
+    <label>Werden alle Anteile des Verk&auml;ufers verkauft?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="anteil_alle" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="anteil_alle" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_anteil_teilverkauf">
+    <div class="field-group">
+      <label>Welcher Anteil wird verkauft?</label>
+      <textarea name="anteil_teilverkauf" rows="2" placeholder="z.B. Von insgesamt 25.000 EUR Nennbetrag werden 12.500 EUR verkauft"></textarea>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Kaufpreis (&euro;)<span class="required">*</span></label>
+    <input type="text" name="anteil_kaufpreis" required placeholder="z.B. 50.000">
+    <span class="label-hint">Angabe in Euro</span>
+  </div>
+
+  <div class="field-group">
+    <label>Zahlungsmodalit&auml;ten</label>
+    <select name="anteil_zahlung">
+      <option value="">Bitte ausw&auml;hlen</option>
+      <option value="sofort">Sofort bei Beurkundung</option>
+      <option value="ueberweisung">&#220;berweisung innerhalb X Tage</option>
+      <option value="raten">Ratenzahlung</option>
+      <option value="sonstige">Sonstige</option>
+    </select>
+  </div>
+
+  <div class="field-group">
+    <label>Stichtag f&uuml;r den wirtschaftlichen &Uuml;bergang</label>
+    <input type="date" name="anteil_stichtag">
+    <span class="label-hint">Ab welchem Datum gehen Gewinn und Verlust auf den K&auml;ufer &uuml;ber?</span>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION V: WEITERE ANGABEN                             -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-5">
+  <div class="section-header">
+    <div class="section-number">V</div>
+    <div class="section-title">Weitere Angaben</div>
+  </div>
+
+  <div class="field-group">
+    <label>Bestehen Vorkaufsrechte anderer Gesellschafter?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="vorkaufsrechte" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="vorkaufsrechte" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Ist eine Zustimmung der Gesellschafterversammlung erforderlich?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="zustimmung_gv" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="zustimmung_gv" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Sind Wettbewerbsverbote vereinbart?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="wettbewerbsverbot" value="ja"><span>Ja</span></label>
+      <label><input type="radio" name="wettbewerbsverbot" value="nein"><span>Nein</span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Gibt es Garantien / Gew&auml;hrleistungen?</label>
+    <div class="radio-group">
+      <label><input type="radio" name="garantien" value="ja" onchange="toggleConditional()"><span>Ja</span></label>
+      <label><input type="radio" name="garantien" value="nein" onchange="toggleConditional()"><span>Nein</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_garantien">
+    <div class="field-group">
+      <label>Welche Garantien / Gew&auml;hrleistungen?</label>
+      <textarea name="garantien_details" rows="3" placeholder="z.B. Garantie zur Freiheit der Anteile von Rechten Dritter, Bilanzgarantie etc."></textarea>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Wer tr&auml;gt die Notarkosten?</label>
+    <div class="radio-group" style="flex-direction:column">
+      <label><input type="radio" name="notarkosten" value="verkaeufer"><span>Verk&auml;ufer</span></label>
+      <label><input type="radio" name="notarkosten" value="kaeufer"><span>K&auml;ufer</span></label>
+      <label><input type="radio" name="notarkosten" value="gemeinsam"><span>Gemeinsam</span></label>
+      <label><input type="radio" name="notarkosten" value="sonstige" onchange="toggleConditional()"><span>Sonstige Regelung</span></label>
+    </div>
+  </div>
+  <div class="conditional" id="cond_notarkosten_sonstige">
+    <div class="field-group">
+      <label>Sonstige Regelung zur Kostentragung</label>
+      <textarea name="notarkosten_details" rows="2" placeholder="Bitte beschreiben Sie die gew&uuml;nschte Regelung"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- SECTION VI: ANGABEN ZUM AUFTRAG                        -->
+<!-- ====================================================== -->
+<div class="form-section" id="section-6">
+  <div class="section-header">
+    <div class="section-number">VI</div>
+    <div class="section-title">Angaben zum Auftrag</div>
+  </div>
+
+  <div class="subsection-title">Absender / Auftraggeberdaten</div>
+  <div class="field-group">
+    <label>Name des Ausf&uuml;llers<span class="required">*</span></label>
+    <input type="text" name="ausfueller_name" required>
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>E-Mail<span class="required">*</span></label>
+      <input type="email" name="ausfueller_email" required>
+    </div>
+    <div class="field-group">
+      <label>Telefon</label>
+      <input type="tel" name="ausfueller_tel">
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Bemerkungen / Sonstige Hinweise</label>
+    <textarea name="ausfueller_bemerkungen" rows="4" placeholder="Haben Sie besondere W&uuml;nsche oder Hinweise f&uuml;r den Notar?"></textarea>
+  </div>
+
+  <div class="field-group">
+    <label>Bevorzugte Kontaktaufnahme</label>
+    <div class="radio-group">
+      <label><input type="radio" name="ausfueller_kontakt" value="email" checked><span>per E-Mail</span></label>
+      <label><input type="radio" name="ausfueller_kontakt" value="telefon"><span>per Telefon</span></label>
+      <label><input type="radio" name="ausfueller_kontakt" value="egal"><span>egal</span></label>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>
+      <input type="checkbox" name="datenschutz" required style="width:auto; margin-right:0.5rem">
+      Ich habe die <a href="https://www.notar-beck-erfurt.de/datenschutz/" target="_blank" style="color:var(--primary)">Datenschutzhinweise</a> gelesen. <span class="required">*</span>
+    </label>
+  </div>
+
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
+    <button type="button" class="btn btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Zwischenspeichern</button>
+  </div>
+</div>
+
+</form>
+</main>
+
+<footer class="footer">
+  <p>Notar Alexander Beck &middot; Futterstra&szlig;e 13/13a &middot; 99084 Erfurt</p>
+  <p style="margin-top:0.5rem">
+    <a href="https://www.notar-beck-erfurt.de/datenschutz/" target="_blank">Datenschutz</a> &nbsp;|&nbsp; <a href="https://www.notar-beck-erfurt.de/impressum/" target="_blank">Impressum</a>
+  </p>
+</footer>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <span class="save-status" id="saveStatus">Nicht gespeichert</span>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+      <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben l\u00f6schen?')){localStorage.removeItem('notar_beck_anteilskauf');location.reload()}">&#128465; Zur&uuml;cksetzen</button>
+      <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STORAGE KEY
+// ============================================================
+const STORAGE_KEY = 'notar_beck_anteilskauf';
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ============================================================
+// TOGGLE HELPER
+// ============================================================
+function toggle(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (show) el.classList.add('visible');
+  else el.classList.remove('visible');
+}
+
+// ============================================================
+// GENERATE VERKÄUFER / KÄUFER BLOCK
+// ============================================================
+function generatePersonBlock(type, index) {
+  // type: 'vk' or 'ka'
+  const prefix = `${type}${index}`;
+  const label = type === 'vk' ? 'Verk\u00e4ufer' : 'K\u00e4ufer';
+  return `<div class="person-block" id="${prefix}_block">
+    <div class="person-block-title">${label} ${index}</div>
+
+    <div class="field-group">
+      <label>Person oder Gesellschaft?</label>
+      <div class="radio-group">
+        <label><input type="radio" name="${prefix}_art" value="person" checked onchange="togglePersonArt('${prefix}')"><span>Nat\u00fcrliche Person</span></label>
+        <label><input type="radio" name="${prefix}_art" value="gesellschaft" onchange="togglePersonArt('${prefix}')"><span>Juristische Person</span></label>
+      </div>
+    </div>
+
+    <!-- Natürliche Person -->
+    <div id="${prefix}_person_data">
+      <div class="field-row">
+        <div class="field-group">
+          <label>Anrede, Titel</label>
+          <input type="text" name="${prefix}_anrede" placeholder="z.B. Herr, Frau, Dr.">
+        </div>
+        <div class="field-group">
+          <label>Vorname(n)<span class="required">*</span></label>
+          <span class="label-hint">Bitte alle Vornamen lt. Ausweisdokument angeben.</span>
+          <input type="text" name="${prefix}_vorname">
+        </div>
+      </div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label>Nachname<span class="required">*</span></label>
+          <input type="text" name="${prefix}_nachname">
+        </div>
+        <div class="field-group">
+          <label>Geburtsname (falls abweichend)</label>
+          <input type="text" name="${prefix}_geburtsname">
+        </div>
+        <div class="field-group">
+          <label>Geburtsdatum</label>
+          <input type="date" name="${prefix}_geburtsdatum">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Geburtsort</label>
+        <input type="text" name="${prefix}_geburtsort" placeholder="z.B. Erfurt">
+      </div>
+      <div class="field-group">
+        <label>Anschrift</label>
+        <input type="text" name="${prefix}_anschrift" placeholder="Stra\u00dfe, Hausnummer, PLZ, Ort">
+      </div>
+      <div class="field-group">
+        <label>Familienstand</label>
+        <select name="${prefix}_famstand">
+          <option value="">Bitte ausw\u00e4hlen</option>
+          <option value="ledig">ledig</option>
+          <option value="verheiratet">verheiratet</option>
+          <option value="verwitwet">verwitwet</option>
+          <option value="geschieden">geschieden</option>
+          <option value="lebenspartnerschaft">in eingetragener Lebenspartnerschaft lebend</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Telefon</label>
+          <input type="tel" name="${prefix}_tel">
+        </div>
+        <div class="field-group">
+          <label>E-Mail</label>
+          <input type="email" name="${prefix}_email">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Steuer-ID</label>
+        <input type="text" name="${prefix}_steuerid" placeholder="z.B. 12 345 678 901">
+      </div>
+    </div>
+
+    <!-- Juristische Person -->
+    <div id="${prefix}_gesellschaft_data" style="display:none">
+      <div class="field-group">
+        <label>Firma</label>
+        <input type="text" name="${prefix}_ges_firma">
+      </div>
+      <div class="field-group">
+        <label>Rechtsform</label>
+        <input type="text" name="${prefix}_ges_rechtsform" placeholder="z.B. GmbH, UG, AG">
+      </div>
+      <div class="field-group">
+        <label>Sitz</label>
+        <input type="text" name="${prefix}_ges_sitz">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Registergericht</label>
+          <input type="text" name="${prefix}_ges_registergericht">
+        </div>
+        <div class="field-group">
+          <label>HRB-Nummer</label>
+          <input type="text" name="${prefix}_ges_hrb" placeholder="z.B. HRB 12345">
+        </div>
+      </div>
+      <div class="subsection-title" style="font-size:1rem;margin-top:1rem">Vertretungsberechtigter</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Name des Vertretungsberechtigten</label>
+          <input type="text" name="${prefix}_ges_vertreter_name">
+        </div>
+        <div class="field-group">
+          <label>Funktion</label>
+          <input type="text" name="${prefix}_ges_vertreter_funktion" placeholder="z.B. Gesch\u00e4ftsf\u00fchrer">
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// RENDER PERSON BLOCKS
+// ============================================================
+function togglePersonCount(type) {
+  let countName, containerName, blockType;
+  if (type === 'verkaeufer') {
+    countName = 'anz_verkaeufer';
+    containerName = 'verkaeufer_container';
+    blockType = 'vk';
+  } else if (type === 'kaeufer') {
+    countName = 'anz_kaeufer';
+    containerName = 'kaeufer_container';
+    blockType = 'ka';
+  }
+  const count = parseInt(document.querySelector(`input[name="${countName}"]:checked`)?.value || '1');
+  const container = document.getElementById(containerName);
+  container.innerHTML = '';
+  for (let i = 1; i <= count; i++) {
+    container.insertAdjacentHTML('beforeend', generatePersonBlock(blockType, i));
+  }
+  restoreForm();
+}
+
+function togglePersonArt(prefix) {
+  const val = document.querySelector(`input[name="${prefix}_art"]:checked`)?.value;
+  const personData = document.getElementById(`${prefix}_person_data`);
+  const gesData = document.getElementById(`${prefix}_gesellschaft_data`);
+  if (personData) personData.style.display = val === 'person' ? 'block' : 'none';
+  if (gesData) gesData.style.display = val === 'gesellschaft' ? 'block' : 'none';
+}
+
+// ============================================================
+// CONDITIONAL LOGIC
+// ============================================================
+function toggleConditional() {
+  // Teilverkauf
+  const anteilAlle = document.querySelector('input[name="anteil_alle"]:checked')?.value;
+  toggle('cond_anteil_teilverkauf', anteilAlle === 'nein');
+
+  // Garantien
+  const garantien = document.querySelector('input[name="garantien"]:checked')?.value;
+  toggle('cond_garantien', garantien === 'ja');
+
+  // Notarkosten sonstige
+  const notarkosten = document.querySelector('input[name="notarkosten"]:checked')?.value;
+  toggle('cond_notarkosten_sonstige', notarkosten === 'sonstige');
+}
+
+// ============================================================
+// SCROLL / PROGRESS
+// ============================================================
+function scrollToSection(n) {
+  const el = document.getElementById('section-' + n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const n = e.target.id.replace('section-', '');
+      document.querySelectorAll('.progress-step').forEach(s => {
+        const sn = s.getAttribute('data-section');
+        s.classList.remove('active');
+        if (parseInt(sn) < parseInt(n)) s.classList.add('completed');
+        else s.classList.remove('completed');
+      });
+      document.querySelector(`.progress-step[data-section="${n}"]`)?.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.form-section').forEach(s => observer.observe(s));
+
+// ============================================================
+// SAVE / RESTORE (localStorage)
+// ============================================================
+function saveForm() {
+  const form = document.getElementById('mainForm');
+  const data = {};
+  data._anz_verkaeufer = document.querySelector('input[name="anz_verkaeufer"]:checked')?.value || '1';
+  data._anz_kaeufer = document.querySelector('input[name="anz_kaeufer"]:checked')?.value || '1';
+
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+    } else if (el.type === 'checkbox') {
+      data[el.name] = el.checked;
+    } else {
+      data[el.name] = el.value;
+    }
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  const status = document.getElementById('saveStatus');
+  status.textContent = 'Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
+  status.classList.add('saved');
+}
+
+function restoreForm() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    const form = document.getElementById('mainForm');
+    form.querySelectorAll('input, select, textarea').forEach(el => {
+      const val = data[el.name];
+      if (val === undefined) return;
+      if (el.type === 'radio') {
+        el.checked = (el.value === val);
+      } else if (el.type === 'checkbox') {
+        el.checked = !!val;
+      } else {
+        el.value = val;
+      }
+    });
+    toggleConditional();
+    // Restore person art toggles
+    const anzVk = parseInt(data._anz_verkaeufer || '1');
+    for (let i = 1; i <= anzVk; i++) {
+      togglePersonArt(`vk${i}`);
+    }
+    const anzKa = parseInt(data._anz_kaeufer || '1');
+    for (let i = 1; i <= anzKa; i++) {
+      togglePersonArt(`ka${i}`);
+    }
+  } catch(e) {}
+}
+
+// Autosave every 30 seconds
+setInterval(() => {
+  const form = document.getElementById('mainForm');
+  if (form.querySelectorAll('input:not([value=""]), textarea:not(:empty)').length > 0) {
+    saveForm();
+  }
+}, 30000);
+
+// ============================================================
+// PDF GENERATION (jsPDF inline)
+// ============================================================
+function generatePDF() {
+  if (typeof jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload = () => buildPDF();
+    script.onerror = () => {
+      showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte pr\u00fcfen Sie Ihre Internetverbindung.', 'error');
+    };
+    document.head.appendChild(script);
+  } else {
+    buildPDF();
+  }
+}
+
+function getVal(name) {
+  const el = document.querySelector(`[name="${name}"]`);
+  return el ? el.value.trim() : '';
+}
+
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  if (!el) return '';
+  const label = el.closest('label');
+  const span = label?.querySelector('span');
+  return span ? span.textContent.trim() : el.value;
+}
+
+function getChecked(name) {
+  const el = document.querySelector(`input[name="${name}"]`);
+  return el ? el.checked : false;
+}
+
+function getSelect(name) {
+  const el = document.querySelector(`[name="${name}"]`);
+  if (!el || el.selectedIndex <= 0) return '';
+  return el.options[el.selectedIndex].text;
+}
+
+function buildPDF() {
+  const { jsPDF } = window.jspdf || window;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const marginL = 18, marginR = 18;
+  const contentW = pageW - marginL - marginR;
+  let y = 0;
+
+  const cPrimary = [20, 37, 66];
+  const cAccent = [184, 147, 78];
+  const cText = [44, 44, 44];
+  const cMuted = [138, 138, 138];
+  const cWhite = [255, 255, 255];
+  const cBg = [245, 243, 239];
+
+  function checkPage(need) {
+    if (y + need > pageH - 20) {
+      doc.addPage();
+      y = 15;
+    }
+  }
+
+  function addTitle(text) {
+    checkPage(14);
+    doc.setFillColor(...cPrimary);
+    doc.roundedRect(marginL, y, contentW, 8, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...cWhite);
+    doc.text(text, marginL + 4, y + 5.5);
+    y += 12;
+  }
+
+  function addSubtitle(text) {
+    checkPage(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...cPrimary);
+    doc.text(text, marginL, y + 4);
+    doc.setDrawColor(...cAccent);
+    doc.setLineWidth(0.3);
+    doc.line(marginL, y + 6, marginL + contentW, y + 6);
+    y += 10;
+  }
+
+  function addField(label, value) {
+    if (!value && value !== 0) return;
+    checkPage(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...cMuted);
+    doc.text(label, marginL, y + 3.5);
+    doc.setTextColor(...cText);
+    doc.setFont('helvetica', 'bold');
+    const lines = doc.splitTextToSize(String(value), contentW - 50);
+    doc.text(lines, marginL + 50, y + 3.5);
+    y += Math.max(6, lines.length * 4.5);
+  }
+
+  // Header
+  doc.setFillColor(...cPrimary);
+  doc.rect(0, 0, pageW, 38, 'F');
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...cWhite);
+  doc.text('Kauf / Verkauf von Gesellschaftsanteilen', pageW / 2, 14, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...cAccent);
+  doc.text('Notar Alexander Beck \u00b7 Erfurt', pageW / 2, 21, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setTextColor(180, 190, 210);
+  doc.text('Wir bereiten Ihren Anteilskauf rechtssicher vor', pageW / 2, 27, { align: 'center' });
+  doc.setFillColor(...cAccent);
+  doc.rect(0, 36, pageW, 1.2, 'F');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...cMuted);
+  y = 43;
+  doc.text('Erstellt am ' + new Date().toLocaleDateString('de-DE') + ' um ' + new Date().toLocaleTimeString('de-DE'), pageW - marginR, y, { align: 'right' });
+  y += 6;
+
+  // Section I
+  addTitle('I. Angaben zur Gesellschaft');
+  addField('Firma', getVal('ges_firma'));
+  addField('Rechtsform', getSelect('ges_rechtsform'));
+  addField('Sitz', getVal('ges_sitz'));
+  addField('Registergericht', getVal('ges_registergericht'));
+  addField('HRB-Nummer', getVal('ges_hrb'));
+  addField('Stammkapital', getVal('ges_stammkapital') ? getVal('ges_stammkapital') + ' EUR' : '');
+
+  // Section II - Verkäufer
+  addTitle('II. Angaben zum Verk\u00e4ufer');
+  const anzVk = parseInt(document.querySelector('input[name="anz_verkaeufer"]:checked')?.value || '1');
+  addField('Anzahl Verk\u00e4ufer', String(anzVk));
+  for (let i = 1; i <= anzVk; i++) {
+    addSubtitle(`Verk\u00e4ufer ${i}`);
+    const p = `vk${i}`;
+    const art = document.querySelector(`input[name="${p}_art"]:checked`)?.value;
+    addField('Art', art === 'gesellschaft' ? 'Juristische Person' : 'Nat\u00fcrliche Person');
+    if (art === 'gesellschaft') {
+      addField('Firma', getVal(`${p}_ges_firma`));
+      addField('Rechtsform', getVal(`${p}_ges_rechtsform`));
+      addField('Sitz', getVal(`${p}_ges_sitz`));
+      addField('Registergericht', getVal(`${p}_ges_registergericht`));
+      addField('HRB', getVal(`${p}_ges_hrb`));
+      addField('Vertreter', getVal(`${p}_ges_vertreter_name`));
+      addField('Funktion', getVal(`${p}_ges_vertreter_funktion`));
+    } else {
+      addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+      addField('Geburtsname', getVal(`${p}_geburtsname`));
+      addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+      addField('Geburtsort', getVal(`${p}_geburtsort`));
+      addField('Anschrift', getVal(`${p}_anschrift`));
+      addField('Familienstand', getVal(`${p}_famstand`));
+      addField('Telefon', getVal(`${p}_tel`));
+      addField('E-Mail', getVal(`${p}_email`));
+      addField('Steuer-ID', getVal(`${p}_steuerid`));
+    }
+  }
+
+  // Section III - Käufer
+  addTitle('III. Angaben zum K\u00e4ufer');
+  const anzKa = parseInt(document.querySelector('input[name="anz_kaeufer"]:checked')?.value || '1');
+  addField('Anzahl K\u00e4ufer', String(anzKa));
+  for (let i = 1; i <= anzKa; i++) {
+    addSubtitle(`K\u00e4ufer ${i}`);
+    const p = `ka${i}`;
+    const art = document.querySelector(`input[name="${p}_art"]:checked`)?.value;
+    addField('Art', art === 'gesellschaft' ? 'Juristische Person' : 'Nat\u00fcrliche Person');
+    if (art === 'gesellschaft') {
+      addField('Firma', getVal(`${p}_ges_firma`));
+      addField('Rechtsform', getVal(`${p}_ges_rechtsform`));
+      addField('Sitz', getVal(`${p}_ges_sitz`));
+      addField('Registergericht', getVal(`${p}_ges_registergericht`));
+      addField('HRB', getVal(`${p}_ges_hrb`));
+      addField('Vertreter', getVal(`${p}_ges_vertreter_name`));
+      addField('Funktion', getVal(`${p}_ges_vertreter_funktion`));
+    } else {
+      addField('Name', [getVal(`${p}_anrede`), getVal(`${p}_vorname`), getVal(`${p}_nachname`)].filter(Boolean).join(' '));
+      addField('Geburtsname', getVal(`${p}_geburtsname`));
+      addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
+      addField('Geburtsort', getVal(`${p}_geburtsort`));
+      addField('Anschrift', getVal(`${p}_anschrift`));
+      addField('Familienstand', getVal(`${p}_famstand`));
+      addField('Telefon', getVal(`${p}_tel`));
+      addField('E-Mail', getVal(`${p}_email`));
+      addField('Steuer-ID', getVal(`${p}_steuerid`));
+    }
+  }
+
+  // Section IV - Anteile
+  addTitle('IV. Angaben zu den Anteilen');
+  addField('Gesch\u00e4ftsanteil Nr.', getVal('anteil_nr'));
+  addField('Nennbetrag', getVal('anteil_nennbetrag') ? getVal('anteil_nennbetrag') + ' EUR' : '');
+  addField('Anteil am Stammkapital', getVal('anteil_stammkapital'));
+  addField('Alle Anteile verkauft', getRadio('anteil_alle'));
+  if (document.querySelector('input[name="anteil_alle"]:checked')?.value === 'nein') {
+    addField('Teilverkauf', getVal('anteil_teilverkauf'));
+  }
+  addField('Kaufpreis', getVal('anteil_kaufpreis') ? getVal('anteil_kaufpreis') + ' EUR' : '');
+  addField('Zahlungsmodalit\u00e4ten', getSelect('anteil_zahlung'));
+  addField('Wirtschaftl. \u00dcbergang', getVal('anteil_stichtag'));
+
+  // Section V - Weitere Angaben
+  addTitle('V. Weitere Angaben');
+  addField('Vorkaufsrechte', getRadio('vorkaufsrechte'));
+  addField('Zustimmung GV', getRadio('zustimmung_gv'));
+  addField('Wettbewerbsverbot', getRadio('wettbewerbsverbot'));
+  addField('Garantien', getRadio('garantien'));
+  if (document.querySelector('input[name="garantien"]:checked')?.value === 'ja') {
+    addField('Garantie-Details', getVal('garantien_details'));
+  }
+  addField('Notarkosten', getRadio('notarkosten'));
+  if (document.querySelector('input[name="notarkosten"]:checked')?.value === 'sonstige') {
+    addField('Kosten-Details', getVal('notarkosten_details'));
+  }
+
+  // Section VI - Auftrag
+  addTitle('VI. Angaben zum Auftrag');
+  addField('Absender', getVal('ausfueller_name'));
+  addField('E-Mail', getVal('ausfueller_email'));
+  addField('Telefon', getVal('ausfueller_tel'));
+  addField('Bemerkungen', getVal('ausfueller_bemerkungen'));
+  addField('Kontaktaufnahme', getRadio('ausfueller_kontakt'));
+
+  // Footer on all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let p = 1; p <= totalPages; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...cAccent);
+    doc.setLineWidth(0.4);
+    doc.line(marginL, pageH - 14, pageW - marginR, pageH - 14);
+    doc.setFontSize(7);
+    doc.setTextColor(...cMuted);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Notar Alexander Beck \u00b7 Erfurt', marginL, pageH - 10);
+    doc.text(`Seite ${p} von ${totalPages}`, pageW - marginR, pageH - 10, { align: 'right' });
+  }
+
+  const pdfFileName = 'Anteilskauf_Beck_' + new Date().toISOString().slice(0,10) + '.pdf';
+
+  try {
+    const pdfBlob = doc.output('blob');
+    window.__lastPdfBlob = pdfBlob;
+    window.__lastPdfFileName = pdfFileName;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = function() {
+        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+      };
+      reader.readAsDataURL(pdfBlob);
+    } catch(e) {
+      window.__lastPdfBase64 = null;
+    }
+  } catch(err) {
+    console.error('PDF-Erzeugung fehlgeschlagen:', err);
+    showToast('PDF konnte nicht erstellt werden.', 'error');
+    return;
+  }
+  showToast('PDF wurde erfolgreich erstellt.', 'success');
+}
+
+// ============================================================
+// SUBMIT FORM
+// ============================================================
+function submitForm() {
+  const form = document.getElementById('mainForm');
+  const requiredFields = form.querySelectorAll('[required]');
+  let valid = true;
+  requiredFields.forEach(f => {
+    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+      f.style.borderColor = 'var(--error)';
+      valid = false;
+    } else {
+      f.style.borderColor = '';
+    }
+  });
+  if (!valid) {
+    showToast('Bitte f\u00fcllen Sie alle Pflichtfelder aus.', 'error');
+    const firstInvalid = form.querySelector('[required]:invalid, [required][style*="error"]');
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  saveForm();
+  generatePDF();
+  showSubmitConfirmation();
+}
+
+function showSubmitConfirmation() {
+  const notarEmail = 'info@notar-beck-erfurt.de';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'submitOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(20,37,66,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;';
+  overlay.innerHTML = `
+    <div style="background:white;border-radius:10px;padding:2rem 2.5rem;max-width:580px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.3);text-align:center;">
+
+      <div style="background:#e8f5e9;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+        <span style="font-size:1.8rem;">&#128196;</span>
+      </div>
+
+      <h2 style="font-family:Georgia,serif;color:#142542;margin-bottom:0.5rem;font-size:1.35rem;">
+        PDF wurde erfolgreich erstellt
+      </h2>
+
+      <p style="color:#5a5a5a;font-size:0.9rem;margin:0.5rem 0 1.25rem;line-height:1.5;">
+        Jetzt das PDF direkt an die Kanzlei \u00fcbermitteln:
+      </p>
+
+      <div style="margin:0 0 1.25rem;">
+
+        <!-- PRIMÄR: Direkt absenden -->
+        <button onclick="sendDirectUpload(this)" id="btnDirectSend"
+           style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#2e7d32;color:white;border:none;padding:1rem 1.25rem;border-radius:8px;margin-bottom:0.6rem;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+           onmouseover="this.style.background='#388e3c'" onmouseout="this.style.background='#2e7d32'">
+          <span style="font-size:1.4rem;flex-shrink:0;" class="sendIcon">&#128640;</span>
+          <span style="text-align:left;flex:1;">
+            <span style="display:block;" class="sendLabel">Jetzt direkt an Notar Beck senden</span>
+            <span style="display:block;font-size:0.75rem;font-weight:400;opacity:0.85;margin-top:2px;" class="sendSub">Formulardaten werden sofort an die Kanzlei \u00fcbermittelt</span>
+          </span>
+          <span style="font-size:1.1rem;flex-shrink:0;">\u2192</span>
+        </button>
+
+        <div id="uploadStatus" style="display:none;border-radius:8px;padding:0.85rem 1rem;margin-bottom:0.6rem;font-size:0.88rem;line-height:1.6;"></div>
+      </div>
+
+      <!-- Sekundäre Optionen -->
+      <details style="text-align:left;margin:1rem 0;cursor:pointer;">
+        <summary style="font-size:0.85rem;color:#5a5a5a;font-weight:600;padding:0.5rem 0;list-style:none;display:flex;align-items:center;gap:0.4rem;">
+          <span style="transition:transform 0.2s;display:inline-block;" class="detailsArrow">&#9656;</span> Alternative \u00dcbermittlungswege
+        </summary>
+        <div style="margin-top:0.75rem;">
+
+          <!-- E-Mail mit PDF-Anhang -->
+          <button onclick="sendEmailWithAttachment(this)" id="btnSendEmail"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#142542;color:white;border:none;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#1d3461'" onmouseout="this.style.background='#142542'">
+            <span style="font-size:1.2rem;flex-shrink:0;" class="emailIcon">&#128231;</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;" class="emailLabel">E-Mail mit PDF-Anhang erstellen</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;opacity:0.8;margin-top:2px;" class="emailSub">Erstellt eine .eml-Datei f\u00fcr Outlook / Thunderbird</span>
+            </span>
+          </button>
+
+          <div id="emlOpenHint" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;font-size:0.82rem;line-height:1.5;color:#1b5e20;">
+            <strong>&#10003; E-Mail-Datei heruntergeladen!</strong><br>
+            Bitte \u00f6ffnen Sie die Datei <code style="background:#c8e6c9;padding:1px 5px;border-radius:3px;font-size:0.85em;">Anteilskauf_an_Notar_Beck.eml</code> aus Ihrem Downloads-Ordner. Outlook startet dann mit dem PDF im Anhang.
+          </div>
+
+          <!-- E-Mail-Adresse kopieren -->
+          <button onclick="copyEmailToClipboard()" id="btnCopyEmail"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#e8e1d6'" onmouseout="this.style.background='#f0ebe3'">
+            <span style="font-size:1.2rem;flex-shrink:0;">&#128203;</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;">E-Mail-Adresse kopieren</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;color:#5a5a5a;margin-top:2px;">${notarEmail}</span>
+            </span>
+          </button>
+
+          <!-- PDF herunterladen -->
+          <button onclick="downloadPdfManual(this)" id="btnDownloadPdf"
+             style="display:flex;align-items:center;gap:0.75rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.75rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;"
+             onmouseover="this.style.background='#e8e1d6'" onmouseout="this.style.background='#f0ebe3'">
+            <span style="font-size:1.2rem;flex-shrink:0;">&#128190;</span>
+            <span style="text-align:left;flex:1;">
+              <span style="display:block;">PDF auf Ger\u00e4t speichern</span>
+              <span style="display:block;font-size:0.72rem;font-weight:400;color:#5a5a5a;margin-top:2px;">PDF-Datei herunterladen / lokal sichern</span>
+            </span>
+          </button>
+
+          <div style="background:#f8f9fa;border-radius:6px;padding:1rem;margin-top:0.75rem;font-size:0.85rem;line-height:1.9;color:#2c2c2c;">
+            <strong style="color:#142542;">&#128238; Per Post:</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Notar Alexander Beck \u00b7 Futterstra\u00dfe 13 \u00b7 99084 Erfurt</span><br>
+            <strong style="color:#142542;">&#127970; Pers\u00f6nliche Abgabe:</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Zu unseren Sprechzeiten in der Kanzlei</span><br>
+            <strong style="color:#142542;">&#128222; Fragen?</strong><br>
+            <span style="padding-left:1.5rem;display:inline-block;">Kontaktieren Sie uns gerne telefonisch</span>
+          </div>
+        </div>
+      </details>
+
+      <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:0.5rem;">
+        <button onclick="document.getElementById('submitOverlay').remove()"
+          style="background:transparent;color:#8c8c8c;border:1px solid #ddd;padding:0.6rem 2rem;border-radius:6px;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all 0.2s;"
+          onmouseover="this.style.background='#f5f5f5';this.style.color='#333'" onmouseout="this.style.background='transparent';this.style.color='#8c8c8c'">
+          Schlie\u00dfen
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  const details = overlay.querySelector('details');
+  if (details) {
+    details.addEventListener('toggle', () => {
+      const arrow = details.querySelector('.detailsArrow');
+      if (arrow) arrow.style.transform = details.open ? 'rotate(90deg)' : '';
+    });
+  }
+}
+
+function downloadPdfManual(btn) {
+  if (!window.__lastPdfBlob) {
+    showToast('Kein PDF vorhanden. Bitte erstellen Sie zuerst ein PDF.', 'error');
+    return;
+  }
+  const blobUrl = URL.createObjectURL(window.__lastPdfBlob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = window.__lastPdfFileName || 'Anteilskauf_Beck.pdf';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+
+  const origLabel = btn.querySelector('span > span:first-child');
+  if (origLabel) {
+    const origText = origLabel.textContent;
+    origLabel.textContent = '\u2713 Download gestartet';
+    btn.style.background = '#d4edda';
+    btn.style.borderColor = '#a3d9b1';
+    setTimeout(() => {
+      origLabel.textContent = origText;
+      btn.style.background = '#f0ebe3';
+      btn.style.borderColor = '#d4caba';
+    }, 2500);
+  }
+}
+
+function sendDirectUpload(btn) {
+  const statusDiv = document.getElementById('uploadStatus');
+
+  btn.disabled = true;
+  btn.style.background = '#5a7d5e';
+  btn.style.cursor = 'wait';
+  btn.querySelector('.sendIcon').textContent = '\u231b';
+  btn.querySelector('.sendLabel').textContent = 'Wird gesendet \u2026';
+  btn.querySelector('.sendSub').textContent = 'Bitte warten, Daten werden \u00fcbermittelt';
+
+  const form = document.getElementById('mainForm');
+  const fields = {};
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(el => {
+    if (!el.name || el.name.startsWith('_')) return;
+    if (el.type === 'radio' && !el.checked) return;
+    if (el.type === 'checkbox' && !el.checked) return;
+    if (!el.value || el.value.trim() === '') return;
+    const readable = el.name
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .replace(/^Vk(\d+) /, 'Verk\u00e4ufer $1: ')
+      .replace(/^Ka(\d+) /, 'K\u00e4ufer $1: ')
+      .replace(/^Ges /, 'Gesellschaft: ')
+      .replace(/^Anteil /, 'Anteil: ')
+      .replace(/^Ausfueller /, 'Absender: ');
+    let val = el.value;
+    if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
+    if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
+    fields[readable] = val;
+  });
+
+  const absenderName = getVal('ausfueller_name') || 'Mandant';
+
+  const payload = {
+    _subject: 'Anteilskauf \u2013 Formulardaten von ' + absenderName,
+    _template: 'table',
+    _captcha: 'false',
+    _replyto: (document.querySelector('[name="ausfueller_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
+    'Absender': absenderName,
+    'Formular': 'Kauf/Verkauf von Gesellschaftsanteilen',
+    'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
+    ...fields
+  };
+
+  fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
+  })
+  .then(({ status, ok, data }) => {
+    console.log('Formsubmit Antwort:', status, data);
+
+    if (data.success === 'true' || data.success === true) {
+      btn.style.background = '#1b5e20';
+      btn.style.cursor = 'default';
+      btn.querySelector('.sendIcon').textContent = '\u2705';
+      btn.querySelector('.sendLabel').textContent = 'Erfolgreich gesendet!';
+      btn.querySelector('.sendSub').textContent = 'Ihre Formulardaten wurden an die Kanzlei \u00fcbermittelt';
+      btn.onmouseover = null;
+      btn.onmouseout = null;
+
+      statusDiv.style.display = 'block';
+      statusDiv.style.background = '#e8f5e9';
+      statusDiv.style.border = '1px solid #a5d6a7';
+      statusDiv.style.color = '#1b5e20';
+      statusDiv.innerHTML = '<strong>\u2713 Ihre Daten wurden erfolgreich \u00fcbermittelt.</strong><br>Sie k\u00f6nnen das PDF zus\u00e4tzlich \u00fcber \u201ePDF auf Ger\u00e4t speichern\u201c herunterladen. Wir melden uns zeitnah bei Ihnen. Vielen Dank!';
+
+      showToast('Formulardaten wurden erfolgreich an die Kanzlei gesendet!', 'success');
+    } else {
+      const msg = data.message || JSON.stringify(data);
+      console.warn('Formsubmit nicht erfolgreich:', msg);
+      throw new Error(msg);
+    }
+  })
+  .catch(error => {
+    console.error('Upload-Fehler:', error);
+
+    btn.disabled = false;
+    btn.style.background = '#2e7d32';
+    btn.style.cursor = 'pointer';
+    btn.querySelector('.sendIcon').textContent = '\ud83d\ude80';
+    btn.querySelector('.sendLabel').textContent = 'Erneut versuchen';
+    btn.querySelector('.sendSub').textContent = 'Klicken Sie hier f\u00fcr einen neuen Versuch';
+    btn.onmouseover = function() { this.style.background = '#388e3c'; };
+    btn.onmouseout = function() { this.style.background = '#2e7d32'; };
+
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#fff3cd';
+    statusDiv.style.border = '1px solid #ffe08a';
+    statusDiv.style.color = '#664d03';
+
+    const errMsg = error.message || '';
+    if (errMsg.toLowerCase().includes('confirm') || errMsg.toLowerCase().includes('activate') || errMsg.toLowerCase().includes('verify')) {
+      statusDiv.innerHTML = '\ud83d\udce7 <strong>Bitte E-Mail-Adresse best\u00e4tigen:</strong> Eine Best\u00e4tigungsmail wurde an die Kanzlei gesendet. Nach Best\u00e4tigung funktioniert die \u00dcbermittlung. Bitte versuchen Sie es danach erneut.';
+    } else {
+      statusDiv.innerHTML = '\u26a0\ufe0f <strong>\u00dcbermittlung fehlgeschlagen</strong> (' + (errMsg || 'Unbekannter Fehler') + ').<br>Bitte versuchen Sie es erneut oder nutzen Sie eine der alternativen Methoden unten.';
+    }
+  });
+}
+
+function sendEmailWithAttachment(btn) {
+  const notarEmail = 'info@notar-beck-erfurt.de';
+  const subject = 'Anteilskauf \u2013 Formulardaten';
+  const bodyText = 'Sehr geehrte Damen und Herren,\r\n\r\nanbei \u00fcbersende ich Ihnen meine ausgef\u00fcllten Formulardaten zum Anteilskauf als PDF-Datei.\r\n\r\nMit freundlichen Gr\u00fc\u00dfen';
+
+  const pdfBase64 = window.__lastPdfBase64;
+  const pdfFileName = window.__lastPdfFileName || 'Anteilskauf_Beck.pdf';
+
+  if (!pdfBase64) {
+    const mailSubject = encodeURIComponent(subject);
+    const mailBody = encodeURIComponent('Sehr geehrte Damen und Herren,\n\nanbei \u00fcbersende ich Ihnen meine ausgef\u00fcllten Formulardaten zum Anteilskauf als PDF-Datei.\n\nBitte vergessen Sie nicht, die heruntergeladene PDF-Datei als Anhang beizuf\u00fcgen.\n\nMit freundlichen Gr\u00fc\u00dfen');
+    window.location.href = 'mailto:' + notarEmail + '?subject=' + mailSubject + '&body=' + mailBody;
+    showToast('PDF konnte nicht angeh\u00e4ngt werden \u2013 bitte manuell als Anhang beif\u00fcgen.', 'error');
+    return;
+  }
+
+  const boundary = '----=_NextPart_' + Date.now().toString(36);
+  const emlContent = [
+    'To: ' + notarEmail,
+    'Subject: =?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=',
+    'X-Unsent: 1',
+    'MIME-Version: 1.0',
+    'Content-Type: multipart/mixed; boundary="' + boundary + '"',
+    '',
+    '--' + boundary,
+    'Content-Type: text/plain; charset="UTF-8"',
+    'Content-Transfer-Encoding: quoted-printable',
+    '',
+    bodyText,
+    '',
+    '--' + boundary,
+    'Content-Type: application/pdf; name="' + pdfFileName + '"',
+    'Content-Disposition: attachment; filename="' + pdfFileName + '"',
+    'Content-Transfer-Encoding: base64',
+    '',
+    pdfBase64.match(/.{1,76}/g).join('\r\n'),
+    '',
+    '--' + boundary + '--'
+  ].join('\r\n');
+
+  const blob = new Blob([emlContent], { type: 'message/rfc822' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Anteilskauf_an_Notar_Beck.eml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+
+  if (btn) {
+    btn.style.background = '#2e7d32';
+    btn.onmouseover = null;
+    btn.onmouseout = null;
+    btn.querySelector('.emailIcon').textContent = '\u2713';
+    btn.querySelector('.emailLabel').textContent = 'E-Mail-Datei heruntergeladen';
+    btn.querySelector('.emailSub').textContent = 'Bitte Datei \u00f6ffnen \u2192 Outlook startet automatisch';
+  }
+
+  const hint = document.getElementById('emlOpenHint');
+  if (hint) hint.style.display = 'block';
+}
+
+function copyEmailToClipboard() {
+  const email = 'info@notar-beck-erfurt.de';
+  const btn = document.getElementById('btnCopyEmail');
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(email).then(() => {
+      showCopySuccess(btn);
+    }).catch(() => {
+      fallbackCopy(email, btn);
+    });
+  } else {
+    fallbackCopy(email, btn);
+  }
+}
+
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showCopySuccess(btn);
+  } catch(e) {
+    showToast('Kopieren fehlgeschlagen. Bitte manuell kopieren: ' + text, 'error');
+  }
+  document.body.removeChild(ta);
+}
+
+function showCopySuccess(btn) {
+  if (!btn) return;
+  const origLabel = btn.querySelector('span > span:first-child');
+  if (origLabel) {
+    const origText = origLabel.textContent;
+    origLabel.textContent = '\u2713 Kopiert!';
+    btn.style.background = '#d4edda';
+    btn.style.borderColor = '#a3d9b1';
+    setTimeout(() => {
+      origLabel.textContent = origText;
+      btn.style.background = '#f0ebe3';
+      btn.style.borderColor = '#d4caba';
+    }, 2500);
+  }
+  showToast('E-Mail-Adresse in Zwischenablage kopiert!', 'success');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const data = JSON.parse(raw);
+      if (data._anz_verkaeufer) {
+        const radio = document.querySelector(`input[name="anz_verkaeufer"][value="${data._anz_verkaeufer}"]`);
+        if (radio) radio.checked = true;
+      }
+      if (data._anz_kaeufer) {
+        const radio = document.querySelector(`input[name="anz_kaeufer"][value="${data._anz_kaeufer}"]`);
+        if (radio) radio.checked = true;
+      }
+    } catch(e) {}
+  }
+  togglePersonCount('verkaeufer');
+  togglePersonCount('kaeufer');
+  toggleConditional();
+});
+</script>
+</body>
+</html>
