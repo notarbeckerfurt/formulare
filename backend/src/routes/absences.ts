@@ -4,6 +4,7 @@ import { prisma } from '../prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { AuthRequest } from '../types.js';
 import { detectConflicts } from '../services/conflicts.js';
+import { sendConflictWarning, sendDecisionNotification, sendNewRequestNotification } from '../services/email.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -39,8 +40,12 @@ router.post('/', async (req: AuthRequest, res) => {
     return res.status(400).json({ message: 'Ungültiger Typ' });
   }
 
+  const currentUser = await prisma.user.findUnique({ where: { id: req.user!.userId } });
   const conflicts = type === AbsenceType.VACATION ? await detectConflicts(req.user!.userId, new Date(startDate), new Date(endDate)) : [];
   if (conflicts.length && !overrideConflict && req.user?.role !== Role.ADMIN) {
+    if (currentUser?.email) {
+      await sendConflictWarning(currentUser.email, conflicts.map((conflict) => conflict.name));
+    }
     return res.status(409).json({ message: 'Konflikt erkannt', conflicts });
   }
 
@@ -58,8 +63,10 @@ router.post('/', async (req: AuthRequest, res) => {
 
   const approvers = await prisma.user.findMany({ where: { OR: [{ role: Role.ADMIN }, { role: Role.TEAM_LEAD }] } });
   await prisma.notification.createMany({
-    data: approvers.map((a) => ({ userId: a.id, message: `Neuer Antrag von ${req.user!.userId} wartet auf Freigabe.` }))
+    data: approvers.map((a) => ({ userId: a.id, message: `Neuer Antrag von ${currentUser?.name || req.user!.userId} wartet auf Freigabe.` }))
   });
+
+  await sendNewRequestNotification(approvers.map((approver) => approver.email), currentUser?.name || 'Mitarbeiter');
 
   return res.status(201).json({ request, conflicts });
 });
@@ -79,7 +86,12 @@ router.patch('/:id/status', async (req: AuthRequest, res) => {
     }
   });
 
+  const employee = await prisma.user.findUnique({ where: { id: updated.userId } });
   await prisma.notification.create({ data: { userId: updated.userId, message: `Ihr Antrag wurde ${status === RequestStatus.APPROVED ? 'genehmigt' : 'abgelehnt'}.` } });
+
+  if (employee?.email && (status === RequestStatus.APPROVED || status === RequestStatus.REJECTED)) {
+    await sendDecisionNotification(employee.email, status);
+  }
 
   return res.json(updated);
 });
