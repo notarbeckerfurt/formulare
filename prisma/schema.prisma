@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEAM_LEAD
+  EMPLOYEE
+}
+
+enum AbsenceType {
+  VACATION
+  SICK
+  TRAINING
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                  String                    @id @default(cuid())
+  name                String
+  email               String                    @unique
+  password            String
+  role                Role
+  teamId              String?
+  bundesland          String
+  annualAllowance     Int                       @default(30)
+  hireDate            DateTime
+  team                Team?                     @relation(fields: [teamId], references: [id])
+  requests            AbsenceRequest[]          @relation("requestOwner")
+  substitutions       AbsenceRequest[]          @relation("substitute")
+  approvals           AbsenceRequest[]          @relation("approver")
+  notifications       Notification[]
+  conflictMemberships ConflictGroupMember[]
+}
+
+model Team {
+  id          String @id @default(cuid())
+  name        String
+  departmentId String
+  department  Department @relation(fields: [departmentId], references: [id])
+  users       User[]
+}
+
+model Department {
+  id    String @id @default(cuid())
+  name  String @unique
+  teams Team[]
+}
+
+model AbsenceRequest {
+  id           String        @id @default(cuid())
+  userId       String
+  type         AbsenceType
+  startDate    DateTime
+  endDate      DateTime
+  halfDay      Boolean       @default(false)
+  status       RequestStatus @default(PENDING)
+  substituteId String
+  approvedById String?
+  comment      String?
+  user         User          @relation("requestOwner", fields: [userId], references: [id])
+  substitute   User          @relation("substitute", fields: [substituteId], references: [id])
+  approvedBy   User?         @relation("approver", fields: [approvedById], references: [id])
+}
+
+model ConflictGroup {
+  id      String                @id @default(cuid())
+  name    String
+  members ConflictGroupMember[]
+}
+
+model ConflictGroupMember {
+  conflictGroupId String
+  userId          String
+  conflictGroup   ConflictGroup @relation(fields: [conflictGroupId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@id([conflictGroupId, userId])
+}
+
+model PublicHoliday {
+  id         String   @id @default(cuid())
+  date       DateTime
+  name       String
+  bundesland String
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
