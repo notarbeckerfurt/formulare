@@ -8,6 +8,7 @@ import absenceRoutes from './routes/absences.js';
 import dashboardRoutes from './routes/dashboard.js';
 import metaRoutes from './routes/meta.js';
 import notificationRoutes from './routes/notifications.js';
+import exportRoutes from './routes/export.js';
 
 const app = express();
 app.use(cors());
@@ -21,6 +22,7 @@ app.use('/api/absences', absenceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/export', exportRoutes);
 
 const port = Number(process.env.PORT || 4000);
 app.listen(port, () => {
