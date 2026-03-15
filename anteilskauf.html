@@ -398,7 +398,7 @@ input[type="radio"], input[type="checkbox"] {
 </nav>
 
 <main class="container">
-<form id="mainForm" novalidate>
+<form id="mainForm" novalidate autocomplete="off">
 
 <div class="intro">
   Wir m&ouml;chten Ihren Anteilskauf schnell und rechtssicher beurkunden. Hierf&uuml;r ben&ouml;tigen wir einige Angaben von Ihnen.
@@ -694,7 +694,7 @@ input[type="radio"], input[type="checkbox"] {
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
       <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
-      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben l\u00f6schen?')){localStorage.removeItem('notar_beck_anteilskauf');location.reload()}">&#128465; Zur&uuml;cksetzen</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben l\u00f6schen?')){localStorage.removeItem('notar_beck_anteilskauf');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zur&uuml;cksetzen</button>
       <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
     </div>
   </div>

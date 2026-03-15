@@ -409,7 +409,7 @@ input[type="radio"], input[type="checkbox"] {
 </nav>
 
 <main class="container">
-<form id="mainForm" novalidate="">
+<form id="mainForm" novalidate="" autocomplete="off">
 
 <div class="intro">
   Bitte füllen Sie unser Online-Formular aus und klicken Sie am Ende auf <strong>„PDF erstellen &amp; senden"</strong>. 
@@ -1337,7 +1337,7 @@ Beurkundung kommt.</span>
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.5rem">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('ueberlassung_form');location.reload()}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('ueberlassung_form');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>

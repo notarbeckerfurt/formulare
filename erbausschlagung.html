@@ -444,7 +444,7 @@ input[type="radio"], input[type="checkbox"] {
   F&uuml;r Fragen stehen wir Ihnen gerne zur Verf&uuml;gung.
 </div>
 
-<form id="mainForm" novalidate>
+<form id="mainForm" novalidate autocomplete="off">
 
 <!-- ============================================================ -->
 <!-- SECTION I: ANGABEN ZUM ERBLASSER -->
@@ -803,7 +803,7 @@ input[type="radio"], input[type="checkbox"] {
     <div class="save-status" id="saveStatus">Nicht gespeichert</div>
     <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">&#128190; Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('notar_beck_erbausschlagung');location.reload()}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('notar_beck_erbausschlagung');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
     </div>
   </div>
