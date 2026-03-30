@@ -2327,9 +2327,17 @@ async function generatePDF() {
   }
   addField('Kaufgegenstand', getVal('kaufgegenstand'));
 
-  // Bebaut/Unbebaut & Baujahr
-  addField('Bebaut/Unbebaut', getVal('bebaut'));
-  addField('Baujahr', getVal('baujahr'));
+  // Bebaut/Unbebaut & Baujahr (nur wenn relevant)
+  const kgRaw = document.querySelector('[name="kaufgegenstand"]')?.value;
+  const kgIsETW = kgRaw === 'eigentumswohnung';
+  const kgIsTeilfl = kgRaw === 'teilflaeche';
+  const kgIsUnbebaut = kgRaw === 'unbebaut';
+  if (kgRaw && !kgIsUnbebaut && !kgIsTeilfl && !kgIsETW) {
+    addField('Bebaut/Unbebaut', getVal('bebaut'));
+  }
+  if (kgIsETW || (kgRaw && !kgIsUnbebaut && !kgIsTeilfl && document.querySelector('[name="bebaut"]')?.value === 'bebaut')) {
+    addField('Baujahr', getVal('baujahr'));
+  }
   addField('Saniert < 5 Jahre', getVal('saniert_5j'));
 
   // ETW-Felder
@@ -2365,8 +2373,11 @@ async function generatePDF() {
   }
 
   // Nutzung & Mieter
-  addField('Vermietet an', getVal('vermietet_an'));
-  if (document.querySelector('input[name="vermietet_an"]:checked')?.value === 'dritte') {
+  const nutzungVal = document.querySelector('[name="nutzung"]')?.value;
+  if (nutzungVal === 'vermietet' || nutzungVal === 'gemischt') {
+    addField('Vermietet an', getVal('vermietet_an'));
+  }
+  if (document.querySelector('input[name="vermietet_an"]:checked')?.value === 'dritte' && (nutzungVal === 'vermietet' || nutzungVal === 'gemischt')) {
     addField('Mieter', [getVal('mieter_vorname'), getVal('mieter_nachname')].filter(Boolean).join(' '));
     addField('Kaltmiete (€)', getVal('kaltmiete'));
     addField('Nebenkosten (€)', getVal('nebenkosten'));
@@ -2382,7 +2393,9 @@ async function generatePDF() {
     addField('KA Landwirt', getVal('ka_landwirt'));
   }
 
-  addField('Stellplatz Art', getVal('stellplatz_art'));
+  if (document.querySelector('input[name="stellplatz"]:checked')?.value === 'ja') {
+    addField('Stellplatz Art', getVal('stellplatz_art'));
+  }
   addField('Erblasser im GB', getVal('erblasser'));
   addField('Belastungen Abt. II', getVal('belastung_abt2'));
   if (getVal('belastung_abt2').toLowerCase().includes('ja')) {
@@ -2536,6 +2549,9 @@ async function generatePDF() {
   addField('Makler', getVal('makler'));
   if (getVal('makler').toLowerCase().includes('ja')) {
     addField('Maklername', getVal('makler_name'));
+    addField('Makler Telefon', getVal('makler_tel'));
+    addField('Makler E-Mail', getVal('makler_email'));
+    addField('Makler Anschrift', [getVal('makler_anschrift'), getVal('makler_plz'), getVal('makler_ort')].filter(Boolean).join(', '));
     addField('Courtage', getVal('makler_courtage'));
   }
   
@@ -2608,9 +2624,13 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM (Email)
 // ============================================================
+let _submitRunning = false;
 async function submitForm() {
+  if (_submitRunning) return;
+  _submitRunning = true;
+  try {
   const form = document.getElementById('mainForm');
-  
+
   // Basic validation
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
@@ -2650,6 +2670,9 @@ async function submitForm() {
 
   // Show success message with instructions
   showSubmitConfirmation();
+  } finally {
+    _submitRunning = false;
+  }
 }
 
 function showSubmitConfirmation() {
