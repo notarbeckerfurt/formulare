@@ -1753,16 +1753,60 @@ function addGrundbuchBlatt() {
 }
 
 function removeGrundbuchBlatt(idx) {
-  const block = document.getElementById(`gb${idx}_block`);
-  if (block) block.remove();
-  reindexGrundbuchBlaetter();
-  updateGbButtons();
-}
-
-function reindexGrundbuchBlaetter() {
+  // Collect data from all existing blocks
   const container = document.getElementById('gb_container');
   const blocks = container.querySelectorAll('.person-block');
-  gbBlattCount = blocks.length;
+  const allData = [];
+  blocks.forEach(block => {
+    const blockId = block.id.replace('_block', '');
+    if (blockId === `gb${idx}`) return; // skip the one being removed
+    const blockData = {};
+    block.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name) return;
+      const baseName = el.name.replace(blockId, 'PLACEHOLDER');
+      if (el.type === 'radio') {
+        if (el.checked) blockData[baseName] = el.value;
+      } else if (el.type === 'checkbox') {
+        blockData[baseName] = el.checked;
+      } else {
+        blockData[baseName] = el.value;
+      }
+    });
+    // Count Flurstück rows
+    const fsContainer = document.getElementById(`${blockId}_fs_container`);
+    blockData._fsCount = fsContainer ? fsContainer.querySelectorAll('.field-row-3').length : 1;
+    allData.push(blockData);
+  });
+
+  // Rebuild all blocks with sequential indices
+  container.innerHTML = '';
+  gbBlattCount = 0;
+  allData.forEach((data, i) => {
+    const newIdx = i + 1;
+    gbBlattCount = newIdx;
+    container.insertAdjacentHTML('beforeend', generateGrundbuchBlatt(newIdx));
+    const newPrefix = `gb${newIdx}`;
+    // Add extra Flurstück rows if needed
+    for (let f = 2; f <= data._fsCount; f++) {
+      addFlurstuck(newIdx);
+    }
+    // Restore data
+    Object.entries(data).forEach(([baseName, value]) => {
+      if (baseName.startsWith('_')) return;
+      const realName = baseName.replace('PLACEHOLDER', newPrefix);
+      const els = container.querySelectorAll(`[name="${realName}"]`);
+      els.forEach(el => {
+        if (el.type === 'radio') {
+          el.checked = (el.value === value);
+        } else if (el.type === 'checkbox') {
+          el.checked = !!value;
+        } else {
+          el.value = value;
+        }
+      });
+    });
+  });
+  updateGbButtons();
 }
 
 function addFlurstuck(blattIdx) {
@@ -2064,6 +2108,7 @@ function restoreForm() {
           const prefix = `${type}_${i}`;
           togglePersonType(prefix);
           toggleFamstand(prefix);
+          toggleEheAusland(prefix);
           toggleDolmetscher(prefix);
         }
       });
@@ -2264,6 +2309,63 @@ async function generatePDF() {
     }
   }
   addField('Kaufgegenstand', getVal('kaufgegenstand'));
+
+  // Bebaut/Unbebaut & Baujahr
+  addField('Bebaut/Unbebaut', getVal('bebaut'));
+  addField('Baujahr', getVal('baujahr'));
+  addField('Saniert < 5 Jahre', getVal('saniert_5j'));
+
+  // ETW-Felder
+  if (getVal('kaufgegenstand') === 'Eigentumswohnung' || document.querySelector('[name="kaufgegenstand"]')?.value === 'eigentumswohnung') {
+    addField('Lage der Wohnung', getVal('etw_lage'));
+    addField('Sondereigentum Nr.', getVal('etw_sondereigentum_nr'));
+    addField('Wohnfläche (m²)', getVal('etw_wohnflaeche'));
+    addField('Zimmer', getVal('etw_zimmer'));
+    addField('Hausgeld (€/Monat)', getVal('etw_hausgeld'));
+    addField('Erhaltungsrücklage', getVal('etw_ruecklage'));
+    addField('Anteil Instandh.rücklage', getVal('etw_anteil_ruecklage'));
+    addField('Sondernutzungsrechte', getVal('sondernutzung'));
+    const snrParts = [];
+    if (document.querySelector('[name="snr_stellplatz"]')?.checked) snrParts.push('Stellplatz');
+    if (document.querySelector('[name="snr_garten"]')?.checked) snrParts.push('Garten');
+    if (document.querySelector('[name="snr_keller"]')?.checked) snrParts.push('Keller');
+    if (document.querySelector('[name="snr_sonstige"]')?.checked) snrParts.push('Sonstige');
+    if (snrParts.length) addField('Art der SNR', snrParts.join(', '));
+    addField('SNR-Bezeichnung', getVal('snr_bezeichnung'));
+    addField('Verwalter', getVal('verwalter'));
+    if (getVal('verwalter').toLowerCase().includes('ja')) {
+      addField('Verwalter Name', getVal('verwalter_name'));
+      addField('Verwalter Anschrift', [getVal('verwalter_anschrift'), getVal('verwalter_plz'), getVal('verwalter_ort')].filter(Boolean).join(', '));
+    }
+  }
+
+  // Teilfläche
+  if (document.querySelector('[name="kaufgegenstand"]')?.value === 'teilflaeche') {
+    addField('Teilfläche vermessen', getVal('teilflaeche_vermessen'));
+    addField('Amtliche Fläche (m²)', getVal('teilflaeche_amtlich'));
+    addField('Geschätzte Fläche (m²)', getVal('teilflaeche_geschaetzt'));
+    addField('Kaufpreisart', getVal('kaufpreisart'));
+  }
+
+  // Nutzung & Mieter
+  addField('Vermietet an', getVal('vermietet_an'));
+  if (document.querySelector('input[name="vermietet_an"]:checked')?.value === 'dritte') {
+    addField('Mieter', [getVal('mieter_vorname'), getVal('mieter_nachname')].filter(Boolean).join(' '));
+    addField('Kaltmiete (€)', getVal('kaltmiete'));
+    addField('Nebenkosten (€)', getVal('nebenkosten'));
+    addField('Kaution (€)', getVal('kaution'));
+    addField('Mietbeginn', getVal('mietbeginn'));
+    addField('Mieter Vorkaufsrecht', getVal('mieter_vorkaufsrecht'));
+  }
+
+  // Landwirtschaft
+  if (document.querySelector('[name="nutzung"]')?.value === 'landwirtschaft') {
+    addField('Pachtverhältnis', getVal('pacht'));
+    addField('VK Landwirt', getVal('vk_landwirt'));
+    addField('KA Landwirt', getVal('ka_landwirt'));
+  }
+
+  addField('Stellplatz Art', getVal('stellplatz_art'));
   addField('Erblasser im GB', getVal('erblasser'));
   addField('Belastungen Abt. II', getVal('belastung_abt2'));
   if (getVal('belastung_abt2').toLowerCase().includes('ja')) {
@@ -2301,19 +2403,34 @@ async function generatePDF() {
       addField('Telefon', getVal(`${p}_tel`));
       addField('Steuer-ID', getVal(`${p}_steuerid`));
       addField('Familienstand', getVal(`${p}_famstand`));
+      addField('Staatsangehörigkeit', getVal(`${p}_staat`));
+      addField('Ehegatte verkauft mit', getVal(`${p}_ehegatte_mit`));
+      addField('Ehevertrag', getVal(`${p}_ehevertrag`));
+      addField('Ehe Auslandsbezug', getVal(`${p}_ehe_ausland`));
+      addField('Güterstand', getVal(`${p}_gueterstand`));
+      addField('Eheschließung', getVal(`${p}_eheschliessung`));
+      addField('Erster gem. Wohnsitz', getVal(`${p}_erster_wohnsitz`));
     } else {
       addField('Gesellschaft', getVal(`${p}_ges_name`));
       addField('Rechtsform', getVal(`${p}_ges_rechtsform`));
+      addField('Sitz', getVal(`${p}_ges_sitz`));
       addField('Registergericht', getVal(`${p}_ges_registergericht`));
       addField('Registernr.', getVal(`${p}_ges_registernr`));
+      addField('Vertreter', [getVal(`${p}_vertr_anrede`), getVal(`${p}_vertr_vorname`), getVal(`${p}_vertr_nachname`)].filter(Boolean).join(' '));
+      addField('Rolle Vertreter', getVal(`${p}_vertr_rolle`));
     }
+    addField('Dolmetscher', getVal(`${p}_dolmetscher`));
+    addField('Dolmetscher Sprache', getVal(`${p}_dolmetscher_sprache`));
+    addField('Politisch exp. Person', getVal(`${p}_pep`));
+    addField('Unternehmer', getVal(`${p}_unternehmer`));
+    addField('Anmerkungen', getVal(`${p}_anmerkungen`));
     addField('Kontoinhaber', getVal(`${p}_kontoinhaber`));
     addField('IBAN', getVal(`${p}_iban`));
     addField('BIC', getVal(`${p}_bic`));
     addField('Bank', getVal(`${p}_bank`));
     addField('Abw. Kontoinhaber', getVal(`${p}_kontoinhaber_abw`));
   }
-  
+
   // Section III - Käufer
   addTitle('III. Angaben zur Käuferseite');
   const anzKa = parseInt(document.querySelector('input[name="anz_ka"]:checked')?.value || '1');
@@ -2332,24 +2449,73 @@ async function generatePDF() {
       addField('Telefon', getVal(`${p}_tel`));
       addField('Steuer-ID', getVal(`${p}_steuerid`));
       addField('Familienstand', getVal(`${p}_famstand`));
+      addField('Staatsangehörigkeit', getVal(`${p}_staat`));
+      addField('Ehegatte kauft mit', getVal(`${p}_ehegatte_mit`));
+      addField('Ehevertrag', getVal(`${p}_ehevertrag`));
+      addField('Ehe Auslandsbezug', getVal(`${p}_ehe_ausland`));
+      addField('Güterstand', getVal(`${p}_gueterstand`));
+      addField('Eheschließung', getVal(`${p}_eheschliessung`));
+      addField('Erster gem. Wohnsitz', getVal(`${p}_erster_wohnsitz`));
     } else {
       addField('Gesellschaft', getVal(`${p}_ges_name`));
       addField('Rechtsform', getVal(`${p}_ges_rechtsform`));
+      addField('Sitz', getVal(`${p}_ges_sitz`));
       addField('Registergericht', getVal(`${p}_ges_registergericht`));
       addField('Registernr.', getVal(`${p}_ges_registernr`));
+      addField('Vertreter', [getVal(`${p}_vertr_anrede`), getVal(`${p}_vertr_vorname`), getVal(`${p}_vertr_nachname`)].filter(Boolean).join(' '));
+      addField('Rolle Vertreter', getVal(`${p}_vertr_rolle`));
     }
+    addField('Dolmetscher', getVal(`${p}_dolmetscher`));
+    addField('Dolmetscher Sprache', getVal(`${p}_dolmetscher_sprache`));
+    addField('Politisch exp. Person', getVal(`${p}_pep`));
+    addField('Unternehmer', getVal(`${p}_unternehmer`));
+    addField('Anmerkungen', getVal(`${p}_anmerkungen`));
+  }
+
+  // Erwerbsverhältnis (bei >1 Käufer)
+  if (anzKa > 1) {
+    addField('Erwerbsverhältnis', getVal('erwerbsverhaeltnis'));
+    addField('Erwerb Quoten', getVal('erwerb_quoten'));
   }
   
   // Section IV
   addTitle('IV. Angaben zum Kaufvertrag');
   addField('Gesamtkaufpreis', getVal('kaufpreis') ? getVal('kaufpreis') + ' €' : '');
   addField('KP bewegl. Gegenstände', getVal('kaufpreis_beweglich') ? getVal('kaufpreis_beweglich') + ' €' : '');
+  addField('Kaufpreisaufteilung', getVal('kaufpreisaufteilung'));
+  if (getVal('kaufpreisaufteilung').toLowerCase().includes('ja')) {
+    addField('KP Grund/Boden', getVal('kp_boden') ? getVal('kp_boden') + ' €' : '');
+    addField('KP Gebäude', getVal('kp_gebaeude') ? getVal('kp_gebaeude') + ' €' : '');
+  }
   addField('Finanzierung', getVal('finanzierung'));
   addField('Zahlung/Fälligkeit', getVal('zahlung_zeitpunkt'));
+  if (document.querySelector('input[name="zahlung_zeitpunkt"]:checked')?.value === 'datum') {
+    addField('Zahlungsdatum', getVal('zahlung_datum'));
+  }
+  if (document.querySelector('input[name="zahlung_zeitpunkt"]:checked')?.value === 'raten') {
+    addField('Ratenzahlungsplan', getVal('ratenzahlung_plan'));
+  }
   addField('Notaranderkonto', getVal('notaranderkonto'));
+  if (getVal('notaranderkonto').toLowerCase().includes('ja')) {
+    addField('Notaranderkonto Grund', getVal('notaranderkonto_grund'));
+  }
   addField('Besitzübergang', getVal('besitzuebergang'));
+  if (document.querySelector('input[name="besitzuebergang"]:checked')?.value === 'sonstige') {
+    addField('Besitzübergang Details', getVal('besitzuebergang_details'));
+  }
   addField('Abwicklung', getVal('abwicklung'));
   addField('Grundschuld', getVal('grundschuld'));
+  if (getVal('grundschuld').toLowerCase().includes('ja')) {
+    addField('Grundschuld Regelung', getVal('grundschuld_regelung'));
+    addField('Grundschuld Details', getVal('grundschuld_details'));
+  }
+  addField('Baumaßnahmen', getVal('baumassnahmen'));
+  addField('Letzte Besichtigung', getVal('besichtigung_datum'));
+  addField('Verwandt/Verschwägert', getVal('verwandt'));
+  if (getVal('verwandt').toLowerCase().includes('ja')) {
+    addField('Verwandtschaft Details', getVal('verwandt_details'));
+  }
+  addField('Besonderheiten', getVal('besonderheiten'));
   addField('Makler', getVal('makler'));
   if (getVal('makler').toLowerCase().includes('ja')) {
     addField('Maklername', getVal('makler_name'));
@@ -2366,10 +2532,12 @@ async function generatePDF() {
   addField('Auftraggeber', getVal('auftraggeber'));
   addField('Versand an VK', getVal('versand_vk'));
   addField('Versand an KA', getVal('versand_ka'));
+  addField('Versand Sonstige', getVal('versand_sonstige'));
   addField('Terminwunsch', getVal('terminwunsch'));
   if (document.querySelector('input[name="terminwunsch"]:checked')?.value !== 'kein') {
     addField('Wunschdatum', getVal('termin_datum'));
     addField('Uhrzeit', getVal('termin_uhrzeit'));
+    addField('Termin Sonstige', getVal('termin_sonstige'));
   }
   
   // Footer on each page
@@ -2399,11 +2567,15 @@ async function generatePDF() {
     
     // Base64 für E-Mail-Anhang vorbereiten
     try {
-      const reader = new FileReader();
-      reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
-      };
-      reader.readAsDataURL(pdfBlob);
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
@@ -2418,31 +2590,45 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM (Email)
 // ============================================================
-function submitForm() {
+async function submitForm() {
   const form = document.getElementById('mainForm');
   
   // Basic validation
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  const checkedRadioGroups = new Set();
   requiredFields.forEach(f => {
-    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+    if (f.type === 'radio') {
+      if (checkedRadioGroups.has(f.name)) return;
+      checkedRadioGroups.add(f.name);
+      const groupChecked = form.querySelector(`input[name="${f.name}"]:checked`);
+      if (!groupChecked) {
+        f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = 'var(--error)');
+        valid = false;
+      } else {
+        f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = '');
+      }
+    } else if (f.type === 'checkbox' && !f.checked) {
+      f.style.borderColor = 'var(--error)';
+      valid = false;
+    } else if (!f.value) {
       f.style.borderColor = 'var(--error)';
       valid = false;
     } else {
       f.style.borderColor = '';
     }
   });
-  
+
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
+    const first = form.querySelector('[required]:invalid, [style*="border-color"]');
     if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
   
   // Generate PDF for secure local download
-  generatePDF();
-  
+  await generatePDF();
+
   // Show success message with instructions
   showSubmitConfirmation();
 }
@@ -2631,8 +2817,8 @@ function sendDirectUpload(btn) {
   });
   
   // Absendername ermitteln
-  const vorname = form.querySelector('[name="vk1_vorname"]');
-  const nachname = form.querySelector('[name="vk1_nachname"]');
+  const vorname = form.querySelector('[name="vk_1_vorname"]');
+  const nachname = form.querySelector('[name="vk_1_nachname"]');
   const absenderName = (vorname && nachname && (vorname.value || nachname.value)) 
     ? (vorname.value + ' ' + nachname.value).trim() 
     : 'Mandant';
