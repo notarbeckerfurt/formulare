@@ -1384,11 +1384,11 @@ function generatePersonBlock(type, index) {
         <label>Vorname(n) <span class="required">*</span>
           <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
         </label>
-        <input type="text" name="${prefix}_vorname">
+        <input type="text" name="${prefix}_vorname" required>
       </div>
       <div class="field-group">
         <label>Nachname <span class="required">*</span></label>
-        <input type="text" name="${prefix}_nachname">
+        <input type="text" name="${prefix}_nachname" required>
       </div>
     </div>
     <div class="field-row-3">
@@ -1478,7 +1478,7 @@ function generatePersonBlock(type, index) {
     <!-- Verwandtschaftsverhältnis (nur Erwerber) -->
     <div class="field-group">
       <label>Verwandtschaftsverhältnis zum Veräußerer</label>
-      <select name="${prefix}_verwandtschaft">
+      <select name="${prefix}_verwandtschaft" onchange="toggleConditional()">
         <option value="">Bitte auswählen</option>
         <option value="kind">Kind</option>
         <option value="enkel">Enkel</option>
@@ -1556,15 +1556,18 @@ function generatePersonBlock(type, index) {
 function togglePersonCount(type) {
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
   const container = document.getElementById(`${type}_container`);
-  container.innerHTML = '';
-  for (let i = 1; i <= count; i++) {
+  const existing = container.querySelectorAll('.person-block');
+  const currentCount = existing.length;
+
+  // Remove excess blocks from the end
+  for (let i = currentCount; i > count; i--) {
+    const block = document.getElementById(`${type}_${i}_block`);
+    if (block) block.remove();
+  }
+  // Add missing blocks
+  for (let i = currentCount + 1; i <= count; i++) {
     container.insertAdjacentHTML('beforeend', generatePersonBlock(type, i));
   }
-  // Restore saved field values for the generated blocks,
-  // but preserve the current radio selection (anz_vk/anz_ka)
-  loadForm();
-  const radio = document.querySelector(`input[name="anz_${type}"][value="${count}"]`);
-  if (radio) radio.checked = true;
 }
 
 function toggleFamstand(prefix) {
@@ -1656,19 +1659,43 @@ function addGrundbuchBlatt() {
 }
 
 function removeGrundbuchBlatt(idx) {
-  const block = document.getElementById(`gb${idx}_block`);
-  if (block) block.remove();
-  // Re-index remaining blocks
-  reindexGrundbuchBlaetter();
-  updateGbButtons();
-}
-
-function reindexGrundbuchBlaetter() {
   const container = document.getElementById('gb_container');
   const blocks = container.querySelectorAll('.person-block');
-  gbBlattCount = blocks.length;
-  // We simply keep them as-is with their original indices since removing middle ones is rare
-  // and re-rendering would lose data. Just update the count.
+  const allData = [];
+  blocks.forEach(block => {
+    const blockId = block.id.replace('_block', '');
+    if (blockId === `gb${idx}`) return;
+    const blockData = {};
+    block.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name) return;
+      const baseName = el.name.replace(blockId, 'PLACEHOLDER');
+      if (el.type === 'radio') { if (el.checked) blockData[baseName] = el.value; }
+      else if (el.type === 'checkbox') { blockData[baseName] = el.checked; }
+      else { blockData[baseName] = el.value; }
+    });
+    const fsContainer = document.getElementById(`${blockId}_fs_container`);
+    blockData._fsCount = fsContainer ? fsContainer.querySelectorAll('.field-row-3').length : 1;
+    allData.push(blockData);
+  });
+  container.innerHTML = '';
+  gbBlattCount = 0;
+  allData.forEach((data, i) => {
+    const newIdx = i + 1;
+    gbBlattCount = newIdx;
+    container.insertAdjacentHTML('beforeend', generateGrundbuchBlatt(newIdx));
+    const newPrefix = `gb${newIdx}`;
+    for (let f = 2; f <= data._fsCount; f++) addFlurstuck(newIdx);
+    Object.entries(data).forEach(([baseName, value]) => {
+      if (baseName.startsWith('_')) return;
+      const realName = baseName.replace('PLACEHOLDER', newPrefix);
+      container.querySelectorAll(`[name="${realName}"]`).forEach(el => {
+        if (el.type === 'radio') el.checked = (el.value === value);
+        else if (el.type === 'checkbox') el.checked = !!value;
+        else el.value = value;
+      });
+    });
+  });
+  updateGbButtons();
 }
 
 function addFlurstuck(blattIdx) {
@@ -1814,11 +1841,13 @@ function toggleConditional() {
   const termin = document.querySelector('input[name="terminwunsch"]:checked')?.value;
   toggle('cond_terminwunsch', termin !== 'kein');
 
-  // Verwandtschaft sonstige
-  ['ka_1', 'ka_2', 'ka_3'].forEach(p => {
+  // Verwandtschaft sonstige (dynamisch für alle Erwerber)
+  const anzKaToggle = parseInt(document.querySelector('input[name="anz_ka"]:checked')?.value || '1');
+  for (let i = 1; i <= anzKaToggle; i++) {
+    const p = `ka_${i}`;
     const v = document.querySelector(`[name="${p}_verwandtschaft"]`)?.value;
     toggle(`${p}_verwandtschaft_sonstige`, v === 'sonstige');
-  });
+  }
 }
 
 // ============================================================
@@ -1906,13 +1935,20 @@ function loadForm() {
   } catch(e) {}
 }
 
-// Auto-save every 60 seconds
-setInterval(() => {
-  const form = document.getElementById('mainForm');
-  if (form.querySelector('input[value]:not([value=""])')) {
-    saveForm();
-  }
-}, 60000);
+// ============================================================
+// INITIALIZATION
+// ============================================================
+togglePersonCount('vk');
+togglePersonCount('ka');
+loadForm();
+toggleConditional();
+
+// Auto-save every 60 seconds (only if user has entered data)
+let _autoSaveTimer;
+document.getElementById('mainForm').addEventListener('input', () => {
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(() => saveForm(), 30000);
+});
 
 // ============================================================
 // GENERATE PDF
@@ -1933,7 +1969,7 @@ async function generatePDF() {
   } catch(e) {
     showToast('PDF konnte nicht erstellt werden. Druckansicht wird geöffnet.', 'error');
     window.print();
-    return;
+    return false;
   }
   const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   
@@ -2078,8 +2114,11 @@ async function generatePDF() {
     }
   }
   addField('Vertragsgegenstand', getVal('kaufgegenstand'));
-  if (getVal('kaufgegenstand') === 'eigentumswohnung') addField('Wohnungsnr.', getVal('etw_nr'));
-  addField('Baujahr', getVal('baujahr'));
+  const kgRaw = document.querySelector('[name="kaufgegenstand"]')?.value;
+  if (kgRaw === 'eigentumswohnung') addField('Wohnungsnr.', getVal('etw_nr'));
+  if (kgRaw === 'wohnhaus' || kgRaw === 'gewerbe' || kgRaw === 'eigentumswohnung') {
+    addField('Baujahr', getVal('baujahr'));
+  }
   addField('Überlassungsanteil', getRadio('anteil') === 'Sonstiger Anteil' ? getVal('anteil_sonstige') : getRadio('anteil'));
   addField('Erblasser im GB', getRadio('erblasser'));
   addField('Belastungen Abt. II', getRadio('belastung_abt2'));
@@ -2114,7 +2153,13 @@ async function generatePDF() {
     addField('E-Mail', getVal(`${p}_email`));
     addField('Telefon', getVal(`${p}_tel`));
     addField('Steuer-ID', getVal(`${p}_steuerid`));
+    addField('Staatsangehörigkeit', getVal(`${p}_staat`));
     addField('Familienstand', getVal(`${p}_famstand`));
+    addField('Ehevertrag', getRadio(`${p}_ehevertrag`));
+    addField('Güterstand', getRadio(`${p}_gueterstand`));
+    addField('Dolmetscher', getRadio(`${p}_dolmetscher`));
+    addField('Dolmetscher Sprache', getVal(`${p}_dolmetscher_sprache`));
+    addField('Anmerkungen', getVal(`${p}_anmerkungen`));
     addField('Kontoinhaber', getVal(`${p}_kontoinhaber`));
     addField('IBAN', getVal(`${p}_iban`));
     addField('BIC', getVal(`${p}_bic`));
@@ -2137,7 +2182,13 @@ async function generatePDF() {
     addField('E-Mail', getVal(`${p}_email`));
     addField('Telefon', getVal(`${p}_tel`));
     addField('Steuer-ID', getVal(`${p}_steuerid`));
+    addField('Staatsangehörigkeit', getVal(`${p}_staat`));
     addField('Familienstand', getVal(`${p}_famstand`));
+    addField('Ehevertrag', getRadio(`${p}_ehevertrag`));
+    addField('Güterstand', getRadio(`${p}_gueterstand`));
+    addField('Dolmetscher', getRadio(`${p}_dolmetscher`));
+    addField('Dolmetscher Sprache', getVal(`${p}_dolmetscher_sprache`));
+    addField('Anmerkungen', getVal(`${p}_anmerkungen`));
     addField('Verwandtschaft', getVal(`${p}_verwandtschaft`));
     if (getVal(`${p}_verwandtschaft`) === 'sonstige') {
       addField('Verwandtschaft (Details)', getVal(`${p}_verwandtschaft_details`));
@@ -2236,31 +2287,54 @@ async function generatePDF() {
     
     // Base64 für E-Mail-Anhang vorbereiten
     try {
-      const reader = new FileReader();
-      reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
-      };
-      reader.readAsDataURL(pdfBlob);
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
     console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    return false;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
+  return true;
 }
 
 // ============================================================
 // SUBMIT FORM
 // ============================================================
-function submitForm() {
+let _submitRunning = false;
+async function submitForm() {
+  if (_submitRunning) return;
+  _submitRunning = true;
+  try {
   const form = document.getElementById('mainForm');
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  const checkedRadioGroups = new Set();
   requiredFields.forEach(f => {
-    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+    if (f.type === 'radio') {
+      if (checkedRadioGroups.has(f.name)) return;
+      checkedRadioGroups.add(f.name);
+      const groupChecked = form.querySelector(`input[name="${f.name}"]:checked`);
+      if (!groupChecked) {
+        f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = 'var(--error)');
+        valid = false;
+      } else {
+        f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = '');
+      }
+    } else if (f.type === 'checkbox' && !f.checked) {
+      f.style.borderColor = 'var(--error)';
+      valid = false;
+    } else if (!f.value) {
       f.style.borderColor = 'var(--error)';
       valid = false;
     } else {
@@ -2269,16 +2343,20 @@ function submitForm() {
   });
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const firstInvalid = form.querySelector('[required]:invalid, [required][style*="error"]');
+    const firstInvalid = form.querySelector('[required]:invalid, [style*="border-color"]');
     if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  
+
   // Generate PDF for secure local download
-  generatePDF();
-  
+  const pdfOk = await generatePDF();
+  if (pdfOk === false) return;
+
   // Show success message with instructions
   showSubmitConfirmation();
+  } finally {
+    _submitRunning = false;
+  }
 }
 
 function showSubmitConfirmation() {
@@ -2449,6 +2527,14 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
+    // Skip fields inside hidden conditional sections or display:none parents
+    const hiddenConditional = el.closest('.conditional:not(.visible)');
+    if (hiddenConditional) return;
+    let parent = el.parentElement;
+    while (parent && parent !== form) {
+      if (parent.style.display === 'none') return;
+      parent = parent.parentElement;
+    }
 
     // Lesbaren eindeutigen Key erzeugen: Feldnamen in lesbares Format umwandeln
     const readable = el.name
@@ -2476,8 +2562,8 @@ function sendDirectUpload(btn) {
   });
 
   // Absendername ermitteln
-  const vorname = form.querySelector('[name="uebergeber_vorname"]');
-  const nachname = form.querySelector('[name="uebergeber_nachname"]');
+  const vorname = form.querySelector('[name="vk_1_vorname"]');
+  const nachname = form.querySelector('[name="vk_1_nachname"]');
   const absenderName = (vorname && nachname && (vorname.value || nachname.value))
     ? (vorname.value + ' ' + nachname.value).trim()
     : 'Mandant';
@@ -2485,26 +2571,29 @@ function sendDirectUpload(btn) {
   // Replyto aus Ausfüller-E-Mail
   const replyEmail = form.querySelector('[name="ausfueller_email"]')?.value || '';
 
-  // Formsubmit.co – Daten als JSON senden (kein Dateianhang, maximale Kompatibilität)
-  const payload = {
-    _subject: 'Grundstücksüberlassungsvertrag – Formulardaten von ' + absenderName,
-    _template: 'table',
-    _captcha: 'false',
-    _replyto: replyEmail,
-    'Absender': absenderName,
-    'Formular': 'Grundstücksüberlassungsvertrag',
-    'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
-    ...fields
-  };
-  
+  // Formsubmit.co – Daten als multipart/form-data senden (unterstützt Dateianhänge)
+  const formData = new FormData();
+  formData.append('_subject', 'Grundstücksüberlassungsvertrag – Formulardaten von ' + absenderName);
+  formData.append('_template', 'table');
+  formData.append('_captcha', 'false');
+  formData.append('_replyto', replyEmail);
+  formData.append('Absender', absenderName);
+  formData.append('Formular', 'Grundstücksüberlassungsvertrag');
+  formData.append('Eingangsdatum', new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
+  Object.entries(fields).forEach(([key, val]) => formData.append(key, val));
+
+  // PDF als echten Dateianhang mitsenden
+  if (window.__lastPdfBlob) {
+    const pdfFile = new File([window.__lastPdfBlob], window.__lastPdfFileName || 'Ueberlassungsvertrag.pdf', { type: 'application/pdf' });
+    formData.append('attachment', pdfFile);
+  }
+
   fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       'Accept': 'application/json'
     },
-    body: JSON.stringify(payload)
+    body: formData
   })
   .then(response => {
     return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
