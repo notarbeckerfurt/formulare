@@ -867,6 +867,7 @@ function togglePersonCount(type) {
     container.insertAdjacentHTML('beforeend', generatePersonBlock(blockType, i));
   }
   restoreForm();
+  saveForm();
 }
 
 function togglePersonArt(prefix) {
@@ -950,6 +951,7 @@ function restoreForm() {
     const data = JSON.parse(raw);
     const form = document.getElementById('mainForm');
     form.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.name === 'anz_verkaeufer' || el.name === 'anz_kaeufer') return;
       const val = data[el.name];
       if (val === undefined) return;
       if (el.type === 'radio') {
