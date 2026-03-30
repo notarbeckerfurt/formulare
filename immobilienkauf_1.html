@@ -1363,11 +1363,11 @@ function generatePersonBlock(type, index) {
           <label>Vorname(n) <span class="required">*</span>
             <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
           </label>
-          <input type="text" name="${prefix}_vorname">
+          <input type="text" name="${prefix}_vorname" required>
         </div>
         <div class="field-group">
           <label>Nachname <span class="required">*</span></label>
-          <input type="text" name="${prefix}_nachname">
+          <input type="text" name="${prefix}_nachname" required>
         </div>
       </div>
       <div class="field-row-3">
@@ -1620,9 +1620,17 @@ function generatePersonBlock(type, index) {
 function togglePersonCount(type) {
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
   const container = document.getElementById(`${type}_container`);
-  container.innerHTML = '';
-  for (let i = 1; i <= count; i++) {
-    container.innerHTML += generatePersonBlock(type, i);
+  const existing = container.querySelectorAll('.person-block');
+  const currentCount = existing.length;
+
+  // Remove excess blocks from the end
+  for (let i = currentCount; i > count; i--) {
+    const block = document.getElementById(`${type}_${i}_block`);
+    if (block) block.remove();
+  }
+  // Add missing blocks
+  for (let i = currentCount + 1; i <= count; i++) {
+    container.insertAdjacentHTML('beforeend', generatePersonBlock(type, i));
   }
   // Show Erwerbsverhältnis for multiple buyers
   if (type === 'ka') {
@@ -2145,7 +2153,7 @@ async function generatePDF() {
   } catch(e) {
     showToast('PDF konnte nicht erstellt werden. Druckansicht wird geöffnet.', 'error');
     window.print();
-    return;
+    return false;
   }
   const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   
@@ -2582,9 +2590,10 @@ async function generatePDF() {
   } catch(err) {
     console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    return false;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
+  return true;
 }
 
 // ============================================================
@@ -2627,7 +2636,8 @@ async function submitForm() {
   }
   
   // Generate PDF for secure local download
-  await generatePDF();
+  const pdfOk = await generatePDF();
+  if (pdfOk === false) return;
 
   // Show success message with instructions
   showSubmitConfirmation();
@@ -2801,6 +2811,9 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
+    // Skip fields inside hidden conditional sections
+    const hiddenParent = el.closest('.conditional:not(.visible)');
+    if (hiddenParent) return;
     const readable = el.name
       .replace(/_/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase())
@@ -2832,7 +2845,8 @@ function sendDirectUpload(btn) {
     'Absender': absenderName,
     'Formular': 'Immobilienkaufvertrag',
     'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
+    'Hinweis': window.__lastPdfBase64 ? 'PDF-Daten als Base64 angehängt.' : 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt (kein PDF im Payload).',
+    ...(window.__lastPdfBase64 ? { '_PDF_Base64': window.__lastPdfBase64, '_PDF_Dateiname': window.__lastPdfFileName || 'Immobilienkaufvertrag.pdf' } : {}),
     ...fields
   };
   
