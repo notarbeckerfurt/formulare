@@ -512,8 +512,8 @@ Lage und Grenze eindeutig feststellen können.
   <div class="field-group">
     <label>Überlassungsanteil</label>
     <div class="radio-group">
-      <label><input type="radio" name="anteil" value="100" checked="checked"><span>Ganzes Grundstück (1/1)</span></label>
-      <label><input type="radio" name="anteil" value="50"><span>Hälfte (1/2)</span></label>
+      <label><input type="radio" name="anteil" value="100" checked="checked" onchange="toggleConditional()"><span>Ganzes Grundstück (1/1)</span></label>
+      <label><input type="radio" name="anteil" value="50" onchange="toggleConditional()"><span>Hälfte (1/2)</span></label>
       <label><input type="radio" name="anteil" value="sonstige" onchange="toggleConditional()"><span>Sonstiger Anteil</span></label>
     </div>
   </div>
@@ -995,7 +995,7 @@ Lage und Grenze eindeutig feststellen können.
     <div class="field-group">
       <label>Fälligkeit der Auszahlung</label>
       <div class="radio-group" style="flex-direction:column">
-        <label><input type="radio" name="auszahlung_faelligkeit" value="genehmigungen" checked="checked"><span>Nach Vorliegen aller Genehmigungen</span></label>
+        <label><input type="radio" name="auszahlung_faelligkeit" value="genehmigungen" checked="checked" onchange="toggleConditional()"><span>Nach Vorliegen aller Genehmigungen</span></label>
         <label><input type="radio" name="auszahlung_faelligkeit" value="datum" onchange="toggleConditional()"><span>Fester Termin</span></label>
         <label><input type="radio" name="auszahlung_faelligkeit" value="sonstige" onchange="toggleConditional()"><span>Sonstiges</span></label>
       </div>
@@ -1973,13 +1973,19 @@ document.getElementById('mainForm').addEventListener('input', () => {
 // ============================================================
 async function generatePDF() {
   if (!window.jspdf) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    } catch(e) {
+      showToast('PDF-Bibliothek konnte nicht geladen werden. Druckansicht wird geöffnet.', 'error');
+      window.print();
+      return false;
+    }
   }
   let jsPDFClass;
   try {
