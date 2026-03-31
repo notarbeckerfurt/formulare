@@ -1677,7 +1677,7 @@ async function submitForm() {
       const lbl = f.closest('label');
       if (lbl) { lbl.style.color = 'var(--error)'; lbl.style.fontWeight = '700'; }
       valid = false;
-    } else if (!f.value) {
+    } else if (!f.value || (f.checkValidity && !f.checkValidity())) {
       f.style.borderColor = 'var(--error)';
       valid = false;
     } else {
@@ -1982,9 +1982,9 @@ function sendEmailWithAttachment(btn) {
     '',
     '--' + boundary,
     'Content-Type: text/plain; charset="UTF-8"',
-    'Content-Transfer-Encoding: quoted-printable',
+    'Content-Transfer-Encoding: base64',
     '',
-    bodyText,
+    btoa(unescape(encodeURIComponent(bodyText))).match(/.{1,76}/g).join('\r\n'),
     '',
     '--' + boundary,
     'Content-Type: application/pdf; name="' + pdfFileName + '"',
