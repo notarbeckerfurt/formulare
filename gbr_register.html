@@ -993,10 +993,32 @@ function generatePersonBlock(type, index) {
 function togglePersonCount(type) {
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '2');
   const container = document.getElementById(`${type}_container`);
+
+  // Save existing field data before re-rendering
+  const savedData = {};
+  container.querySelectorAll('[name]').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      savedData[el.name + '_' + el.value] = el.checked;
+    } else {
+      savedData[el.name] = el.value;
+    }
+  });
+
   container.innerHTML = '';
   for (let i = 1; i <= count; i++) {
     container.innerHTML += generatePersonBlock(type, i);
   }
+
+  // Restore saved data
+  container.querySelectorAll('[name]').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      if (savedData[el.name + '_' + el.value] !== undefined) {
+        el.checked = savedData[el.name + '_' + el.value];
+      }
+    } else if (savedData[el.name] !== undefined) {
+      el.value = savedData[el.name];
+    }
+  });
 }
 
 function togglePersonType(prefix) {
@@ -1158,8 +1180,8 @@ function restoreForm() {
         togglePersonType(`gs_${i}`);
       }
       toggleConditional();
-    }, 100);
-    
+    }, 300);
+
     if (data._savedAt) {
       const d = new Date(data._savedAt);
       const status = document.getElementById('saveStatus');
@@ -1459,28 +1481,45 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM
 // ============================================================
-function submitForm() {
+async function submitForm() {
   const form = document.getElementById('mainForm');
-  
+
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
+  const validatedRadioGroups = new Set();
+
   requiredFields.forEach(f => {
-    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+    if (f.type === 'radio') {
+      if (validatedRadioGroups.has(f.name)) return;
+      validatedRadioGroups.add(f.name);
+      if (!document.querySelector(`input[name="${f.name}"]:checked`)) {
+        form.querySelectorAll(`input[name="${f.name}"]`).forEach(r => {
+          r.style.outline = '2px solid var(--error)';
+        });
+        if (!firstInvalid) firstInvalid = f;
+        valid = false;
+      } else {
+        form.querySelectorAll(`input[name="${f.name}"]`).forEach(r => {
+          r.style.outline = '';
+        });
+      }
+    } else if (!f.value || (f.type === 'checkbox' && !f.checked)) {
       f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else {
       f.style.borderColor = '';
     }
   });
-  
+
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
-    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  
-  generatePDF();
+
+  await generatePDF();
   showSubmitConfirmation();
 }
 
@@ -1683,6 +1722,7 @@ function sendDirectUpload(btn) {
   .catch(error => {
     btn.disabled = false;
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.style.cursor = 'pointer';
     btn.querySelector('.sendIcon').textContent = '🚀';
     btn.querySelector('.sendLabel').textContent = 'Erneut versuchen';
@@ -1756,6 +1796,7 @@ function sendEmailWithAttachment(btn) {
   
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = '✓';
@@ -1838,7 +1879,7 @@ document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveForm();
-  }, 30000);
+  }, 5000);
 });
 </script>
 
