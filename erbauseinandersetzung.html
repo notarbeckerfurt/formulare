@@ -1153,6 +1153,7 @@ function restoreGrundbuchBlaetter(data) {
   }
 
   Object.entries(fsCountPerBlatt).forEach(([bi, maxFs]) => {
+    if (maxFs > 20) maxFs = 20;
     const p = `gb${bi}`;
     const fsContainer = document.getElementById(`${p}_fs_container`);
     if (!fsContainer) return;
@@ -2082,17 +2083,18 @@ function showToast(msg, type = '') {
 // ============================================================
 togglePersonCount('miterben');
 restoreForm();
+toggleConditional();
 
 // ============================================================
-// AUTO-SAVE
+// AUTO-SAVE (30s nach letzter Eingabe, input + change)
 // ============================================================
 let autoSaveTimer;
-document.getElementById('mainForm').addEventListener('input', () => {
+function debounceAutoSave() {
   clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(() => {
-    saveForm();
-  }, 30000);
-});
+  autoSaveTimer = setTimeout(() => saveForm(), 30000);
+}
+document.getElementById('mainForm').addEventListener('input', debounceAutoSave);
+document.getElementById('mainForm').addEventListener('change', debounceAutoSave);
 </script>
 
 </body>
