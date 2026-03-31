@@ -1072,6 +1072,8 @@ function generateFremdgfBlock(index) {
 // RENDER PERSON BLOCKS
 // ============================================================
 function togglePersonCount(type) {
+  // Aktuelle Eingaben sichern, bevor die Blöcke neu gerendert werden
+  saveForm();
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || (type === 'fremdgf' ? '0' : '1'));
   const container = document.getElementById(`${type}_container`);
   container.innerHTML = '';
@@ -1734,9 +1736,11 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
-    // Felder in versteckten Abschnitten nicht mitsenden (z.B. GF-Defaults)
+    // Felder in versteckten Abschnitten nicht mitsenden (z.B. GF-Defaults, Gründertyp-Wechsel)
     const conditionalParent = el.closest('.conditional');
     if (conditionalParent && !conditionalParent.classList.contains('visible')) return;
+    const hiddenParent = el.closest('[style*="display: none"], [style*="display:none"]');
+    if (hiddenParent) return;
     const readable = el.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     let val = el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
@@ -1830,6 +1834,13 @@ function sendDirectUpload(btn) {
   });
 }
 
+function encodeQuotedPrintable(str) {
+  return str.replace(/[^\r\n\t\x20-\x7E]/g, ch => {
+    const bytes = new TextEncoder().encode(ch);
+    return Array.from(bytes, b => '=' + b.toString(16).toUpperCase().padStart(2, '0')).join('');
+  });
+}
+
 function sendEmailWithAttachment(btn) {
   const notarEmail = 'info@notar-beck-erfurt.de';
   const subject = 'Unternehmensgründung GmbH/UG – Formulardaten';
@@ -1858,7 +1869,7 @@ function sendEmailWithAttachment(btn) {
     'Content-Type: text/plain; charset="UTF-8"',
     'Content-Transfer-Encoding: quoted-printable',
     '',
-    bodyText,
+    encodeQuotedPrintable(bodyText),
     '',
     '--' + boundary,
     'Content-Type: application/pdf; name="' + pdfFileName + '"',
