@@ -735,7 +735,7 @@ input[type="radio"], input[type="checkbox"] {
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
       <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
-      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('gruendung_form');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('gruendung_form');location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -745,12 +745,14 @@ input[type="radio"], input[type="checkbox"] {
 // ============================================================
 // TOAST
 // ============================================================
+let _toastTimer = null;
 function showToast(msg, type) {
   const t = document.getElementById('toast');
+  if (_toastTimer) clearTimeout(_toastTimer);
   t.textContent = msg;
   t.className = 'toast ' + (type || '');
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+  _toastTimer = setTimeout(() => { t.classList.remove('show'); _toastTimer = null; }, 3500);
 }
 
 // ============================================================
@@ -1082,7 +1084,8 @@ function togglePersonCount(type) {
       container.insertAdjacentHTML('beforeend', generateFremdgfBlock(i));
     }
   }
-  loadForm();
+  // Gespeicherte Feldwerte wiederherstellen, aber Anzahl-Radios nicht überschreiben
+  loadForm({ skipCountRadios: true });
 }
 
 function toggleGruenderArt(prefix) {
@@ -1215,13 +1218,16 @@ function saveForm() {
   status.classList.add('saved');
 }
 
-function loadForm() {
+function loadForm(options = {}) {
   const raw = localStorage.getItem('gruendung_form');
   if (!raw) return;
   try {
     const data = JSON.parse(raw);
     const form = document.getElementById('mainForm');
+    // Anzahl-Radios, die beim Wiederherstellen nicht überschrieben werden dürfen
+    const countRadioNames = options.skipCountRadios ? new Set(['anz_gruender', 'anz_fremdgf']) : new Set();
     form.querySelectorAll('input, select, textarea').forEach(el => {
+      if (countRadioNames.has(el.name)) return;
       const val = data[el.name];
       if (val === undefined) return;
       if (el.type === 'radio') {
@@ -1243,13 +1249,19 @@ function loadForm() {
       toggleGfDetails(`gr_${i}`);
       toggleGruenderArt(`gr_${i}`);
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('Formular konnte nicht vollständig geladen werden:', e);
+  }
 }
 
-// Autosave every 30 seconds
+// Autosave alle 30 Sekunden, aber nur wenn tatsächlich Eingaben vorhanden sind
 setInterval(() => {
   const form = document.getElementById('mainForm');
-  if (form.querySelectorAll('input:not([value=""]), textarea:not(:empty)').length > 0) {
+  const hasInput = Array.from(form.querySelectorAll('input, textarea')).some(el => {
+    if (el.type === 'radio' || el.type === 'checkbox' || el.type === 'hidden') return false;
+    return el.value && el.value.trim() !== '';
+  });
+  if (hasInput) {
     saveForm();
   }
 }, 30000);
@@ -1258,19 +1270,21 @@ setInterval(() => {
 // PDF GENERATION (jsPDF inline)
 // ============================================================
 function generatePDF() {
-  // Load jsPDF dynamically
-  if (typeof jspdf === 'undefined' && typeof jsPDF === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    script.onload = () => buildPDF();
-    script.onerror = () => {
-      // Fallback: build without external lib
-      showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung.', 'error');
-    };
-    document.head.appendChild(script);
-  } else {
-    buildPDF();
-  }
+  return new Promise((resolve, reject) => {
+    // Load jsPDF dynamically
+    if (typeof jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = () => { buildPDF().then(resolve).catch(reject); };
+      script.onerror = () => {
+        showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung.', 'error');
+        reject(new Error('jsPDF konnte nicht geladen werden'));
+      };
+      document.head.appendChild(script);
+    } else {
+      buildPDF().then(resolve).catch(reject);
+    }
+  });
 }
 
 function getVal(name) {
@@ -1281,10 +1295,16 @@ function getVal(name) {
 function getRadio(name) {
   const el = document.querySelector(`input[name="${name}"]:checked`);
   if (!el) return '';
-  // Return label text if available
+  // Lesbaren Text aus Label/Span bevorzugen, Fallback auf value
   const label = el.closest('label');
-  const span = label?.querySelector('span');
-  return span ? span.textContent.trim() : el.value;
+  if (label) {
+    const span = label.querySelector('span');
+    if (span) return span.textContent.trim();
+    // Label-Text ohne den Input-Wert verwenden
+    const text = label.textContent.trim();
+    if (text) return text;
+  }
+  return el.value;
 }
 
 function getChecked(name) {
@@ -1292,7 +1312,7 @@ function getChecked(name) {
   return el ? el.checked : false;
 }
 
-function buildPDF() {
+async function buildPDF() {
   const { jsPDF } = window.jspdf || window;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageW = doc.internal.pageSize.getWidth();
@@ -1493,19 +1513,21 @@ function buildPDF() {
     window.__lastPdfBlob = pdfBlob;
     window.__lastPdfFileName = pdfFileName;
 
+    // Base64-Erzeugung abwarten, damit sie beim Versand verfügbar ist
     try {
-      const reader = new FileReader();
-      reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
-      };
-      reader.readAsDataURL(pdfBlob);
+      window.__lastPdfBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split('base64,')[1]);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(pdfBlob);
+      });
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
     console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    throw err;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
 }
@@ -1513,13 +1535,20 @@ function buildPDF() {
 // ============================================================
 // SUBMIT FORM (Email)
 // ============================================================
-function submitForm() {
+async function submitForm() {
+  // Doppelklick-Schutz
+  const submitBtns = document.querySelectorAll('[onclick="submitForm()"]');
+  if (submitBtns[0]?.disabled) return;
+  submitBtns.forEach(b => b.disabled = true);
+
   const form = document.getElementById('mainForm');
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
   requiredFields.forEach(f => {
     if (!f.value || (f.type === 'checkbox' && !f.checked)) {
       f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else {
       f.style.borderColor = '';
@@ -1527,19 +1556,24 @@ function submitForm() {
   });
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const firstInvalid = form.querySelector('[required]:invalid, [required][style*="error"]');
     if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    submitBtns.forEach(b => b.disabled = false);
     return;
   }
   saveForm();
-  generatePDF();
+  try {
+    await generatePDF();
+  } catch(e) {
+    // Fehler wurde bereits in generatePDF/buildPDF angezeigt
+    submitBtns.forEach(b => b.disabled = false);
+    return;
+  }
+  submitBtns.forEach(b => b.disabled = false);
   showSubmitConfirmation();
 }
 
 function showSubmitConfirmation() {
   const notarEmail = 'info@notar-beck-erfurt.de';
-  const mailSubject = encodeURIComponent('Unternehmensgründung GmbH/UG – Formulardaten');
-  const mailBody = encodeURIComponent('Sehr geehrte Damen und Herren,\n\nanbei übersende ich Ihnen meine ausgefüllten Formulardaten zur Unternehmensgründung als PDF-Datei.\n\nBitte vergessen Sie nicht, die heruntergeladene PDF-Datei als Anhang beizufügen.\n\nMit freundlichen Grüßen');
 
   const overlay = document.createElement('div');
   overlay.id = 'submitOverlay';
@@ -1700,6 +1734,9 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
+    // Felder in versteckten Abschnitten nicht mitsenden (z.B. GF-Defaults)
+    const conditionalParent = el.closest('.conditional');
+    if (conditionalParent && !conditionalParent.classList.contains('visible')) return;
     const readable = el.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     let val = el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
@@ -1713,13 +1750,20 @@ function sendDirectUpload(btn) {
     _subject: 'Unternehmensgründung GmbH/UG – Formulardaten von ' + absenderName,
     _template: 'table',
     _captcha: 'false',
-    _replyto: (document.querySelector('[name="ausfueller_email"]') || document.querySelector('[name="auftraggeber_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
+    _replyto: (document.querySelector('[name="auftraggeber_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
     'Absender': absenderName,
     'Formular': 'Unternehmensgründung GmbH/UG',
     'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
     ...fields
   };
+
+  // PDF als Base64-Anhang mitsenden, falls vorhanden
+  if (window.__lastPdfBase64) {
+    payload['_attachment'] = `data:application/pdf;base64,${window.__lastPdfBase64}`;
+    payload['_attachment_name'] = window.__lastPdfFileName || 'Gruendung_GmbH_UG.pdf';
+  } else {
+    payload['Hinweis'] = 'PDF konnte nicht erzeugt werden – nur Formulardaten übermittelt.';
+  }
 
   fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
     method: 'POST',
@@ -1778,7 +1822,10 @@ function sendDirectUpload(btn) {
     if (errMsg.toLowerCase().includes('confirm') || errMsg.toLowerCase().includes('activate') || errMsg.toLowerCase().includes('verify')) {
       statusDiv.innerHTML = '📧 <strong>Bitte E-Mail-Adresse bestätigen:</strong> Eine Bestätigungsmail wurde an die Kanzlei gesendet. Nach Bestätigung funktioniert die Übermittlung. Bitte versuchen Sie es danach erneut.';
     } else {
-      statusDiv.innerHTML = '⚠️ <strong>Übermittlung fehlgeschlagen</strong> (' + (errMsg || 'Unbekannter Fehler') + ').<br>Bitte versuchen Sie es erneut oder nutzen Sie eine der alternativen Methoden unten.';
+      const safeMsg = document.createElement('span');
+      safeMsg.textContent = errMsg || 'Unbekannter Fehler';
+      statusDiv.innerHTML = '⚠️ <strong>Übermittlung fehlgeschlagen</strong> (<span id="_errDetail"></span>).<br>Bitte versuchen Sie es erneut oder nutzen Sie eine der alternativen Methoden unten.';
+      statusDiv.querySelector('#_errDetail').textContent = safeMsg.textContent;
     }
   });
 }
@@ -1802,7 +1849,7 @@ function sendEmailWithAttachment(btn) {
   const boundary = '----=_NextPart_' + Date.now().toString(36);
   const emlContent = [
     'To: ' + notarEmail,
-    'Subject: =?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=',
+    'Subject: =?UTF-8?B?' + btoa(String.fromCharCode(...new TextEncoder().encode(subject))) + '?=',
     'X-Unsent: 1',
     'MIME-Version: 1.0',
     'Content-Type: multipart/mixed; boundary="' + boundary + '"',
@@ -1818,7 +1865,7 @@ function sendEmailWithAttachment(btn) {
     'Content-Disposition: attachment; filename="' + pdfFileName + '"',
     'Content-Transfer-Encoding: base64',
     '',
-    pdfBase64.match(/.{1,76}/g).join('\r\n'),
+    (pdfBase64.match(/.{1,76}/g) || []).join('\r\n'),
     '',
     '--' + boundary + '--'
   ].join('\r\n');
