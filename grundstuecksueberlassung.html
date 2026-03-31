@@ -1742,6 +1742,7 @@ function restoreGrundbuchBlaetter(data) {
     }
   });
   if (maxBlatt < 1) return;
+  if (maxBlatt > 3) maxBlatt = 3; // Maximum 3 Grundbuchblätter
 
   // Zusätzliche Blätter erzeugen
   while (gbBlattCount < maxBlatt) {
@@ -1956,8 +1957,6 @@ function loadForm() {
 // ============================================================
 // INITIALIZATION
 // ============================================================
-togglePersonCount('vk');
-togglePersonCount('ka');
 loadForm();
 toggleConditional();
 
@@ -2358,18 +2357,23 @@ async function submitForm() {
         f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = '');
       }
     } else if (f.type === 'checkbox' && !f.checked) {
-      f.style.borderColor = 'var(--error)';
+      const lbl = f.closest('label');
+      if (lbl) { lbl.style.color = 'var(--error)'; lbl.style.fontWeight = '700'; }
       valid = false;
     } else if (!f.value) {
       f.style.borderColor = 'var(--error)';
       valid = false;
     } else {
       f.style.borderColor = '';
+      if (f.type === 'checkbox') {
+        const lbl = f.closest('label');
+        if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; }
+      }
     }
   });
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const firstInvalid = form.querySelector('[required]:invalid, [style*="border-color"]');
+    const firstInvalid = form.querySelector('[required]:invalid, [style*="border-color"], [style*="font-weight"]');
     if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
@@ -2570,8 +2574,8 @@ function sendDirectUpload(btn) {
       .replace(/^(Erwerber|Ka) /, 'Erwerber: ')
       .replace(/^Ausfueller /, 'Absender: ')
       .replace(/^Immo /, 'Immobilie: ')
-      .replace(/^Gb\d+ /, function(m) { return 'Grundbuch ' + m.match(/\d+/)[0] + ': '; })
-      .replace(/^Gb\d+ Fs\d+ /, function(m) { const nums = m.match(/\d+/g); return 'GB' + nums[0] + ' Flurstück ' + nums[1] + ': '; });
+      .replace(/^Gb(\d+) Fs(\d+) /, 'Grundbuch $1, Flurstück $2: ')
+      .replace(/^Gb(\d+) /, 'Grundbuch $1: ');
 
     // Bei Select: Text der Option statt Wert verwenden
     let val = el.value;
