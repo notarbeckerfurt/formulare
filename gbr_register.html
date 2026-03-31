@@ -861,11 +861,11 @@ function generatePersonBlock(type, index) {
           <label>Vorname(n) <span class="required">*</span>
             <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
           </label>
-          <input type="text" name="${prefix}_vorname">
+          <input type="text" name="${prefix}_vorname" required>
         </div>
         <div class="field-group">
           <label>Nachname <span class="required">*</span></label>
-          <input type="text" name="${prefix}_nachname">
+          <input type="text" name="${prefix}_nachname" required>
         </div>
       </div>
       <div class="field-row-3">
@@ -1122,8 +1122,13 @@ function saveForm() {
   });
   
   data._savedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Browserspeicher ist voll. Bitte geben Sie Speicher frei.', 'error');
+    return;
+  }
+
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
   status.classList.add('saved');
@@ -1189,7 +1194,7 @@ function restoreForm() {
       status.classList.add('saved');
     }
   } catch(e) {
-    console.error('Restore error:', e);
+    // Restore error silently ignored
   }
 }
 
@@ -1464,14 +1469,16 @@ async function generatePDF() {
     try {
       const reader = new FileReader();
       reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+        const result = reader.result;
+        window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,'))
+          ? result.split('base64,')[1]
+          : null;
       };
       reader.readAsDataURL(pdfBlob);
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
     return;
   }
@@ -1481,7 +1488,11 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM
 // ============================================================
+let isSubmitting = false;
+
 async function submitForm() {
+  if (isSubmitting) return;
+
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
@@ -1519,7 +1530,19 @@ async function submitForm() {
     return;
   }
 
-  await generatePDF();
+  isSubmitting = true;
+  const submitBtns = document.querySelectorAll('[onclick="submitForm()"]');
+  submitBtns.forEach(b => { b.disabled = true; });
+
+  try {
+    await generatePDF();
+  } catch(err) {
+    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
+    isSubmitting = false;
+    submitBtns.forEach(b => { b.disabled = false; });
+    return;
+  }
+
   showSubmitConfirmation();
 }
 
@@ -1602,14 +1625,26 @@ function showSubmitConfirmation() {
         </button>
       </div>
       
-      <button onclick="document.getElementById('submitOverlay').remove()"
+      <button id="closeSubmitOverlayBtn"
          style="margin-top:1.25rem;background:none;border:none;color:#8a8a8a;font-size:0.85rem;cursor:pointer;text-decoration:underline;font-family:inherit;">
         Schließen
       </button>
     </div>
   `;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscKey);
+  }
+
+  function onEscKey(e) {
+    if (e.key === 'Escape') closeOverlay();
+  }
+
+  document.getElementById('closeSubmitOverlayBtn').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', onEscKey);
 }
 
 function downloadPDF(btn) {
