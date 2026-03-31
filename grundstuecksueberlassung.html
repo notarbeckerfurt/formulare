@@ -1891,7 +1891,12 @@ function saveForm() {
       data[el.name] = el.value;
     }
   });
-  localStorage.setItem('ueberlassung_form', JSON.stringify(data));
+  try {
+    localStorage.setItem('ueberlassung_form', JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Browserspeicher ist voll. Bitte geben Sie Speicher frei.', 'error');
+    return;
+  }
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ Gespeichert';
   status.classList.add('saved');
@@ -1920,37 +1925,39 @@ function loadForm() {
     togglePersonCount('ka');
 
     // Re-restore all field values into the newly generated blocks
-    Object.keys(data).forEach(name => {
-      if (name.startsWith('_')) return;
-      const els = document.querySelectorAll(`[name="${name}"]`);
-      els.forEach(el => {
-        if (el.type === 'radio') {
-          el.checked = (el.value === data[name]);
-        } else if (el.type === 'checkbox') {
-          el.checked = !!data[name];
-        } else {
-          el.value = data[name] || '';
+    setTimeout(() => {
+      Object.keys(data).forEach(name => {
+        if (name.startsWith('_')) return;
+        const els = document.querySelectorAll(`[name="${name}"]`);
+        els.forEach(el => {
+          if (el.type === 'radio') {
+            el.checked = (el.value === data[name]);
+          } else if (el.type === 'checkbox') {
+            el.checked = !!data[name];
+          } else {
+            el.value = data[name] || '';
+          }
+        });
+      });
+
+      toggleConditional();
+
+      // Grundbuchblätter und Flurstücke wiederherstellen
+      restoreGrundbuchBlaetter(data);
+
+      // Re-trigger person-specific toggles for all persons
+      ['vk', 'ka'].forEach(type => {
+        const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
+        for (let i = 1; i <= count; i++) {
+          const prefix = `${type}_${i}`;
+          toggleFamstand(prefix);
+          toggleDolmetscher(prefix);
         }
       });
-    });
-
-    toggleConditional();
-
-    // Grundbuchblätter und Flurstücke wiederherstellen
-    restoreGrundbuchBlaetter(data);
-
-    // Re-trigger person-specific toggles for all persons
-    ['vk', 'ka'].forEach(type => {
-      const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
-      for (let i = 1; i <= count; i++) {
-        const prefix = `${type}_${i}`;
-        toggleFamstand(prefix);
-        toggleDolmetscher(prefix);
-      }
-    });
-    const status = document.getElementById('saveStatus');
-    status.textContent = '✓ Wiederhergestellt';
-    status.classList.add('saved');
+      const status = document.getElementById('saveStatus');
+      status.textContent = '✓ Wiederhergestellt';
+      status.classList.add('saved');
+    }, 300);
   } catch(e) {}
 }
 
@@ -1964,7 +1971,7 @@ toggleConditional();
 let _autoSaveTimer;
 document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(_autoSaveTimer);
-  _autoSaveTimer = setTimeout(() => saveForm(), 30000);
+  _autoSaveTimer = setTimeout(() => saveForm(), 5000);
 });
 
 // ============================================================
@@ -2315,7 +2322,10 @@ async function generatePDF() {
       await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = function() {
-          window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          const result = reader.result;
+          window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,'))
+            ? result.split('base64,')[1]
+            : null;
           resolve();
         };
         reader.onerror = reject;
@@ -2325,7 +2335,6 @@ async function generatePDF() {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
     return false;
   }
@@ -2344,6 +2353,7 @@ async function submitForm() {
   const form = document.getElementById('mainForm');
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
   const checkedRadioGroups = new Set();
   requiredFields.forEach(f => {
     if (f.type === 'radio') {
@@ -2352,6 +2362,7 @@ async function submitForm() {
       const groupChecked = form.querySelector(`input[name="${f.name}"]:checked`);
       if (!groupChecked) {
         f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = 'var(--error)');
+        if (!firstInvalid) firstInvalid = f;
         valid = false;
       } else {
         f.closest('.radio-group')?.querySelectorAll('label').forEach(l => l.style.borderColor = '');
@@ -2359,9 +2370,11 @@ async function submitForm() {
     } else if (f.type === 'checkbox' && !f.checked) {
       const lbl = f.closest('label');
       if (lbl) { lbl.style.color = 'var(--error)'; lbl.style.fontWeight = '700'; }
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else if (!f.value) {
       f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else {
       f.style.borderColor = '';
@@ -2373,7 +2386,6 @@ async function submitForm() {
   });
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const firstInvalid = form.querySelector('[required]:invalid, [style*="border-color"], [style*="font-weight"]');
     if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
@@ -2486,7 +2498,7 @@ function showSubmitConfirmation() {
       </details>
       
       <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:0.5rem;">
-        <button onclick="document.getElementById('submitOverlay').remove()" 
+        <button id="closeSubmitOverlayBtn"
           style="background:transparent;color:#8c8c8c;border:1px solid #ddd;padding:0.6rem 2rem;border-radius:6px;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all 0.2s;"
           onmouseover="this.style.background='#f5f5f5';this.style.color='#333'" onmouseout="this.style.background='transparent';this.style.color='#8c8c8c'">
           Schließen
@@ -2495,8 +2507,20 @@ function showSubmitConfirmation() {
     </div>
   `;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-  
+
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscKey);
+  }
+
+  function onEscKey(e) {
+    if (e.key === 'Escape') closeOverlay();
+  }
+
+  document.getElementById('closeSubmitOverlayBtn').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', onEscKey);
+
   // Toggle arrow on details
   const details = overlay.querySelector('details');
   if (details) {
@@ -2651,13 +2675,10 @@ function sendDirectUpload(btn) {
     } else {
       // Formsubmit hat geantwortet aber nicht success
       const msg = data.message || JSON.stringify(data);
-      console.warn('Formsubmit nicht erfolgreich:', msg);
       throw new Error(msg);
     }
   })
   .catch(error => {
-    console.error('Upload-Fehler:', error);
-    
     btn.disabled = false;
     btn.style.background = '#2e7d32';
     btn.style.cursor = 'pointer';
