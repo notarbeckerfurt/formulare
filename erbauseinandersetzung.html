@@ -768,7 +768,7 @@ input[type="radio"], input[type="checkbox"] {
   <div class="field-group" style="margin-top:1.5rem">
     <label>Wer tr&auml;gt die Notarkosten?</label>
     <div class="radio-group" style="flex-direction:column">
-      <label><input type="radio" name="notarkosten" value="alle_anteilig"><span>Alle Erben anteilig</span></label>
+      <label><input type="radio" name="notarkosten" value="alle_anteilig" onchange="toggleConditional()"><span>Alle Erben anteilig</span></label>
       <label><input type="radio" name="notarkosten" value="ein_erbe" onchange="toggleConditional()"><span>Ein Erbe allein</span></label>
       <label><input type="radio" name="notarkosten" value="sonstige" onchange="toggleConditional()"><span>Sonstige Regelung</span></label>
     </div>
@@ -976,9 +976,17 @@ function generateMiterbeBlock(index) {
 function togglePersonCount(type) {
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
   const container = document.getElementById(`${type}_container`);
-  container.innerHTML = '';
-  for (let i = 1; i <= count; i++) {
-    container.innerHTML += generateMiterbeBlock(i);
+  const existing = container.querySelectorAll('.person-block');
+  const currentCount = existing.length;
+
+  // Remove excess blocks from the end
+  for (let i = currentCount; i > count; i--) {
+    const block = document.getElementById(`erbe${i}_block`);
+    if (block) block.remove();
+  }
+  // Add missing blocks
+  for (let i = currentCount + 1; i <= count; i++) {
+    container.insertAdjacentHTML('beforeend', generateMiterbeBlock(i));
   }
 }
 
@@ -1056,16 +1064,43 @@ function addGrundbuchBlatt() {
 }
 
 function removeGrundbuchBlatt(idx) {
-  const block = document.getElementById(`gb${idx}_block`);
-  if (block) block.remove();
-  reindexGrundbuchBlaetter();
-  updateGbButtons();
-}
-
-function reindexGrundbuchBlaetter() {
   const container = document.getElementById('gb_container');
   const blocks = container.querySelectorAll('.person-block');
-  gbBlattCount = blocks.length;
+  const allData = [];
+  blocks.forEach(block => {
+    const blockId = block.id.replace('_block', '');
+    if (blockId === `gb${idx}`) return;
+    const blockData = {};
+    block.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name) return;
+      const baseName = el.name.replace(blockId, 'PLACEHOLDER');
+      if (el.type === 'radio') { if (el.checked) blockData[baseName] = el.value; }
+      else if (el.type === 'checkbox') { blockData[baseName] = el.checked; }
+      else { blockData[baseName] = el.value; }
+    });
+    const fsContainer = document.getElementById(`${blockId}_fs_container`);
+    blockData._fsCount = fsContainer ? fsContainer.querySelectorAll('.field-row-3').length : 1;
+    allData.push(blockData);
+  });
+  container.innerHTML = '';
+  gbBlattCount = 0;
+  allData.forEach((data, i) => {
+    const newIdx = i + 1;
+    gbBlattCount = newIdx;
+    container.insertAdjacentHTML('beforeend', generateGrundbuchBlatt(newIdx));
+    const newPrefix = `gb${newIdx}`;
+    for (let f = 2; f <= data._fsCount; f++) addFlurstuck(newIdx);
+    Object.entries(data).forEach(([baseName, value]) => {
+      if (baseName.startsWith('_')) return;
+      const realName = baseName.replace('PLACEHOLDER', newPrefix);
+      container.querySelectorAll(`[name="${realName}"]`).forEach(el => {
+        if (el.type === 'radio') el.checked = (el.value === value);
+        else if (el.type === 'checkbox') el.checked = !!value;
+        else el.value = value;
+      });
+    });
+  });
+  updateGbButtons();
 }
 
 function addFlurstuck(blattIdx) {
@@ -1111,6 +1146,7 @@ function restoreGrundbuchBlaetter(data) {
     }
   });
   if (maxBlatt < 1) return;
+  if (maxBlatt > 3) maxBlatt = 3;
 
   while (gbBlattCount < maxBlatt) {
     addGrundbuchBlatt();
@@ -1319,22 +1355,28 @@ function restoreForm() {
 async function generatePDF() {
   // Dynamically load jsPDF from CDN if not present
   if (!window.jspdf) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    } catch(e) {
+      showToast('PDF-Bibliothek konnte nicht geladen werden. Druckansicht wird geöffnet.', 'error');
+      window.print();
+      return false;
+    }
   }
 
   let jsPDFClass;
   try {
     jsPDFClass = window.jspdf.jsPDF;
   } catch(e) {
-    showToast('PDF konnte nicht erstellt werden. Druckansicht wird ge\u00f6ffnet.', 'error');
+    showToast('PDF konnte nicht erstellt werden. Druckansicht wird geöffnet.', 'error');
     window.print();
-    return;
+    return false;
   }
   const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -1597,48 +1639,70 @@ async function generatePDF() {
     window.__lastPdfFileName = pdfFileName;
 
     try {
-      const reader = new FileReader();
-      reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
-      };
-      reader.readAsDataURL(pdfBlob);
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
     console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    return false;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
+  return true;
 }
 
 // ============================================================
 // SUBMIT FORM
 // ============================================================
-function submitForm() {
+let _submitRunning = false;
+async function submitForm() {
+  if (_submitRunning) return;
+  _submitRunning = true;
+  try {
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
   requiredFields.forEach(f => {
-    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+    if (f.type === 'checkbox' && !f.checked) {
+      const lbl = f.closest('label');
+      if (lbl) { lbl.style.color = 'var(--error)'; lbl.style.fontWeight = '700'; }
+      valid = false;
+    } else if (!f.value) {
       f.style.borderColor = 'var(--error)';
       valid = false;
     } else {
       f.style.borderColor = '';
+      if (f.type === 'checkbox') {
+        const lbl = f.closest('label');
+        if (lbl) { lbl.style.color = ''; lbl.style.fontWeight = ''; }
+      }
     }
   });
 
   if (!valid) {
-    showToast('Bitte f\u00fcllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
+    showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+    const first = form.querySelector('[required]:invalid, [style*="border-color"], [style*="font-weight"]');
     if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  generatePDF();
+  const pdfOk = await generatePDF();
+  if (pdfOk === false) return;
+
   showSubmitConfirmation();
+  } finally {
+    _submitRunning = false;
+  }
 }
 
 function showSubmitConfirmation() {
@@ -1779,6 +1843,14 @@ function sendDirectUpload(btn) {
     if (el.type === 'radio' && !el.checked) return;
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
+    // Skip fields inside hidden conditional sections or display:none parents
+    const hiddenConditional = el.closest('.conditional:not(.visible)');
+    if (hiddenConditional) return;
+    let parent = el.parentElement;
+    while (parent && parent !== form) {
+      if (parent.style.display === 'none') return;
+      parent = parent.parentElement;
+    }
 
     // Lesbaren eindeutigen Key erzeugen: Feldnamen in lesbares Format umwandeln
     const readable = el.name
@@ -1807,30 +1879,34 @@ function sendDirectUpload(btn) {
   // Absendername ermitteln
   const absenderName = getValLocal('ausfueller_name') || 'Mandant';
 
-  const payload = {
-    _subject: 'Erbauseinandersetzung \u2013 Formulardaten von ' + absenderName,
-    _template: 'table',
-    _captcha: 'false',
-    _replyto: (document.querySelector('[name="ausfueller_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
-    'Absender': absenderName,
-    'Formular': 'Erbauseinandersetzung',
-    'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    'Hinweis': 'PDF wurde dem Mandanten zum lokalen Download bereitgestellt.',
-    ...fields
-  };
-
   function getValLocal(name) {
     const el = document.querySelector(`[name="${name}"]`);
     return el ? el.value : '';
   }
 
+  // Formsubmit.co – Daten als multipart/form-data senden (unterstützt Dateianhänge)
+  const formData = new FormData();
+  formData.append('_subject', 'Erbauseinandersetzung – Formulardaten von ' + absenderName);
+  formData.append('_template', 'table');
+  formData.append('_captcha', 'false');
+  formData.append('_replyto', (document.querySelector('[name="ausfueller_email"]') || document.querySelector('[name$="_email"]') || {}).value || '');
+  formData.append('Absender', absenderName);
+  formData.append('Formular', 'Erbauseinandersetzung');
+  formData.append('Eingangsdatum', new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
+  Object.entries(fields).forEach(([key, val]) => formData.append(key, val));
+
+  // PDF als echten Dateianhang mitsenden
+  if (window.__lastPdfBlob) {
+    const pdfFile = new File([window.__lastPdfBlob], window.__lastPdfFileName || 'Erbauseinandersetzung.pdf', { type: 'application/pdf' });
+    formData.append('attachment', pdfFile);
+  }
+
   fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       'Accept': 'application/json'
     },
-    body: JSON.stringify(payload)
+    body: formData
   })
   .then(response => {
     return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
@@ -1932,6 +2008,7 @@ function sendEmailWithAttachment(btn) {
 
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = '\u2713';
