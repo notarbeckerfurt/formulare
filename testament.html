@@ -1149,8 +1149,11 @@ function togglePersonCount(type) {
 function toggleConditional() {
   // Art des Testaments -> Erblasser 2 + Berliner Testament
   const art = document.querySelector('input[name="testament_art"]:checked')?.value;
-  toggle('cond_erblasser2', art === 'gemeinschaftlich' || art === 'erbvertrag');
+  const showErb2 = art === 'gemeinschaftlich' || art === 'erbvertrag';
+  toggle('cond_erblasser2', showErb2);
   toggle('cond_berliner', art === 'gemeinschaftlich');
+  document.querySelector('[name="erb2_vorname"]')?.toggleAttribute('required', showErb2);
+  document.querySelector('[name="erb2_nachname"]')?.toggleAttribute('required', showErb2);
 
   // Bestehendes Testament
   const bt = document.querySelector('input[name="bestehendes_testament"]:checked')?.value;
@@ -1611,7 +1614,8 @@ async function generatePDF() {
   addField('Kontaktweg', getVal('kontaktweg'));
   addField('Beauftragung', getVal('beauftragung'));
   addField('Terminwunsch', getVal('terminwunsch'));
-  if (document.querySelector('input[name="terminwunsch"]:checked')?.value !== 'kein') {
+  const twVal = document.querySelector('input[name="terminwunsch"]:checked')?.value;
+  if (twVal && twVal !== 'kein') {
     addField('Wunschdatum', getVal('termin_datum'));
     addField('Uhrzeit', getVal('termin_uhrzeit'));
   }
@@ -1807,6 +1811,8 @@ function showSubmitConfirmation() {
   function closeOverlay() {
     overlay.remove();
     document.removeEventListener('keydown', onEscKey);
+    isSubmitting = false;
+    document.querySelectorAll('[onclick="submitForm()"]').forEach(b => { b.disabled = false; });
   }
 
   function onEscKey(e) {
