@@ -652,11 +652,11 @@ Lage und Grenze eindeutig feststellen können.
         <label>Vorname(n) <span class="required">*</span>
           <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
         </label>
-        <input type="text" name="vk_1_vorname">
+        <input type="text" name="vk_1_vorname" required>
       </div>
       <div class="field-group">
         <label>Nachname <span class="required">*</span></label>
-        <input type="text" name="vk_1_nachname">
+        <input type="text" name="vk_1_nachname" required>
       </div>
     </div>
     <div class="field-row-3">
@@ -827,11 +827,11 @@ Lage und Grenze eindeutig feststellen können.
         <label>Vorname(n) <span class="required">*</span>
           <span class="label-hint">Alle Vornamen lt. Ausweisdokument</span>
         </label>
-        <input type="text" name="ka_1_vorname">
+        <input type="text" name="ka_1_vorname" required>
       </div>
       <div class="field-group">
         <label>Nachname <span class="required">*</span></label>
-        <input type="text" name="ka_1_nachname">
+        <input type="text" name="ka_1_nachname" required>
       </div>
     </div>
     <div class="field-row-3">
@@ -921,7 +921,7 @@ Lage und Grenze eindeutig feststellen können.
     <!-- Verwandtschaftsverhältnis (nur Erwerber) -->
     <div class="field-group">
       <label>Verwandtschaftsverhältnis zum Veräußerer</label>
-      <select name="ka_1_verwandtschaft">
+      <select name="ka_1_verwandtschaft" onchange="toggleConditional()">
         <option value="" selected="selected">Bitte auswählen</option>
         <option value="kind">Kind</option>
         <option value="enkel">Enkel</option>
@@ -1914,18 +1914,36 @@ function loadForm() {
         el.value = data[name];
       }
     });
+    // Regenerate person blocks based on restored count
+    togglePersonCount('vk');
+    togglePersonCount('ka');
+
+    // Re-restore all field values into the newly generated blocks
+    Object.keys(data).forEach(name => {
+      if (name.startsWith('_')) return;
+      const els = document.querySelectorAll(`[name="${name}"]`);
+      els.forEach(el => {
+        if (el.type === 'radio') {
+          el.checked = (el.value === data[name]);
+        } else if (el.type === 'checkbox') {
+          el.checked = !!data[name];
+        } else {
+          el.value = data[name] || '';
+        }
+      });
+    });
+
     toggleConditional();
 
     // Grundbuchblätter und Flurstücke wiederherstellen
     restoreGrundbuchBlaetter(data);
 
-    document.querySelectorAll('[name*="_famstand"]').forEach(el => {
-      const prefix = el.name.replace('_famstand', '');
-      toggleFamstand(prefix);
-    });
-    document.querySelectorAll('[name*="_dolmetscher"]').forEach(el => {
-      if (el.type === 'radio' && el.checked && el.value === 'ja') {
-        const prefix = el.name.replace('_dolmetscher', '');
+    // Re-trigger person-specific toggles for all persons
+    ['vk', 'ka'].forEach(type => {
+      const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
+      for (let i = 1; i <= count; i++) {
+        const prefix = `${type}_${i}`;
+        toggleFamstand(prefix);
         toggleDolmetscher(prefix);
       }
     });
@@ -1943,7 +1961,7 @@ togglePersonCount('ka');
 loadForm();
 toggleConditional();
 
-// Auto-save every 60 seconds (only if user has entered data)
+// Auto-save 30 Sekunden nach letzter Eingabe
 let _autoSaveTimer;
 document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(_autoSaveTimer);
@@ -2134,8 +2152,10 @@ async function generatePDF() {
   addField('Vermietet/Verpachtet', getRadio('vermietet'));
   if (getRadio('vermietet').toLowerCase().includes('ja')) {
     addField('Vermietet an', getRadio('vermietet_an'));
-    addField('Details Vermietung', getVal('vermietung_details'));
-    addField('Übernahme Mietverh.', getRadio('mietverhaeltnis_uebernahme'));
+    if (document.querySelector('input[name="vermietet_an"]:checked')?.value === 'dritte') {
+      addField('Details Vermietung', getVal('vermietung_details'));
+      addField('Übernahme Mietverh.', getRadio('mietverhaeltnis_uebernahme'));
+    }
   }
   
   // Section II - Veräußerer
@@ -2190,7 +2210,7 @@ async function generatePDF() {
     addField('Dolmetscher Sprache', getVal(`${p}_dolmetscher_sprache`));
     addField('Anmerkungen', getVal(`${p}_anmerkungen`));
     addField('Verwandtschaft', getVal(`${p}_verwandtschaft`));
-    if (getVal(`${p}_verwandtschaft`) === 'sonstige') {
+    if (document.querySelector(`[name="${p}_verwandtschaft"]`)?.value === 'sonstige') {
       addField('Verwandtschaft (Details)', getVal(`${p}_verwandtschaft_details`));
     }
   }
