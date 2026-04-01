@@ -1189,10 +1189,25 @@ function togglePersonCount(type) {
   if (type === 'kinder') {
     const count = parseInt(document.querySelector('input[name="anz_kinder"]:checked')?.value || '1');
     const container = document.getElementById('kinder_container');
+    // Save current field data before clearing
+    const saved = {};
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name) return;
+      if (el.type === 'radio') { if (el.checked) saved[el.name] = el.value; }
+      else if (el.type === 'checkbox') { saved[el.name] = el.checked; }
+      else if (el.type !== 'file') { saved[el.name] = el.value; }
+    });
     container.innerHTML = '';
     for (let i = 1; i <= count; i++) {
       container.innerHTML += generateChildBlock(i);
     }
+    // Restore saved data
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name || !(el.name in saved)) return;
+      if (el.type === 'radio') { el.checked = (el.value === saved[el.name]); }
+      else if (el.type === 'checkbox') { el.checked = !!saved[el.name]; }
+      else if (el.type !== 'file') { el.value = saved[el.name]; }
+    });
   }
 }
 
@@ -1211,6 +1226,7 @@ function toggleConditional() {
   // Minderjährige Kinder
   const km = document.querySelector('input[name="kinder_minderjaehrig"]:checked')?.value;
   toggle('cond_kinder_minderjaehrig', km === 'ja');
+  if (km === 'ja') togglePersonCount('kinder');
 
   // Kindesunterhalt section visibility based on children
   toggle('cond_kindesunterhalt', km === 'ja');
@@ -1330,7 +1346,12 @@ function saveForm() {
   });
 
   data._savedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Speicher voll.', 'error');
+    return;
+  }
 
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
@@ -1386,7 +1407,7 @@ function restoreForm() {
         });
       });
       toggleConditional();
-    }, 100);
+    }, 300);
 
     if (data._savedAt) {
       const d = new Date(data._savedAt);
@@ -1395,7 +1416,7 @@ function restoreForm() {
       status.classList.add('saved');
     }
   } catch(e) {
-    console.error('Restore error:', e);
+    // restore error ignored
   }
 }
 
@@ -1706,7 +1727,8 @@ async function generatePDF() {
   addField('Kontaktweg', getVal('kontaktweg'));
   addField('Beauftragung', getVal('beauftragung'));
   addField('Terminwunsch', getVal('terminwunsch'));
-  if (getRadio('terminwunsch') !== 'kein') {
+  const tw = getRadio('terminwunsch');
+  if (tw && tw !== 'kein') {
     addField('Wunschdatum', getVal('termin_datum'));
     addField('Uhrzeit', getVal('termin_uhrzeit'));
   }
@@ -1735,16 +1757,16 @@ async function generatePDF() {
     try {
       const reader = new FileReader();
       reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+        const result = reader.result;
+        window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,')) ? result.split('base64,')[1] : null;
       };
       reader.readAsDataURL(pdfBlob);
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    throw err;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
 }
@@ -1752,15 +1774,31 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM
 // ============================================================
-function submitForm() {
+let isSubmitting = false;
+async function submitForm() {
+  if (isSubmitting) return;
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
+  const validatedRadioGroups = new Set();
   requiredFields.forEach(f => {
-    if (!f.value || (f.type === 'checkbox' && !f.checked)) {
+    if (f.type === 'radio') {
+      if (validatedRadioGroups.has(f.name)) return;
+      validatedRadioGroups.add(f.name);
+      const checked = form.querySelector(`input[name="${f.name}"]:checked`);
+      if (!checked) {
+        f.style.outline = '2px solid var(--error)';
+        valid = false;
+        if (!firstInvalid) firstInvalid = f;
+      } else {
+        form.querySelectorAll(`input[name="${f.name}"]`).forEach(r => r.style.outline = '');
+      }
+    } else if (!f.value || (f.type === 'checkbox' && !f.checked)) {
       f.style.borderColor = 'var(--error)';
       valid = false;
+      if (!firstInvalid) firstInvalid = f;
     } else {
       f.style.borderColor = '';
     }
@@ -1768,13 +1806,22 @@ function submitForm() {
 
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
-    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  generatePDF();
-  showSubmitConfirmation();
+  isSubmitting = true;
+  const submitBtn = form.querySelector('button[type="submit"], button[onclick*="submitForm"]');
+  if (submitBtn) submitBtn.disabled = true;
+  try {
+    await generatePDF();
+    showSubmitConfirmation();
+  } catch(e) {
+    // PDF error already shown via toast
+  } finally {
+    isSubmitting = false;
+    if (submitBtn) submitBtn.disabled = false;
+  }
 }
 
 function showSubmitConfirmation() {
@@ -1862,8 +1909,24 @@ function showSubmitConfirmation() {
       </button>
     </div>
   `;
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscape);
+    isSubmitting = false;
+    const submitBtn = document.querySelector('button[onclick*="submitForm"]');
+    if (submitBtn) submitBtn.disabled = false;
+  }
+  function onEscape(e) { if (e.key === 'Escape') closeOverlay(); }
+  document.addEventListener('keydown', onEscape);
+
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  overlay.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.trim() === 'Schließen') {
+      btn.removeAttribute('onclick');
+      btn.addEventListener('click', closeOverlay);
+    }
+  });
 }
 
 function downloadPDF(btn) {
@@ -2044,6 +2107,7 @@ function sendEmailWithAttachment(btn) {
 
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = '✓';
@@ -2129,7 +2193,7 @@ document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveForm();
-  }, 30000);
+  }, 5000);
 });
 </script>
 
