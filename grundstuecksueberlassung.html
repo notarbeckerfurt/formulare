@@ -1775,7 +1775,7 @@ function restoreGrundbuchBlaetter(data) {
         }
       });
     });
-  }, 50);
+  }, 300);
 }
 
 // ============================================================
@@ -2290,7 +2290,8 @@ async function generatePDF() {
   addField('Versand an VK', getRadio('versand_vk'));
   addField('Versand an Erwerber', getRadio('versand_ka'));
   addField('Terminwunsch', getRadio('terminwunsch'));
-  if (document.querySelector('input[name="terminwunsch"]:checked')?.value !== 'kein') {
+  const twVal = document.querySelector('input[name="terminwunsch"]:checked')?.value;
+  if (twVal && twVal !== 'kein') {
     addField('Wunschdatum', getVal('termin_datum'));
     addField('Uhrzeit', getVal('termin_uhrzeit'));
   }
@@ -2653,8 +2654,6 @@ function sendDirectUpload(btn) {
     return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
   })
   .then(({ status, ok, data }) => {
-    console.log('Formsubmit Antwort:', status, data);
-    
     if (data.success === 'true' || data.success === true) {
       // Erfolg
       btn.style.background = '#1b5e20';
