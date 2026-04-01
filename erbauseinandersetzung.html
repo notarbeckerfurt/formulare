@@ -1281,7 +1281,12 @@ function saveForm() {
   });
 
   data._savedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Browserspeicher ist voll. Bitte geben Sie Speicher frei.', 'error');
+    return;
+  }
 
   const status = document.getElementById('saveStatus');
   status.textContent = '\u2713 Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
@@ -1337,7 +1342,7 @@ function restoreForm() {
         });
       });
       toggleConditional();
-    }, 100);
+    }, 300);
 
     if (data._savedAt) {
       const d = new Date(data._savedAt);
@@ -1346,7 +1351,7 @@ function restoreForm() {
       status.classList.add('saved');
     }
   } catch(e) {
-    console.error('Restore error:', e);
+    // Restore error silently ignored
   }
 }
 
@@ -1643,7 +1648,10 @@ async function generatePDF() {
       await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = function() {
-          window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          const result = reader.result;
+          window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,'))
+            ? result.split('base64,')[1]
+            : null;
           resolve();
         };
         reader.onerror = reject;
@@ -1653,7 +1661,6 @@ async function generatePDF() {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
     return false;
   }
@@ -1673,13 +1680,16 @@ async function submitForm() {
 
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
   requiredFields.forEach(f => {
     if (f.type === 'checkbox' && !f.checked) {
       const lbl = f.closest('label');
       if (lbl) { lbl.style.color = 'var(--error)'; lbl.style.fontWeight = '700'; }
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else if (!f.value || (f.checkValidity && !f.checkValidity())) {
       f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else {
       f.style.borderColor = '';
@@ -1692,8 +1702,7 @@ async function submitForm() {
 
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [style*="border-color"], [style*="font-weight"]');
-    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -1783,14 +1792,26 @@ function showSubmitConfirmation() {
         </button>
       </div>
 
-      <button onclick="document.getElementById('submitOverlay').remove()"
+      <button id="closeSubmitOverlayBtn"
          style="margin-top:1.25rem;background:none;border:none;color:#8a8a8a;font-size:0.85rem;cursor:pointer;text-decoration:underline;font-family:inherit;">
         Schlie\u00dfen
       </button>
     </div>
   `;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscKey);
+  }
+
+  function onEscKey(e) {
+    if (e.key === 'Escape') closeOverlay();
+  }
+
+  document.getElementById('closeSubmitOverlayBtn').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', onEscKey);
 }
 
 function downloadPdfManual(btn) {
@@ -2091,7 +2112,7 @@ toggleConditional();
 let autoSaveTimer;
 function debounceAutoSave() {
   clearTimeout(autoSaveTimer);
-  autoSaveTimer = setTimeout(() => saveForm(), 30000);
+  autoSaveTimer = setTimeout(() => saveForm(), 5000);
 }
 document.getElementById('mainForm').addEventListener('input', debounceAutoSave);
 document.getElementById('mainForm').addEventListener('change', debounceAutoSave);
