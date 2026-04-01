@@ -1072,10 +1072,16 @@ function generateFremdgfBlock(index) {
 // RENDER PERSON BLOCKS
 // ============================================================
 function togglePersonCount(type) {
-  // Aktuelle Eingaben sichern, bevor die Blöcke neu gerendert werden
-  saveForm();
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || (type === 'fremdgf' ? '0' : '1'));
   const container = document.getElementById(`${type}_container`);
+  // Save current field data before clearing
+  const saved = {};
+  container.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.name) return;
+    if (el.type === 'radio') { if (el.checked) saved[el.name] = el.value; }
+    else if (el.type === 'checkbox') { saved[el.name] = el.checked; }
+    else if (el.type !== 'file') { saved[el.name] = el.value; }
+  });
   container.innerHTML = '';
   if (type === 'gruender') {
     for (let i = 1; i <= count; i++) {
@@ -1086,8 +1092,24 @@ function togglePersonCount(type) {
       container.insertAdjacentHTML('beforeend', generateFremdgfBlock(i));
     }
   }
-  // Gespeicherte Feldwerte wiederherstellen, aber Anzahl-Radios nicht überschreiben
-  loadForm({ skipCountRadios: true });
+  // Restore saved data
+  container.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.name || !(el.name in saved)) return;
+    if (el.type === 'radio') { el.checked = (el.value === saved[el.name]); }
+    else if (el.type === 'checkbox') { el.checked = !!saved[el.name]; }
+    else if (el.type !== 'file') { el.value = saved[el.name]; }
+  });
+  // Re-trigger per-person conditionals
+  for (let i = 1; i <= count; i++) {
+    const prefix = type === 'gruender' ? `gr_${i}` : `fgf_${i}`;
+    if (type === 'gruender') {
+      toggleGruenderArt(prefix);
+      toggleFamstand(prefix);
+      toggleDolmetscher(prefix);
+      toggleEinschraenkung(prefix);
+      toggleGfDetails(prefix);
+    }
+  }
 }
 
 function toggleGruenderArt(prefix) {
@@ -1214,7 +1236,12 @@ function saveForm() {
       data[el.name] = el.value;
     }
   });
-  localStorage.setItem('gruendung_form', JSON.stringify(data));
+  try {
+    localStorage.setItem('gruendung_form', JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Speicher voll.', 'error');
+    return;
+  }
   const status = document.getElementById('saveStatus');
   status.textContent = 'Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
   status.classList.add('saved');
@@ -1252,21 +1279,16 @@ function loadForm(options = {}) {
       toggleGruenderArt(`gr_${i}`);
     }
   } catch(e) {
-    console.warn('Formular konnte nicht vollständig geladen werden:', e);
+    // load error ignored
   }
 }
 
-// Autosave alle 30 Sekunden, aber nur wenn tatsächlich Eingaben vorhanden sind
-setInterval(() => {
-  const form = document.getElementById('mainForm');
-  const hasInput = Array.from(form.querySelectorAll('input, textarea')).some(el => {
-    if (el.type === 'radio' || el.type === 'checkbox' || el.type === 'hidden') return false;
-    return el.value && el.value.trim() !== '';
-  });
-  if (hasInput) {
-    saveForm();
-  }
-}, 30000);
+// Auto-save: debounced on input
+let autoSaveTimer;
+document.getElementById('mainForm').addEventListener('input', () => {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => saveForm(), 5000);
+});
 
 // ============================================================
 // PDF GENERATION (jsPDF inline)
@@ -1519,7 +1541,7 @@ async function buildPDF() {
     try {
       window.__lastPdfBase64 = await new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split('base64,')[1]);
+        reader.onload = () => { const result = reader.result; resolve((typeof result === 'string' && result.includes('base64,')) ? result.split('base64,')[1] : null); };
         reader.onerror = () => reject(reader.error);
         reader.readAsDataURL(pdfBlob);
       });
@@ -1527,7 +1549,6 @@ async function buildPDF() {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
     throw err;
   }
@@ -1677,8 +1698,21 @@ function showSubmitConfirmation() {
       </div>
     </div>
   `;
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscape);
+  }
+  function onEscape(e) { if (e.key === 'Escape') closeOverlay(); }
+  document.addEventListener('keydown', onEscape);
+
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  overlay.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.trim() === 'Schließen') {
+      btn.removeAttribute('onclick');
+      btn.addEventListener('click', closeOverlay);
+    }
+  });
 
   const details = overlay.querySelector('details');
   if (details) {
@@ -1781,8 +1815,6 @@ function sendDirectUpload(btn) {
     return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
   })
   .then(({ status, ok, data }) => {
-    console.log('Formsubmit Antwort:', status, data);
-
     if (data.success === 'true' || data.success === true) {
       btn.style.background = '#1b5e20';
       btn.style.cursor = 'default';
@@ -1801,13 +1833,10 @@ function sendDirectUpload(btn) {
       showToast('Formulardaten wurden erfolgreich an die Kanzlei gesendet!', 'success');
     } else {
       const msg = data.message || JSON.stringify(data);
-      console.warn('Formsubmit nicht erfolgreich:', msg);
       throw new Error(msg);
     }
   })
   .catch(error => {
-    console.error('Upload-Fehler:', error);
-
     btn.disabled = false;
     btn.style.background = '#2e7d32';
     btn.style.cursor = 'pointer';
@@ -1893,6 +1922,7 @@ function sendEmailWithAttachment(btn) {
 
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = '✓';
