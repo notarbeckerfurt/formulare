@@ -864,6 +864,17 @@ function generatePersonBlock(prefix, index, groupLabel) {
 function togglePersonCount(type) {
   const count = parseInt(document.querySelector(`input[name="anz_${type}"]:checked`)?.value || '1');
   const container = document.getElementById(`${type}_container`);
+
+  // Save existing field data before re-rendering
+  const savedData = {};
+  container.querySelectorAll('[name]').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      savedData[el.name + '_' + el.value] = el.checked;
+    } else {
+      savedData[el.name] = el.value;
+    }
+  });
+
   container.innerHTML = '';
 
   let groupLabel = '';
@@ -879,6 +890,17 @@ function togglePersonCount(type) {
   for (let i = 1; i <= count; i++) {
     container.innerHTML += generatePersonBlock(prefix, i, groupLabel);
   }
+
+  // Restore saved data
+  container.querySelectorAll('[name]').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') {
+      if (savedData[el.name + '_' + el.value] !== undefined) {
+        el.checked = savedData[el.name + '_' + el.value];
+      }
+    } else if (savedData[el.name] !== undefined) {
+      el.value = savedData[el.name];
+    }
+  });
 }
 
 // ============================================================
@@ -947,7 +969,12 @@ function saveForm() {
   });
 
   data._savedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Browserspeicher ist voll. Bitte geben Sie Speicher frei.', 'error');
+    return;
+  }
 
   const status = document.getElementById('saveStatus');
   status.textContent = 'Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
@@ -1001,7 +1028,7 @@ function restoreForm() {
         });
       });
       toggleConditional();
-    }, 100);
+    }, 300);
 
     if (data._savedAt) {
       const d = new Date(data._savedAt);
@@ -1010,7 +1037,7 @@ function restoreForm() {
       status.classList.add('saved');
     }
   } catch(e) {
-    console.error('Restore error:', e);
+    // Restore error silently ignored
   }
 }
 
@@ -1289,16 +1316,18 @@ async function generatePDF() {
     try {
       const reader = new FileReader();
       reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+        const result = reader.result;
+        window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,'))
+          ? result.split('base64,')[1]
+          : null;
       };
       reader.readAsDataURL(pdfBlob);
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
-    return;
+    throw err;
   }
   showToast('PDF wurde erfolgreich erstellt.', 'success');
 }
@@ -1306,14 +1335,21 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM
 // ============================================================
-function submitForm() {
+let isSubmitting = false;
+
+async function submitForm() {
+  if (isSubmitting) return;
+
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
+
   requiredFields.forEach(f => {
     if (!f.value || (f.type === 'checkbox' && !f.checked)) {
       f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
       valid = false;
     } else {
       f.style.borderColor = '';
@@ -1322,12 +1358,23 @@ function submitForm() {
 
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
-    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  generatePDF();
+  isSubmitting = true;
+  const submitBtns = document.querySelectorAll('[onclick="submitForm()"]');
+  submitBtns.forEach(b => { b.disabled = true; });
+
+  try {
+    await generatePDF();
+  } catch(err) {
+    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
+    isSubmitting = false;
+    submitBtns.forEach(b => { b.disabled = false; });
+    return;
+  }
+
   showSubmitConfirmation();
 }
 
@@ -1410,14 +1457,28 @@ function showSubmitConfirmation() {
         </button>
       </div>
 
-      <button onclick="document.getElementById('submitOverlay').remove()"
+      <button id="closeSubmitOverlayBtn"
          style="margin-top:1.25rem;background:none;border:none;color:#8a8a8a;font-size:0.85rem;cursor:pointer;text-decoration:underline;font-family:inherit;">
         Schließen
       </button>
     </div>
   `;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscKey);
+    isSubmitting = false;
+    document.querySelectorAll('[onclick="submitForm()"]').forEach(b => { b.disabled = false; });
+  }
+
+  function onEscKey(e) {
+    if (e.key === 'Escape') closeOverlay();
+  }
+
+  document.getElementById('closeSubmitOverlayBtn').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', onEscKey);
 }
 
 function downloadPdfManual(btn) {
@@ -1539,6 +1600,7 @@ function sendDirectUpload(btn) {
   .catch(error => {
     btn.disabled = false;
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.style.cursor = 'pointer';
     btn.querySelector('.sendIcon').textContent = '>';
     btn.querySelector('.sendLabel').textContent = 'Erneut versuchen';
@@ -1612,6 +1674,7 @@ function sendEmailWithAttachment(btn) {
 
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = 'OK';
@@ -1695,7 +1758,7 @@ document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveForm();
-  }, 30000);
+  }, 5000);
 });
 </script>
 
