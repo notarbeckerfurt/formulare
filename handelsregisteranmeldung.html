@@ -1165,7 +1165,12 @@ function saveForm() {
   });
 
   data._savedAt = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('Speichern fehlgeschlagen: Speicher voll.', 'error');
+    return;
+  }
 
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ Gespeichert um ' + new Date().toLocaleTimeString('de-DE');
@@ -1228,7 +1233,7 @@ function restoreForm() {
         toggleGesellschafterType(`gesellschafter_${i}`);
       }
       toggleConditional();
-    }, 100);
+    }, 300);
 
     if (data._savedAt) {
       const d = new Date(data._savedAt);
@@ -1237,7 +1242,7 @@ function restoreForm() {
       status.classList.add('saved');
     }
   } catch(e) {
-    console.error('Restore error:', e);
+    // restore error ignored
   }
 }
 
@@ -1528,14 +1533,14 @@ async function generatePDF() {
     try {
       const reader = new FileReader();
       reader.onload = function() {
-        window.__lastPdfBase64 = reader.result.split('base64,')[1];
+        const result = reader.result;
+        window.__lastPdfBase64 = (typeof result === 'string' && result.includes('base64,')) ? result.split('base64,')[1] : null;
       };
       reader.readAsDataURL(pdfBlob);
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
   } catch(err) {
-    console.error('PDF-Erzeugung fehlgeschlagen:', err);
     showToast('PDF konnte nicht erstellt werden.', 'error');
     return;
   }
@@ -1545,15 +1550,18 @@ async function generatePDF() {
 // ============================================================
 // SUBMIT FORM
 // ============================================================
+let _submitRunning = false;
 function submitForm() {
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
   let valid = true;
+  let firstInvalid = null;
   requiredFields.forEach(f => {
     if (!f.value || (f.type === 'checkbox' && !f.checked)) {
       f.style.borderColor = 'var(--error)';
       valid = false;
+      if (!firstInvalid) firstInvalid = f;
     } else {
       f.style.borderColor = '';
     }
@@ -1561,13 +1569,18 @@ function submitForm() {
 
   if (!valid) {
     showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
-    const first = form.querySelector('[required]:invalid, [required][style*="error"]');
-    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  generatePDF();
-  showSubmitConfirmation();
+  if (_submitRunning) return;
+  _submitRunning = true;
+  try {
+    generatePDF();
+    showSubmitConfirmation();
+  } finally {
+    _submitRunning = false;
+  }
 }
 
 function showSubmitConfirmation() {
@@ -1655,8 +1668,21 @@ function showSubmitConfirmation() {
       </button>
     </div>
   `;
+  function closeOverlay() {
+    overlay.remove();
+    document.removeEventListener('keydown', onEscape);
+  }
+  function onEscape(e) { if (e.key === 'Escape') closeOverlay(); }
+  document.addEventListener('keydown', onEscape);
+
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  overlay.querySelectorAll('button').forEach(btn => {
+    if (btn.textContent.trim() === 'Schließen') {
+      btn.removeAttribute('onclick');
+      btn.addEventListener('click', closeOverlay);
+    }
+  });
 }
 
 function downloadPdfManual(btn) {
@@ -1837,6 +1863,7 @@ function sendEmailWithAttachment(btn) {
 
   if (btn) {
     btn.style.background = '#2e7d32';
+    btn.style.color = 'white';
     btn.onmouseover = null;
     btn.onmouseout = null;
     btn.querySelector('.emailIcon').textContent = '✓';
@@ -1920,7 +1947,7 @@ document.getElementById('mainForm').addEventListener('input', () => {
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveForm();
-  }, 30000);
+  }, 5000);
 });
 </script>
 
