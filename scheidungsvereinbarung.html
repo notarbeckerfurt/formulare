@@ -488,6 +488,16 @@ input[type="radio"], input[type="checkbox"] {
       <input type="text" name="eg1_geburtsort">
     </div>
   </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>Geburtsstandesamt</label>
+      <input type="text" name="eg1_geburtsstandesamt" placeholder="z.B. Standesamt Erfurt">
+    </div>
+    <div class="field-group">
+      <label>Geburtenregisternummer</label>
+      <input type="text" name="eg1_geburtenregisternr" placeholder="z.B. 123/1975">
+    </div>
+  </div>
   <div class="field-group">
     <label>Staatsangehörigkeit</label>
     <input type="text" name="eg1_staatsangehoerigkeit" placeholder="z.B. deutsch">
@@ -549,6 +559,16 @@ input[type="radio"], input[type="checkbox"] {
     <div class="field-group">
       <label>Geburtsort</label>
       <input type="text" name="eg2_geburtsort">
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>Geburtsstandesamt</label>
+      <input type="text" name="eg2_geburtsstandesamt" placeholder="z.B. Standesamt Erfurt">
+    </div>
+    <div class="field-group">
+      <label>Geburtenregisternummer</label>
+      <input type="text" name="eg2_geburtenregisternr" placeholder="z.B. 123/1975">
     </div>
   </div>
   <div class="field-group">
@@ -1579,6 +1599,8 @@ async function generatePDF() {
   addField('Geburtsname', getVal('eg1_geburtsname'));
   addField('Geburtsdatum', getVal('eg1_geburtsdatum'));
   addField('Geburtsort', getVal('eg1_geburtsort'));
+  addField('Geburtsstandesamt', getVal('eg1_geburtsstandesamt'));
+  addField('Geburtenregisternr.', getVal('eg1_geburtenregisternr'));
   addField('Staatsangehörigkeit', getVal('eg1_staatsangehoerigkeit'));
   addField('Anschrift', [getVal('eg1_strasse'), getVal('eg1_plz'), getVal('eg1_ort')].filter(Boolean).join(', '));
   addField('Telefon', getVal('eg1_telefon'));
@@ -1591,6 +1613,8 @@ async function generatePDF() {
   addField('Geburtsname', getVal('eg2_geburtsname'));
   addField('Geburtsdatum', getVal('eg2_geburtsdatum'));
   addField('Geburtsort', getVal('eg2_geburtsort'));
+  addField('Geburtsstandesamt', getVal('eg2_geburtsstandesamt'));
+  addField('Geburtenregisternr.', getVal('eg2_geburtenregisternr'));
   addField('Staatsangehörigkeit', getVal('eg2_staatsangehoerigkeit'));
   addField('Anschrift', [getVal('eg2_strasse'), getVal('eg2_plz'), getVal('eg2_ort')].filter(Boolean).join(', '));
   addField('Telefon', getVal('eg2_telefon'));
