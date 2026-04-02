@@ -543,6 +543,16 @@ input[type="radio"], input[type="checkbox"] {
       <input type="text" name="erb1_geburtsort">
     </div>
   </div>
+  <div class="field-row">
+    <div class="field-group">
+      <label>Geburtsstandesamt</label>
+      <input type="text" name="erb1_geburtsstandesamt" placeholder="z.B. Standesamt Erfurt">
+    </div>
+    <div class="field-group">
+      <label>Geburtenregisternummer</label>
+      <input type="text" name="erb1_geburtenregisternr" placeholder="z.B. 123/1975">
+    </div>
+  </div>
 
   <div class="field-group">
     <label>Staatsangeh&ouml;rigkeit</label>
@@ -620,6 +630,16 @@ input[type="radio"], input[type="checkbox"] {
       <div class="field-group">
         <label>Geburtsort</label>
         <input type="text" name="erb2_geburtsort">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <label>Geburtsstandesamt</label>
+        <input type="text" name="erb2_geburtsstandesamt" placeholder="z.B. Standesamt Erfurt">
+      </div>
+      <div class="field-group">
+        <label>Geburtenregisternummer</label>
+        <input type="text" name="erb2_geburtenregisternr" placeholder="z.B. 123/1975">
       </div>
     </div>
 
@@ -1506,6 +1526,8 @@ async function generatePDF() {
   addField('Geburtsname', getVal('erb1_geburtsname'));
   addField('Geburtsdatum', getVal('erb1_geburtsdatum'));
   addField('Geburtsort', getVal('erb1_geburtsort'));
+  addField('Geburtsstandesamt', getVal('erb1_geburtsstandesamt'));
+  addField('Geburtenregisternr.', getVal('erb1_geburtenregisternr'));
   addField('Staatsangeh\u00f6rigkeit', getVal('erb1_staatsangehoerigkeit'));
   addField('Familienstand', getVal('erb1_familienstand'));
   addField('Anschrift', [getVal('erb1_strasse'), getVal('erb1_plz'), getVal('erb1_ort')].filter(Boolean).join(', '));
@@ -1520,6 +1542,8 @@ async function generatePDF() {
     addField('Geburtsname', getVal('erb2_geburtsname'));
     addField('Geburtsdatum', getVal('erb2_geburtsdatum'));
     addField('Geburtsort', getVal('erb2_geburtsort'));
+    addField('Geburtsstandesamt', getVal('erb2_geburtsstandesamt'));
+    addField('Geburtenregisternr.', getVal('erb2_geburtenregisternr'));
     addField('Staatsangeh\u00f6rigkeit', getVal('erb2_staatsangehoerigkeit'));
     addField('Familienstand', getVal('erb2_familienstand'));
     addField('Anschrift', [getVal('erb2_strasse'), getVal('erb2_plz'), getVal('erb2_ort')].filter(Boolean).join(', '));
