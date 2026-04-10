@@ -618,8 +618,8 @@ input[type="radio"], input[type="checkbox"] {
   </div>
 
   <div class="field-group" style="margin-top:1.5rem">
-    <label>Soll der bevollmächtigte Ehegatte befugt sein, von ihm zuvor erteilte Vollmachten zu widerrufen?</label>
-    <span class="label-hint">Diese Frage ist nur relevant, wenn der Ehegatte als Bevollmächtigter benannt wird.</span>
+    <label>Soll der bevollmächtigte Ehegatte befugt sein, Vollmachten zu widerrufen, die Sie weiteren Personen (z.&nbsp;B. Kindern) erteilt haben?</label>
+    <span class="label-hint">Diese Frage ist nur relevant, wenn der Ehegatte als Bevollmächtigter benannt wird und daneben noch weitere Personen bevollmächtigt sind. Wenn „Ja“, kann der Ehegatte die Vollmachten der anderen Bevollmächtigten eigenständig widerrufen.</span>
     <div class="radio-group" style="margin-top:0.5rem">
       <label><input type="radio" name="ehegatte_widerruf" value="ja"><span>Ja</span></label>
       <label><input type="radio" name="ehegatte_widerruf" value="nein"><span>Nein</span></label>
@@ -1198,7 +1198,7 @@ async function generatePDF() {
   addTitle('IV. Sonstiges');
   addField('Patientenverfügung', getVal('patientenverfuegung'));
   addField('Zentrales Vorsorgeregister', getVal('vorsorgeregister'));
-  addField('Ehegatte Widerrufsbefugnis', getVal('ehegatte_widerruf'));
+  addField('Ehegatte darf and. Vollm. widerrufen', getVal('ehegatte_widerruf'));
 
   // Section V - Auftragserteilung
   addTitle('V. Anmerkungen / Auftragserteilung');
