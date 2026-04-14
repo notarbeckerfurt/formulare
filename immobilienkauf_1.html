@@ -2173,23 +2173,35 @@ function restoreForm() {
 // ============================================================
 async function generatePDF() {
   if (!window.jspdf) {
-    try {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('jsPDF konnte nicht geladen werden'));
-        // Timeout-Fallback, falls Laden hängt
-        setTimeout(() => reject(new Error('Zeitüberschreitung beim Laden der PDF-Bibliothek')), 15000);
-        document.head.appendChild(s);
-      });
-    } catch (err) {
-      showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'error');
+    const cdnUrls = [
+      'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
+      'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js',
+      'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js'
+    ];
+    let lastErr = null;
+    for (const url of cdnUrls) {
+      try {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = url;
+          s.onload = resolve;
+          s.onerror = () => reject(new Error('Ladefehler: ' + url));
+          setTimeout(() => reject(new Error('Zeitüberschreitung: ' + url)), 8000);
+          document.head.appendChild(s);
+        });
+        if (window.jspdf) { lastErr = null; break; }
+        lastErr = new Error('Script geladen, aber window.jspdf fehlt: ' + url);
+      } catch (err) {
+        lastErr = err;
+        console.warn('[jsPDF CDN]', err.message);
+      }
+    }
+    if (!window.jspdf) {
+      console.warn('[jsPDF] Alle CDNs fehlgeschlagen:', lastErr && lastErr.message);
       return false;
     }
   }
   if (!window.jspdf || !window.jspdf.jsPDF) {
-    showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'error');
     return false;
   }
   const jsPDFClass = window.jspdf.jsPDF;
@@ -2739,16 +2751,47 @@ async function submitForm() {
   try {
     pdfOk = await generatePDF();
   } catch (err) {
-    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
-    return;
+    console.warn('[generatePDF]', err && err.message);
+    pdfOk = false;
   }
-  if (pdfOk === false) return;
 
-  // Show success message with instructions
+  // Show success message with instructions — auch bei PDF-Fehler,
+  // damit der Nutzer die Daten trotzdem per formsubmit senden kann
   showSubmitConfirmation();
+  if (pdfOk === false) {
+    applyPdfFailureFallback();
+  }
   } finally {
     _submitRunning = false;
   }
+}
+
+function applyPdfFailureFallback() {
+  const overlay = document.getElementById('submitOverlay');
+  if (!overlay) return;
+  // Icon-Box auf Warnung umstellen
+  const iconBox = overlay.querySelector('[style*="background:#e8f5e9"]');
+  if (iconBox) {
+    iconBox.style.background = '#fff3cd';
+    const span = iconBox.querySelector('span');
+    if (span) span.textContent = '⚠️';
+  }
+  // Titel + Beschreibung anpassen
+  const h2 = overlay.querySelector('h2');
+  if (h2) h2.textContent = 'PDF konnte nicht erstellt werden';
+  if (h2 && h2.nextElementSibling) {
+    h2.nextElementSibling.innerHTML = 'Die PDF-Bibliothek konnte nicht geladen werden (evtl. Netzwerk blockiert die CDN).<br>Sie können Ihre Formulardaten trotzdem direkt an die Kanzlei senden:';
+  }
+  // Primär-Button-Text anpassen
+  const sendLabel = overlay.querySelector('.sendLabel');
+  const sendSub = overlay.querySelector('.sendSub');
+  if (sendLabel) sendLabel.textContent = 'Formulardaten jetzt direkt senden';
+  if (sendSub) sendSub.textContent = 'Übermittlung ohne PDF-Anhang (als Tabelle im E-Mail-Text)';
+  // PDF-abhängige Optionen ausblenden
+  ['btnSendEmail', 'btnDownloadPdf', 'emlOpenHint'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 }
 
 function showSubmitConfirmation() {
