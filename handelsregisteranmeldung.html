@@ -1551,7 +1551,7 @@ async function generatePDF() {
 // SUBMIT FORM
 // ============================================================
 let _submitRunning = false;
-function submitForm() {
+async function submitForm() {
   const form = document.getElementById('mainForm');
 
   const requiredFields = form.querySelectorAll('[required]');
@@ -1576,8 +1576,10 @@ function submitForm() {
   if (_submitRunning) return;
   _submitRunning = true;
   try {
-    generatePDF();
+    await generatePDF();
     showSubmitConfirmation();
+  } catch(err) {
+    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
   } finally {
     _submitRunning = false;
   }

@@ -1706,7 +1706,13 @@ async function submitForm() {
     return;
   }
 
-  const pdfOk = await generatePDF();
+  let pdfOk = false;
+  try {
+    pdfOk = await generatePDF();
+  } catch(err) {
+    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
+    return;
+  }
   if (pdfOk === false) return;
 
   showSubmitConfirmation();

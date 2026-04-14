@@ -1482,12 +1482,12 @@ function generatePersonBlock(type, index) {
     <!-- Gesellschaft Fields -->
     <div id="${prefix}_gesellschaft_fields" style="display:none">
       <div class="field-group">
-        <label>Name der Gesellschaft</label>
-        <input type="text" name="${prefix}_ges_name">
+        <label>Name der Gesellschaft <span class="required">*</span></label>
+        <input type="text" name="${prefix}_ges_name" data-required>
       </div>
       <div class="field-group">
-        <label>Rechtsform</label>
-        <select name="${prefix}_ges_rechtsform">
+        <label>Rechtsform <span class="required">*</span></label>
+        <select name="${prefix}_ges_rechtsform" data-required>
           <option value="">Bitte auswählen</option>
           <option value="ag">Aktiengesellschaft (AG)</option>
           <option value="einzelunternehmen">Einzelunternehmen</option>
@@ -1507,8 +1507,8 @@ function generatePersonBlock(type, index) {
         </select>
       </div>
       <div class="field-group">
-        <label>Sitz der Gesellschaft</label>
-        <input type="text" name="${prefix}_ges_sitz">
+        <label>Sitz der Gesellschaft <span class="required">*</span></label>
+        <input type="text" name="${prefix}_ges_sitz" data-required>
       </div>
       <div class="field-row">
         <div class="field-group">
@@ -1520,7 +1520,7 @@ function generatePersonBlock(type, index) {
           <input type="text" name="${prefix}_ges_registernr">
         </div>
       </div>
-      
+
       <div class="subsection-title" style="font-size:1rem">Wird bei der Beurkundung vertreten durch:</div>
       <div class="field-group">
         <label>Anrede, Titel</label>
@@ -1528,18 +1528,18 @@ function generatePersonBlock(type, index) {
       </div>
       <div class="field-row">
         <div class="field-group">
-          <label>Vorname(n)</label>
-          <input type="text" name="${prefix}_vertr_vorname">
+          <label>Vorname(n) <span class="required">*</span></label>
+          <input type="text" name="${prefix}_vertr_vorname" data-required>
         </div>
         <div class="field-group">
-          <label>Nachname</label>
-          <input type="text" name="${prefix}_vertr_nachname">
+          <label>Nachname <span class="required">*</span></label>
+          <input type="text" name="${prefix}_vertr_nachname" data-required>
         </div>
       </div>
       <div class="field-group">
-        <label>Rolle</label>
+        <label>Rolle <span class="required">*</span></label>
         <span class="label-hint">z.B. Geschäftsführer, Prokurist, Bevollmächtigter</span>
-        <input type="text" name="${prefix}_vertr_rolle">
+        <input type="text" name="${prefix}_vertr_rolle" data-required>
       </div>
     </div>
     
@@ -1662,6 +1662,17 @@ function togglePersonType(prefix) {
   });
 }
 
+// Clear all inputs inside a container so that hidden data can never end up in the PDF
+function clearFieldsIn(container) {
+  if (!container) return;
+  container.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.type === 'radio' || el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  // Nested conditionals müssen ebenfalls geschlossen werden
+  container.querySelectorAll('.conditional.visible').forEach(c => c.classList.remove('visible'));
+}
+
 function toggleFamstand(prefix) {
   const val = document.querySelector(`[name="${prefix}_famstand"]`)?.value;
   const eheBlock = document.getElementById(`${prefix}_ehe`);
@@ -1670,6 +1681,7 @@ function toggleFamstand(prefix) {
       eheBlock.classList.add('visible');
     } else {
       eheBlock.classList.remove('visible');
+      clearFieldsIn(eheBlock);
     }
   }
 }
@@ -1678,8 +1690,12 @@ function toggleEheAusland(prefix) {
   const val = document.querySelector(`input[name="${prefix}_ehe_ausland"]:checked`)?.value;
   const details = document.getElementById(`${prefix}_ehe_ausland_details`);
   if (details) {
-    if (val === 'ja') details.classList.add('visible');
-    else details.classList.remove('visible');
+    if (val === 'ja') {
+      details.classList.add('visible');
+    } else {
+      details.classList.remove('visible');
+      clearFieldsIn(details);
+    }
   }
 }
 
@@ -1687,8 +1703,12 @@ function toggleDolmetscher(prefix) {
   const val = document.querySelector(`input[name="${prefix}_dolmetscher"]:checked`)?.value;
   const details = document.getElementById(`${prefix}_dolmetscher_details`);
   if (details) {
-    if (val === 'ja') details.classList.add('visible');
-    else details.classList.remove('visible');
+    if (val === 'ja') {
+      details.classList.add('visible');
+    } else {
+      details.classList.remove('visible');
+      clearFieldsIn(details);
+    }
   }
 }
 
@@ -2153,22 +2173,26 @@ function restoreForm() {
 // ============================================================
 async function generatePDF() {
   if (!window.jspdf) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('jsPDF konnte nicht geladen werden'));
+        // Timeout-Fallback, falls Laden hängt
+        setTimeout(() => reject(new Error('Zeitüberschreitung beim Laden der PDF-Bibliothek')), 15000);
+        document.head.appendChild(s);
+      });
+    } catch (err) {
+      showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'error');
+      return false;
+    }
   }
-  let jsPDFClass;
-  try {
-    jsPDFClass = window.jspdf.jsPDF;
-  } catch(e) {
-    showToast('PDF konnte nicht erstellt werden. Druckansicht wird geöffnet.', 'error');
-    window.print();
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    showToast('PDF-Bibliothek konnte nicht geladen werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'error');
     return false;
   }
+  const jsPDFClass = window.jspdf.jsPDF;
   const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   
   const pageW = doc.internal.pageSize.getWidth();
@@ -2257,13 +2281,29 @@ async function generatePDF() {
     y += rowH;
   }
   
+  function isVisible(el) {
+    if (!el) return false;
+    // Innerhalb eines nicht-sichtbaren .conditional-Containers?
+    const hiddenCond = el.closest('.conditional:not(.visible)');
+    if (hiddenCond) return false;
+    // Innerhalb eines per style display:none versteckten Containers?
+    let p = el.parentElement;
+    while (p) {
+      if (p.style && p.style.display === 'none') return false;
+      p = p.parentElement;
+    }
+    return true;
+  }
+
   function getVal(name) {
     const el = document.querySelector(`[name="${name}"]`);
     if (!el) return '';
     if (el.type === 'radio') {
       const checked = document.querySelector(`[name="${name}"]:checked`);
-      return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
+      if (!checked || !isVisible(checked)) return '';
+      return checked.parentElement.querySelector('span')?.textContent || checked.value;
     }
+    if (!isVisible(el)) return '';
     if (el.type === 'select-one') {
       return el.selectedOptions[0]?.text || '';
     }
@@ -2566,6 +2606,7 @@ async function generatePDF() {
   addField('Ausfüllende/r', getVal('ausfueller_name'));
   addField('E-Mail', getVal('ausfueller_email'));
   addField('Telefon', getVal('ausfueller_tel'));
+  addField('Bevorzugter Kontaktweg', getVal('kontaktweg'));
   addField('Beauftragung', getVal('beauftragung'));
   addField('Auftraggeber', getVal('auftraggeber'));
   addField('Versand an VK', getVal('versand_vk'));
@@ -2669,14 +2710,38 @@ async function submitForm() {
     }
   });
 
+  // Validate e-mail format on all filled email inputs (form has novalidate)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailFields = form.querySelectorAll('input[type="email"]');
+  let emailInvalid = false;
+  emailFields.forEach(f => {
+    const v = (f.value || '').trim();
+    if (v && !emailRegex.test(v)) {
+      f.style.borderColor = 'var(--error)';
+      if (!firstInvalid) firstInvalid = f;
+      emailInvalid = true;
+      valid = false;
+    }
+  });
+
   if (!valid) {
-    showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+    if (emailInvalid) {
+      showToast('Bitte geben Sie eine gültige E-Mail-Adresse ein.', 'error');
+    } else {
+      showToast('Bitte füllen Sie alle Pflichtfelder aus.', 'error');
+    }
     if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
-  
+
   // Generate PDF for secure local download
-  const pdfOk = await generatePDF();
+  let pdfOk = false;
+  try {
+    pdfOk = await generatePDF();
+  } catch (err) {
+    showToast('PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut.', 'error');
+    return;
+  }
   if (pdfOk === false) return;
 
   // Show success message with instructions
