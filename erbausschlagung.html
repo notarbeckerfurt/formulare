@@ -943,6 +943,7 @@ async function generatePDF() {
   // Dynamically load jsPDF from CDN if not present
   if (!window.jspdf) {
     const cdnUrls = [
+      'vendor/jspdf.umd.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
       'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js',
       'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js'
@@ -1481,7 +1482,16 @@ function sendDirectUpload(btn) {
     body: JSON.stringify(payload)
   })
   .then(response => {
-    return response.json().then(data => ({ status: response.status, ok: response.ok, data }));
+    // Robust gegen Nicht-JSON-Antworten (z. B. HTML-Fehlerseite bei Rate-Limit/Wartung)
+    return response.text().then(text => {
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { success: 'false', message: response.ok ? 'Unerwartete Antwort vom Server' : ('Server-Fehler ' + response.status) };
+      }
+      return { status: response.status, ok: response.ok, data };
+    });
   })
   .then(({ status, ok, data }) => {
     if (data.success === 'true' || data.success === true) {
@@ -1521,8 +1531,15 @@ function sendDirectUpload(btn) {
     statusDiv.style.color = '#664d03';
 
     const errMsg = error.message || '';
+    const errLc = errMsg.toLowerCase();
+    // Ausweich-Bereich automatisch aufklappen, damit die E-Mail-Alternative sofort sichtbar ist
+    const altDetails = document.querySelector('#submitOverlay details');
+    if (altDetails) altDetails.open = true;
+    const isNetworkBlock = errLc.includes('failed to fetch') || errLc.includes('load failed') || errLc.includes('networkerror') || errLc.includes('network error');
     if (errMsg.toLowerCase().includes('confirm') || errMsg.toLowerCase().includes('activate') || errMsg.toLowerCase().includes('verify')) {
       statusDiv.innerHTML = '\ud83d\udce7 <strong>Bitte E-Mail-Adresse best\u00e4tigen:</strong> Eine Best\u00e4tigungsmail wurde an die Kanzlei gesendet. Nach Best\u00e4tigung funktioniert die \u00dcbermittlung. Bitte versuchen Sie es danach erneut.';
+    } else if (isNetworkBlock) {
+      statusDiv.innerHTML = '⚠️ <strong>Die Direkt-Übermittlung wurde blockiert.</strong><br>Sehr wahrscheinlich verhindert ein Werbe-/Virenschutz, eine Browser-Erweiterung oder Ihr Netzwerk die Verbindung.<br>Bitte nutzen Sie die <strong>E-Mail-Variante unten</strong> – diese funktioniert immer.';
     } else {
       statusDiv.innerHTML = '\u26a0\ufe0f <strong>\u00dcbermittlung fehlgeschlagen</strong> (' + (errMsg || 'Unbekannter Fehler') + ').<br>Bitte versuchen Sie es erneut oder nutzen Sie eine der alternativen Methoden unten.';
     }
