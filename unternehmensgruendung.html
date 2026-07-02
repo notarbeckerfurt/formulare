@@ -735,7 +735,7 @@ input[type="radio"], input[type="checkbox"] {
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
       <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
-      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('gruendung_form');location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben löschen?')){try{localStorage.removeItem('gruendung_form')}catch(e){};location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -1248,7 +1248,8 @@ function saveForm() {
 }
 
 function loadForm(options = {}) {
-  const raw = localStorage.getItem('gruendung_form');
+  let raw = null;
+  try { raw = localStorage.getItem('gruendung_form'); } catch(e) {}
   if (!raw) return;
   try {
     const data = JSON.parse(raw);
@@ -1294,6 +1295,9 @@ document.getElementById('mainForm').addEventListener('input', () => {
 // PDF GENERATION (jsPDF inline)
 // ============================================================
 async function generatePDF() {
+  // Alte PDF-Daten verwerfen, damit bei einem Fehlschlag kein veraltetes PDF versendet wird
+  window.__lastPdfBlob = null;
+  window.__lastPdfBase64 = null;
   // Load jsPDF dynamically with multi-CDN fallback
   if (typeof jspdf === 'undefined' && typeof jsPDF === 'undefined') {
     const cdnUrls = [
@@ -1330,7 +1334,7 @@ async function generatePDF() {
 
 function getVal(name) {
   const el = document.querySelector(`[name="${name}"]`);
-  return el ? el.value.trim() : '';
+  return (el && el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el ? el.value.trim() : '');
 }
 
 function getRadio(name) {
@@ -1475,6 +1479,11 @@ async function buildPDF() {
       addField('Geburtsdatum', getVal(`${p}_geburtsdatum`));
       addField('Staatsangehörigkeit', getVal(`${p}_staat`));
       addField('Familienstand', getVal(`${p}_famstand`));
+      const famstandVal = document.querySelector(`[name="${p}_famstand"]`)?.value;
+      if (famstandVal === 'verheiratet' || famstandVal === 'lebenspartnerschaft') {
+        addField('Ehevertrag', getRadio(`${p}_ehevertrag`));
+        addField('Auslandsbezug der Ehe', getRadio(`${p}_auslandsbezug`));
+      }
       addField('Anschrift', [getVal(`${p}_anschrift`), getVal(`${p}_plz`), getVal(`${p}_ort`), getVal(`${p}_land`)].filter(Boolean).join(', '));
     }
     addField('E-Mail', getVal(`${p}_email`));
@@ -1485,6 +1494,13 @@ async function buildPDF() {
       addField('§ 181 BGB Befreiung', getRadio(`${p}_181`));
     }
     addField('Dolmetscher', getRadio(`${p}_dolmetscher`));
+    if (document.querySelector(`input[name="${p}_dolmetscher"]:checked`)?.value === 'ja') {
+      addField('Dolmetscher-Sprache', getVal(`${p}_dolmetscher_sprache`));
+    }
+    addField('Körperl. Einschränkung', getRadio(`${p}_einschraenkung`));
+    if (document.querySelector(`input[name="${p}_einschraenkung"]:checked`)?.value === 'ja') {
+      addField('Art der Einschränkung', getVal(`${p}_einschraenkung_text`));
+    }
     addField('PEP', getRadio(`${p}_pep`));
     addField('Fremde Rechnung', getRadio(`${p}_fremde_rechnung`));
   }
@@ -1523,6 +1539,9 @@ async function buildPDF() {
   addField('Auftraggeber', getVal('auftraggeber_name'));
   addField('E-Mail', getVal('auftraggeber_email'));
   addField('Telefon', getVal('auftraggeber_tel'));
+  if (getChecked('email_einverstaendnis')) {
+    addField('E-Mail-Kommunikation', 'Einverständnis mit unverschlüsselter E-Mail-Kommunikation erteilt (jederzeit widerruflich)');
+  }
   if (getChecked('beauftragung')) {
     addField('Beauftragung', 'Ich beauftrage den Notar, die Beurkundung der Gründung vorzubereiten. Mir ist bewusst, dass durch die Entwurfserstellung Kosten entstehen, auch wenn es nicht zur Beurkundung kommt.');
   }
@@ -1819,7 +1838,7 @@ function sendDirectUpload(btn) {
     const hiddenParent = el.closest('[style*="display: none"], [style*="display:none"]');
     if (hiddenParent) return;
     const readable = el.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
     if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
     fields[readable] = val;
@@ -1827,32 +1846,31 @@ function sendDirectUpload(btn) {
 
   const absenderName = getVal('auftraggeber_name') || 'Mandant';
 
-  const payload = {
-    _subject: 'Unternehmensgründung GmbH/UG – Formulardaten von ' + absenderName,
-    _template: 'table',
-    _captcha: 'false',
-    _replyto: (document.querySelector('[name="auftraggeber_email"]') || document.querySelector('[name$="_email"]') || {}).value || '',
-    'Absender': absenderName,
-    'Formular': 'Unternehmensgründung GmbH/UG',
-    'Eingangsdatum': new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    ...fields
-  };
+  // Formsubmit.co – Daten als multipart/form-data senden (nur so werden Dateianhänge unterstützt)
+  const formData = new FormData();
+  formData.append('_subject', 'Unternehmensgründung GmbH/UG – Formulardaten von ' + absenderName);
+  formData.append('_template', 'table');
+  formData.append('_captcha', 'false');
+  formData.append('_replyto', (document.querySelector('[name="auftraggeber_email"]') || document.querySelector('[name$="_email"]') || {}).value || '');
+  formData.append('Absender', absenderName);
+  formData.append('Formular', 'Unternehmensgründung GmbH/UG');
+  formData.append('Eingangsdatum', new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }));
+  Object.entries(fields).forEach(([key, val]) => formData.append(key, val));
 
-  // PDF als Base64-Anhang mitsenden, falls vorhanden
-  if (window.__lastPdfBase64) {
-    payload['_attachment'] = `data:application/pdf;base64,${window.__lastPdfBase64}`;
-    payload['_attachment_name'] = window.__lastPdfFileName || 'Gruendung_GmbH_UG.pdf';
+  // PDF als echten Dateianhang mitsenden, falls vorhanden
+  if (window.__lastPdfBlob) {
+    const pdfFile = new File([window.__lastPdfBlob], window.__lastPdfFileName || 'Gruendung_GmbH_UG.pdf', { type: 'application/pdf' });
+    formData.append('attachment', pdfFile);
   } else {
-    payload['Hinweis'] = 'PDF konnte nicht erzeugt werden – nur Formulardaten übermittelt.';
+    formData.append('Hinweis', 'PDF konnte nicht erzeugt werden – nur Formulardaten übermittelt.');
   }
 
   fetch('https://formsubmit.co/ajax/info@notar-beck-erfurt.de', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       'Accept': 'application/json'
     },
-    body: JSON.stringify(payload)
+    body: formData
   })
   .then(response => {
     // Robust gegen Nicht-JSON-Antworten (z. B. HTML-Fehlerseite bei Rate-Limit/Wartung)
@@ -2045,7 +2063,8 @@ function showCopySuccess(btn) {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   // Load saved person counts
-  const raw = localStorage.getItem('gruendung_form');
+  let raw = null;
+  try { raw = localStorage.getItem('gruendung_form'); } catch(e) {}
   if (raw) {
     try {
       const data = JSON.parse(raw);
@@ -2062,6 +2081,7 @@ document.addEventListener('DOMContentLoaded', () => {
   togglePersonCount('gruender');
   togglePersonCount('fremdgf');
   toggleConditional();
+  loadForm({ skipCountRadios: true });
 });
 </script>
 </body>

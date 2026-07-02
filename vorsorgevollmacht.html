@@ -731,7 +731,7 @@ input[type="radio"], input[type="checkbox"] {
     <div class="save-status" id="saveStatus">Nicht gespeichert</div>
     <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">&#128190; Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('vorsorgevollmacht_form');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){try{localStorage.removeItem('vorsorgevollmacht_form')}catch(e){};document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -889,7 +889,7 @@ function toggle(id, show) {
 
 function getValField(name) {
   const el = document.querySelector(`[name="${name}"]`);
-  return el ? el.value.trim() : '';
+  return (el && el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el ? el.value.trim() : '');
 }
 
 // ============================================================
@@ -951,7 +951,8 @@ function saveForm() {
 }
 
 function restoreForm() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
   if (!raw) return;
 
   try {
@@ -1141,9 +1142,9 @@ async function generatePDF() {
       return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
     }
     if (el.type === 'select-one') {
-      return el.selectedOptions[0]?.text || '';
+      return el.value ? (el.selectedOptions[0]?.text || '') : '';
     }
-    return el.value || '';
+    return (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el.value || '');
   }
 
   // ── HEADER ──
@@ -1233,6 +1234,7 @@ async function generatePDF() {
   if (document.querySelector('input[name="terminwunsch"]:checked')?.value !== 'kein') {
     addField('Wunschdatum', getVal('termin_datum'));
     addField('Uhrzeit', getVal('termin_uhrzeit'));
+    addField('Sonstige Terminwünsche', getVal('termin_sonstige'));
   }
 
   // Footer on each page
@@ -1409,7 +1411,7 @@ function showSubmitConfirmation() {
       <div style="border-top:1px solid #e8e4de;padding-top:1rem;margin-top:0.75rem;">
         <p style="font-size:0.8rem;color:#8a8a8a;margin-bottom:0.6rem;">Alternative Übermittlungswege:</p>
 
-        <button onclick="sendEmailWithAttachment(this)"
+        <button id="btnSendEmail" onclick="sendEmailWithAttachment(this)"
            style="display:flex;align-items:center;gap:0.6rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.7rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all 0.2s;"
            onmouseover="this.style.borderColor='#b8934e'" onmouseout="this.style.borderColor='#d4caba'">
           <span style="font-size:1.1rem;flex-shrink:0;" class="emailIcon">&#128231;</span>
@@ -1423,7 +1425,7 @@ function showSubmitConfirmation() {
           &#128161; <strong>Tipp:</strong> Die .eml-Datei wurde heruntergeladen. Bitte öffnen Sie die Datei – Ihr E-Mail-Programm (z.B. Outlook) startet automatisch mit einer vorausgefüllten E-Mail inkl. PDF-Anhang. Klicken Sie dort nur noch auf &bdquo;Senden&ldquo;.
         </div>
 
-        <button onclick="downloadPdfManual(this)"
+        <button id="btnDownloadPdf" onclick="downloadPdfManual(this)"
            style="display:flex;align-items:center;gap:0.6rem;width:100%;background:#f0ebe3;color:#142542;border:1.5px solid #d4caba;padding:0.7rem 1rem;border-radius:8px;margin-bottom:0.5rem;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all 0.2s;"
            onmouseover="this.style.borderColor='#b8934e'" onmouseout="this.style.borderColor='#d4caba'">
           <span style="font-size:1.1rem;flex-shrink:0;">&#128190;</span>
@@ -1518,7 +1520,7 @@ function sendDirectUpload(btn) {
     if (el.type === 'checkbox' && !el.checked) return;
     if (!el.value || el.value.trim() === '') return;
     const readable = el.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
     if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
     fields[readable] = val;
