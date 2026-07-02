@@ -1337,7 +1337,7 @@ Beurkundung kommt.</span>
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.5rem">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('ueberlassung_form');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){try{localStorage.removeItem('ueberlassung_form')}catch(e){};document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -1904,7 +1904,8 @@ function saveForm() {
 }
 
 function loadForm() {
-  const saved = localStorage.getItem('ueberlassung_form');
+  let saved = null;
+  try { saved = localStorage.getItem('ueberlassung_form'); } catch(e) {}
   if (!saved) return;
   try {
     const data = JSON.parse(saved);
@@ -1978,6 +1979,9 @@ document.getElementById('mainForm').addEventListener('input', () => {
 // GENERATE PDF
 // ============================================================
 async function generatePDF() {
+  // Alte PDF-Daten verwerfen, damit bei einem Fehlschlag kein veraltetes PDF versendet wird
+  window.__lastPdfBlob = null;
+  window.__lastPdfBase64 = null;
   if (!window.jspdf) {
     const cdnUrls = [
       'vendor/jspdf.umd.min.js',
@@ -2097,9 +2101,9 @@ async function generatePDF() {
       return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
     }
     if (el.type === 'select-one') {
-      return el.selectedOptions[0]?.text || '';
+      return el.value ? (el.selectedOptions[0]?.text || '') : '';
     }
-    return el.value || '';
+    return (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el.value || '');
   }
   
   function getRadio(name) {
@@ -2639,15 +2643,17 @@ function sendDirectUpload(btn) {
     const readable = el.name
       .replace(/_/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase())
-      .replace(/^(Uebergeber|Vk) /, 'Veräußerer: ')
-      .replace(/^(Erwerber|Ka) /, 'Erwerber: ')
+      .replace(/^(?:Uebergeber|Vk) (\d+) /, 'Veräußerer $1: ')
+      .replace(/^(?:Uebergeber|Vk) /, 'Veräußerer: ')
+      .replace(/^(?:Erwerber|Ka) (\d+) /, 'Erwerber $1: ')
+      .replace(/^(?:Erwerber|Ka) /, 'Erwerber: ')
       .replace(/^Ausfueller /, 'Absender: ')
       .replace(/^Immo /, 'Immobilie: ')
       .replace(/^Gb(\d+) Fs(\d+) /, 'Grundbuch $1, Flurstück $2: ')
       .replace(/^Gb(\d+) /, 'Grundbuch $1: ');
 
     // Bei Select: Text der Option statt Wert verwenden
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) {
       val = el.options[el.selectedIndex].text;
     }

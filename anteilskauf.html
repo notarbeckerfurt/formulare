@@ -694,7 +694,7 @@ input[type="radio"], input[type="checkbox"] {
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
       <button type="button" class="btn btn-sm btn-secondary" onclick="saveForm(); showToast('Gespeichert!', 'success')">&#128190; Speichern</button>
-      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben l\u00f6schen?')){localStorage.removeItem('notar_beck_anteilskauf');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zur&uuml;cksetzen</button>
+      <button type="button" class="btn btn-sm btn-secondary" onclick="if(confirm('Alle Eingaben l\u00f6schen?')){try{localStorage.removeItem('notar_beck_anteilskauf')}catch(e){};document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zur&uuml;cksetzen</button>
       <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()">&#128196; PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -975,7 +975,8 @@ function saveForm() {
 }
 
 function restoreForm() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
   if (!raw) return;
   try {
     const data = JSON.parse(raw);
@@ -1050,7 +1051,7 @@ async function generatePDF() {
 }
 function getVal(name) {
   const el = document.querySelector(`[name="${name}"]`);
-  return el ? el.value.trim() : '';
+  return (el && el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el ? el.value.trim() : '');
 }
 
 function getRadio(name) {
@@ -1320,14 +1321,14 @@ async function submitForm() {
     if (f.type === 'radio') {
       if (validatedRadioGroups.has(f.name)) return;
       validatedRadioGroups.add(f.name);
-      if (!document.querySelector()) {
-        form.querySelectorAll().forEach(r => {
+      if (!form.querySelector(`input[name="${f.name}"]:checked`)) {
+        form.querySelectorAll(`input[name="${f.name}"]`).forEach(r => {
           r.style.outline = '2px solid var(--error)';
         });
         if (!firstInvalid) firstInvalid = f;
         valid = false;
       } else {
-        form.querySelectorAll().forEach(r => {
+        form.querySelectorAll(`input[name="${f.name}"]`).forEach(r => {
           r.style.outline = '';
         });
       }
@@ -1571,7 +1572,7 @@ function sendDirectUpload(btn) {
       .replace(/^Ges /, 'Gesellschaft: ')
       .replace(/^Anteil /, 'Anteil: ')
       .replace(/^Ausfueller /, 'Absender: ');
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
     if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
     fields[readable] = val;
@@ -1782,7 +1783,8 @@ function showCopySuccess(btn) {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
   if (raw) {
     try {
       const data = JSON.parse(raw);
@@ -1799,6 +1801,7 @@ document.addEventListener('DOMContentLoaded', () => {
   togglePersonCount('verkaeufer');
   togglePersonCount('kaeufer');
   toggleConditional();
+  restoreForm();
 });
 </script>
 </body>

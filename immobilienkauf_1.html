@@ -1317,7 +1317,7 @@ input[type="radio"], input[type="checkbox"] {
     <div class="save-status" id="saveStatus">Nicht gespeichert</div>
     <div style="display:flex; gap:0.75rem; flex-wrap:wrap">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('notar_beck_immobilienkauf');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){try{localStorage.removeItem('notar_beck_immobilienkauf')}catch(e){};document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -1622,6 +1622,26 @@ function togglePersonCount(type) {
   const container = document.getElementById(`${type}_container`);
   const existing = container.querySelectorAll('.person-block');
   const currentCount = existing.length;
+
+  // Rückfrage, wenn wegfallende Blöcke bereits Eingaben enthalten
+  if (count < currentCount) {
+    let hasData = false;
+    for (let i = count + 1; i <= currentCount; i++) {
+      const block = document.getElementById(`${type}_${i}_block`);
+      if (!block) continue;
+      block.querySelectorAll('input:not([type=radio]):not([type=checkbox]), select, textarea').forEach(el => {
+        if (el.value && el.value.trim() !== '') hasData = true;
+      });
+    }
+    if (hasData) {
+      const label = type === 'vk' ? 'Verkäufer' : 'Käufer';
+      if (!confirm(`Achtung: Die Eingaben zu ${label} ${count + 1}${currentCount > count + 1 ? ' bis ' + currentCount : ''} gehen dabei verloren. Fortfahren?`)) {
+        const prevRadio = document.querySelector(`input[name="anz_${type}"][value="${currentCount}"]`);
+        if (prevRadio) prevRadio.checked = true;
+        return;
+      }
+    }
+  }
 
   // Remove excess blocks from the end
   for (let i = currentCount; i > count; i--) {
@@ -2097,7 +2117,8 @@ function saveForm() {
 }
 
 function restoreForm() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
   if (!raw) return;
   
   try {
@@ -2172,6 +2193,9 @@ function restoreForm() {
 // PDF GENERATION
 // ============================================================
 async function generatePDF() {
+  // Alte PDF-Daten verwerfen, damit bei einem Fehlschlag kein veraltetes PDF versendet wird
+  window.__lastPdfBlob = null;
+  window.__lastPdfBase64 = null;
   if (!window.jspdf) {
     const cdnUrls = [
       'vendor/jspdf.umd.min.js',
@@ -2318,9 +2342,9 @@ async function generatePDF() {
     }
     if (!isVisible(el)) return '';
     if (el.type === 'select-one') {
-      return el.selectedOptions[0]?.text || '';
+      return el.value ? (el.selectedOptions[0]?.text || '') : '';
     }
-    return el.value || '';
+    return (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el.value || '');
   }
   
   // ── HEADER ──
@@ -2988,11 +3012,11 @@ function sendDirectUpload(btn) {
       .replace(/\b\w/g, c => c.toUpperCase())
       .replace(/^Gb(\d+) Fs(\d+) /, 'Grundbuch $1, Flurstück $2: ')
       .replace(/^Gb(\d+) /, 'Grundbuch $1: ')
-      .replace(/^Vk(\d+) /, 'Verkäufer $1: ')
-      .replace(/^Ka(\d+) /, 'Käufer $1: ')
+      .replace(/^Vk (\d+) /, 'Verkäufer $1: ')
+      .replace(/^Ka (\d+) /, 'Käufer $1: ')
       .replace(/^Immo /, 'Immobilie: ')
       .replace(/^Ausfueller /, 'Absender: ');
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) val = el.options[el.selectedIndex].text;
     if (el.type === 'radio') { const span = el.parentElement?.querySelector('span'); if (span) val = span.textContent; }
     fields[readable] = val;

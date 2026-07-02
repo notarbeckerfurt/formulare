@@ -466,7 +466,7 @@ input[type="radio"], input[type="checkbox"] { accent-color: var(--primary); widt
     <span class="save-status" id="saveStatus">Nicht gespeichert</span>
     <div style="display:flex;gap:0.5rem">
       <button type="button" class="btn btn-secondary btn-sm" onclick="saveForm()">💾 Zwischenspeichern</button>
-      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){localStorage.removeItem('notar_beck_schenkung');document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="if(confirm('Alle Eingaben löschen?')){try{localStorage.removeItem('notar_beck_schenkung')}catch(e){};document.getElementById('mainForm').reset();location.replace(location.pathname)}">&#128465; Zurücksetzen</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="submitForm()">📄 PDF erstellen &amp; senden</button>
     </div>
   </div>
@@ -661,16 +661,56 @@ function addGrundbuchBlatt() {
 }
 
 function removeGrundbuchBlatt(idx) {
-  const block = document.getElementById(`gb${idx}_block`);
-  if (block) block.remove();
-  reindexGrundbuchBlaetter();
-  updateGbButtons();
-}
-
-function reindexGrundbuchBlaetter() {
+  // Daten aller verbleibenden Blätter sichern, dann mit fortlaufenden Indizes neu aufbauen
+  // (sonst entstehen nach dem Entfernen doppelte Feldnamen wie zweimal "gb3_amtsgericht")
   const container = document.getElementById('gb_container');
   const blocks = container.querySelectorAll('.person-block');
-  gbBlattCount = blocks.length;
+  const allData = [];
+  blocks.forEach(block => {
+    const blockId = block.id.replace('_block', '');
+    if (blockId === `gb${idx}`) return;
+    const blockData = {};
+    block.querySelectorAll('input, select, textarea').forEach(el => {
+      if (!el.name) return;
+      const baseName = el.name.replace(blockId, 'PLACEHOLDER');
+      if (el.type === 'radio') {
+        if (el.checked) blockData[baseName] = el.value;
+      } else if (el.type === 'checkbox') {
+        blockData[baseName] = el.checked;
+      } else {
+        blockData[baseName] = el.value;
+      }
+    });
+    const fsContainer = document.getElementById(`${blockId}_fs_container`);
+    blockData._fsCount = fsContainer ? fsContainer.querySelectorAll('.field-row-3').length : 1;
+    allData.push(blockData);
+  });
+
+  container.innerHTML = '';
+  gbBlattCount = 0;
+  allData.forEach((data, i) => {
+    const newIdx = i + 1;
+    gbBlattCount = newIdx;
+    container.insertAdjacentHTML('beforeend', generateGrundbuchBlatt(newIdx));
+    const newPrefix = `gb${newIdx}`;
+    for (let f = 2; f <= data._fsCount; f++) {
+      addFlurstuck(newIdx);
+    }
+    Object.entries(data).forEach(([baseName, value]) => {
+      if (baseName.startsWith('_')) return;
+      const realName = baseName.replace('PLACEHOLDER', newPrefix);
+      container.querySelectorAll(`[name="${realName}"]`).forEach(el => {
+        if (el.type === 'radio') {
+          el.checked = (el.value === value);
+        } else if (el.type === 'checkbox') {
+          el.checked = !!value;
+        } else {
+          el.value = value;
+        }
+      });
+    });
+  });
+  updateGbButtons();
 }
 
 function addFlurstuck(blattIdx) {
@@ -827,7 +867,10 @@ function saveForm() {
       data[el.name] = el.value;
     }
   });
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {
+    showToast('Speichern fehlgeschlagen: Browserspeicher ist voll oder blockiert.', 'error');
+    return;
+  }
   const status = document.getElementById('saveStatus');
   status.textContent = '✓ Gespeichert';
   status.classList.add('saved');
@@ -835,22 +878,31 @@ function saveForm() {
 }
 
 function loadForm() {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  let saved = null;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch(e) {}
   if (!saved) return;
   try {
     const data = JSON.parse(saved);
-    Object.keys(data).forEach(name => {
-      const el = document.querySelector(`[name="${name}"]`);
-      if (!el) return;
-      if (el.type === 'radio') {
-        const radio = document.querySelector(`[name="${name}"][value="${data[name]}"]`);
-        if (radio) radio.checked = true;
-      } else if (el.type === 'checkbox') {
-        el.checked = data[name];
-      } else {
-        el.value = data[name];
-      }
-    });
+    const applyData = () => {
+      Object.keys(data).forEach(name => {
+        const el = document.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        if (el.type === 'radio') {
+          const radio = document.querySelector(`[name="${name}"][value="${data[name]}"]`);
+          if (radio) radio.checked = true;
+        } else if (el.type === 'checkbox') {
+          el.checked = data[name];
+        } else {
+          el.value = data[name];
+        }
+      });
+    };
+    applyData();
+    // Personen-Blöcke gemäß gespeicherter Anzahl erzeugen, dann Werte erneut anwenden
+    // (sonst gehen Schenker/Beschenkter 2+ beim Wiederherstellen verloren)
+    togglePersonCount('schenker');
+    togglePersonCount('beschenkter');
+    applyData();
     toggleConditional();
 
     restoreGrundbuchBlaetter(data);
@@ -880,6 +932,9 @@ loadForm();
 // GENERATE PDF
 // ============================================================
 async function generatePDF() {
+  // Alte PDF-Daten verwerfen, damit bei einem Fehlschlag kein veraltetes PDF verwendet wird
+  window.__lastPdfBlob = null;
+  window.__lastPdfBase64 = null;
   if (!window.jspdf) {
     const cdnUrls = [
       'vendor/jspdf.umd.min.js',
@@ -999,9 +1054,9 @@ async function generatePDF() {
       return checked ? checked.parentElement.querySelector('span')?.textContent || checked.value : '';
     }
     if (el.type === 'select-one') {
-      return el.selectedOptions[0]?.text || '';
+      return el.value ? (el.selectedOptions[0]?.text || '') : '';
     }
-    return el.value || '';
+    return (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : (el.value || '');
   }
 
   function getRadio(name) {
@@ -1081,6 +1136,11 @@ async function generatePDF() {
     addField('Geburtsort', getVal(`${p}_geburtsort`));
     addField('Anschrift', [getVal(`${p}_strasse`), getVal(`${p}_plz`), getVal(`${p}_ort`)].filter(Boolean).join(', '));
     addField('Familienstand', getVal(`${p}_famstand`));
+    const famstandSchenker = document.querySelector(`[name="${p}_famstand"]`)?.value;
+    if (famstandSchenker === 'verheiratet' || famstandSchenker === 'lebenspartnerschaft') {
+      addField('Ehevertrag', getRadio(`${p}_ehevertrag`));
+      addField('Güterstand', getRadio(`${p}_gueterstand`));
+    }
     addField('Telefon', getVal(`${p}_tel`));
     addField('E-Mail', getVal(`${p}_email`));
     addField('Steuer-ID', getVal(`${p}_steuerid`));
@@ -1099,6 +1159,11 @@ async function generatePDF() {
     addField('Geburtsort', getVal(`${p}_geburtsort`));
     addField('Anschrift', [getVal(`${p}_strasse`), getVal(`${p}_plz`), getVal(`${p}_ort`)].filter(Boolean).join(', '));
     addField('Familienstand', getVal(`${p}_famstand`));
+    const famstandBesch = document.querySelector(`[name="${p}_famstand"]`)?.value;
+    if (famstandBesch === 'verheiratet' || famstandBesch === 'lebenspartnerschaft') {
+      addField('Ehevertrag', getRadio(`${p}_ehevertrag`));
+      addField('Güterstand', getRadio(`${p}_gueterstand`));
+    }
     addField('Telefon', getVal(`${p}_tel`));
     addField('E-Mail', getVal(`${p}_email`));
     addField('Steuer-ID', getVal(`${p}_steuerid`));
@@ -1163,15 +1228,19 @@ async function generatePDF() {
     window.__lastPdfFileName = pdfFileName;
 
     try {
-      const reader = new FileReader();
-      reader.onload = function() {
-        if (typeof reader.result === 'string' && reader.result.includes('base64,')) {
-          window.__lastPdfBase64 = reader.result.split('base64,')[1];
-        } else {
-          window.__lastPdfBase64 = null;
-        }
-      };
-      reader.readAsDataURL(pdfBlob);
+      await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function() {
+          if (typeof reader.result === 'string' && reader.result.includes('base64,')) {
+            window.__lastPdfBase64 = reader.result.split('base64,')[1];
+          } else {
+            window.__lastPdfBase64 = null;
+          }
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
     } catch(e) {
       window.__lastPdfBase64 = null;
     }
@@ -1426,7 +1495,7 @@ function sendDirectUpload(btn) {
       .replace(/^Beschenkter(\d+) /, 'Beschenkter $1: ')
       .replace(/^Ausfueller /, 'Absender: ');
 
-    let val = el.value;
+    let val = (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(el.value)) ? el.value.split('-').reverse().join('.') : el.value;
     if (el.type === 'select-one' && el.selectedIndex > 0) {
       val = el.options[el.selectedIndex].text;
     }
